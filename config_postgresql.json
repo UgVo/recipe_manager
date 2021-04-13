@@ -1,0 +1,8 @@
+{
+	"type" : "psql",
+	"host" : "192.168.1.52",
+	"port" : 5432,
+	"dbname" : "recipe",
+	"user" : "recipe_user",
+	"password" : "ananas poire patate"
+}
