@@ -1,0 +1,4 @@
+{
+	"type" : "sqlite",
+	"dbname" : "recipe_test.db"
+}
