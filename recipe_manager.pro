@@ -26,10 +26,10 @@ SOURCES += \
     utils/c_iomanager.cpp \
     utils/c_milestone.cpp \
     utils/c_note.cpp \
-    utils/c_planning.cpp \
     utils/c_recipe.cpp \
     utils/c_step.cpp \
-    utils/utils.cpp
+    utils/utils.cpp \
+    utils/c_process.cpp
 
 HEADERS += \
     c_mainwindow.h \
@@ -39,10 +39,10 @@ HEADERS += \
     utils/c_iomanager.h \
     utils/c_milestone.h \
     utils/c_note.h \
-    utils/c_planning.h \
     utils/c_recipe.h \
     utils/c_step.h \
-    utils/utils.h
+    utils/utils.h \
+    utils/c_process.h
 
 FORMS += \
     c_mainwindow.ui
