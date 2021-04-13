@@ -1,4 +1,6 @@
-QT       += core gui
+QT       += core gui \
+            sql \
+            network 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -17,16 +19,38 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    c_mainwindow.cpp
+    c_mainwindow.cpp \
+    utils/c_component.cpp \
+    utils/c_dbmanager.cpp \
+    utils/c_ingredient.cpp \
+    utils/c_iomanager.cpp \
+    utils/c_milestone.cpp \
+    utils/c_note.cpp \
+    utils/c_planning.cpp \
+    utils/c_recipe.cpp \
+    utils/c_step.cpp \
+    utils/utils.cpp
 
 HEADERS += \
-    c_mainwindow.h
+    c_mainwindow.h \
+    utils/c_component.h \
+    utils/c_dbmanager.h \
+    utils/c_ingredient.h \
+    utils/c_iomanager.h \
+    utils/c_milestone.h \
+    utils/c_note.h \
+    utils/c_planning.h \
+    utils/c_recipe.h \
+    utils/c_step.h \
+    utils/utils.h
 
 FORMS += \
     c_mainwindow.ui
 
 TRANSLATIONS += \
     recipe_manager_fr_FR.ts
+
+DESTDIR = $$PWD
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
