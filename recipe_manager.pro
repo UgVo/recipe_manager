@@ -20,6 +20,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     c_mainwindow.cpp \
+    ui/c_stepview.cpp \
     utils/c_component.cpp \
     utils/c_dbmanager.cpp \
     utils/c_ingredient.cpp \
@@ -33,6 +34,7 @@ SOURCES += \
 
 HEADERS += \
     c_mainwindow.h \
+    ui/c_stepview.h \
     utils/c_component.h \
     utils/c_dbmanager.h \
     utils/c_ingredient.h \
@@ -45,7 +47,8 @@ HEADERS += \
     utils/c_process.h
 
 FORMS += \
-    c_mainwindow.ui
+    c_mainwindow.ui \
+    ui/c_step_view.ui
 
 TRANSLATIONS += \
     recipe_manager_fr_FR.ts
@@ -56,3 +59,6 @@ DESTDIR = $$PWD
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    rsc/rsc.qrc

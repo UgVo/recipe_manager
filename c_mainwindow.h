@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "utils/utils.h"
 #include "utils/c_dbmanager.h"
+#include "ui/c_stepview.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class c_mainWindow; }
@@ -17,9 +18,13 @@ public:
     c_mainWindow(QWidget *parent = nullptr);
     ~c_mainWindow();
 
+    void test();
+
 private:
     Ui::c_mainWindow *ui;
     c_dbManager* dbmanager;
     c_ioManager* iomanager;
+
+    c_stepView *stepView;
 };
 #endif // C_MAINWINDOW_H
