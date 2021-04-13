@@ -34,15 +34,17 @@ private:
     Ui::c_stepView *ui;
     c_step* step;
     QList<QLabel*> imageSlots;
-    QList<QLabel*> imageSlotsCopy;
     QList<QPixmap> imageList;
     QRect rectInit;
     QRect rectEnd;
+    int hMax, wMax;
     bool showImage;
     int state;
-    QSize size_retracted;
 
     enum states{retracted,opening,opened,retracting};
+    static int maxHeightImage;
+    static int interimageSpace;
+    static int borderSize;
 };
 
 #endif // C_STEP_VIEW_H
