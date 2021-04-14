@@ -35,6 +35,8 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     ui->downButton->setFixedSize(ui->downButton->size());
     ui->downButton->move(QPoint(this->width(),0));
 
+    ui->newImageButton->hide();
+
     QList<QString> imageStringList = step->getImagesUrl();
     for (QList<QString>::iterator it = imageStringList.begin(); it != imageStringList.end() ; ++it ) {
         imageList.push_back(QPixmap(*it));
@@ -50,7 +52,10 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     ui->rankButton->move(borderSize,borderSize);
 
+    this->setBackgroundRole(QPalette::Background);
+
     state = states::retracted;
+    imageNumberChanged = false;
 }
 
 c_stepView::~c_stepView() {
@@ -68,23 +73,9 @@ void c_stepView::slot_triggerShowImages() {
     showImage = !showImage;
     if (showImage) {
         state = states::transition;
-        rectInit = this->rect();
-
-        int heightEnd = borderSize + interImageSpace*2 + std::max(ui->rankButton->height(),ui->label->height()) + hMax  + ui->showButton->size().height();
-        int totalWidth = 0;
         for (int i = 0; i < imageSlots.size(); ++i) {
-            totalWidth += imageSlots[i]->size().width();
-        }
-        QPoint point((this->size().width() - borderSize - totalWidth - ((imageSlots.size()-1)*interImageSpace))/2 ,borderSize*2 + std::max(ui->rankButton->height(),ui->label->height()));
-        for (int i = 0; i < imageSlots.size(); ++i) {
-            imageSlots[i]->move(point);
             imageSlots[i]->show();
-            point += QPoint(imageSlots[i]->size().width() + interImageSpace,0);
         }
-        ui->widgetButton->raise();
-        rectEnd = rectInit;
-        rectEnd.setSize(QSize(rectEnd.size().width(), heightEnd));
-
         openImageSlot();
     } else {
         state = states::transition;
@@ -100,9 +91,9 @@ void c_stepView::resizeEvent(QResizeEvent */*event*/) {
 
             // label
             QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
-            ui->label->setFixedWidth(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton -4 );
-            ui->label->setFixedHeight(getHeightText()+4);
-            ui->label->move(ui->rankButton->width()+borderSize*2+2,borderSize+2);
+            ui->label->setFixedWidth(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton);
+            ui->label->setFixedHeight(getHeightText()+8);
+            ui->label->move(ui->rankButton->width()+borderSize*2,borderSize);
             ui->label->setReadOnly(true);
 
             // rank button
@@ -121,13 +112,19 @@ void c_stepView::resizeEvent(QResizeEvent */*event*/) {
 
             // format images
             int maxW = this->size().width()/imageSlots.size() - (imageSlots.size()+1)*interImageSpace - 2*borderSize;
+            int totalWidth = 0;
+            hMax = 0;
+            wMax = 0;
             for (int i = 0; i < imageSlots.size(); ++i) {
+                saveImageShift.push_back(QPoint());
+                saveImageSize.push_back(QSize());
                 image = imageList[i].scaledToWidth(maxW,Qt::SmoothTransformation);
                 if (image.size().height() <= maxHeightImage) {
                     imageSlots[i]->setFixedHeight(image.size().height());
                     imageSlots[i]->setFixedWidth(image.size().width());
                     imageSlots[i]->setPixmap(image);
                     imageSlots[i]->setBackgroundRole(QPalette::Base);
+                    imageSlots[i]->setScaledContents(true);
                     imageSlots[i]->hide();
                 } else {
                     image = imageList[i].scaledToHeight(maxHeightImage,Qt::SmoothTransformation);
@@ -135,17 +132,21 @@ void c_stepView::resizeEvent(QResizeEvent */*event*/) {
                     imageSlots[i]->setFixedWidth(image.size().width());
                     imageSlots[i]->setPixmap(image);
                     imageSlots[i]->setBackgroundRole(QPalette::Base);
+                    imageSlots[i]->setScaledContents(true);
                     imageSlots[i]->hide();
                 }
-            }
-            hMax = 0;
-            wMax = 0;
-            for (int i = 0; i < imageSlots.size() ; ++i ) {
                 if (imageSlots[i]->size().width() > wMax)
                     wMax = imageSlots[i]->size().width();
                 if (imageSlots[i]->size().height() > hMax)
                     hMax = imageSlots[i]->size().height();
+                totalWidth += imageSlots[i]->size().width();
             }
+            QPoint point((this->size().width() - borderSize - totalWidth - ((imageSlots.size()-1)*interImageSpace))/2 ,borderSize*2 + std::max(ui->rankButton->height(),ui->label->height()));
+            for (int i = 0; i < imageSlots.size(); ++i) {
+                imageSlots[i]->move(point);
+                point += QPoint(imageSlots[i]->size().width() + interImageSpace,0);
+            }
+            ui->widgetButton->raise();
             break;
         }
         case states::opened : {
@@ -160,7 +161,7 @@ void c_stepView::resizeEvent(QResizeEvent */*event*/) {
 
 void c_stepView::openImageSlot() {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    group->addAnimation(growAnimation(this,hMax+borderSize));
+    group->addAnimation(growAnimation(this,QSize(0,hMax+borderSize)));
     group->addAnimation(slideAnimation(ui->showButton,QPoint(0,hMax+borderSize)));
 
     for (int i = 0; i < imageSlots.size(); ++i) {
@@ -173,7 +174,7 @@ void c_stepView::openImageSlot() {
 
 void c_stepView::closeImageSlot() {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    group->addAnimation(growAnimation(this,-(hMax+borderSize)));
+    group->addAnimation(growAnimation(this,QSize(0,-(hMax+borderSize))));
     group->addAnimation(slideAnimation(ui->showButton,QPoint(0,-(hMax+borderSize))));
 
     for (int i = 0; i < imageSlots.size(); ++i) {
@@ -202,9 +203,62 @@ void c_stepView::editStepAnimationOn() {
 
     QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
     ui->label->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
-    ui->label->setFixedWidth(ui->label->width()+2);
+    ui->label->setFixedWidth(ui->label->width());
 
-    ui->label->move(ui->rankButton->width()+borderSize*2+1,borderSize+1);
+    ui->label->move(ui->rankButton->width()+borderSize*2,borderSize);
+
+    if (metrics.height()*2+ui->label->height() > ui->rankButton->height()) {
+        slideDistance = ui->rankButton->height() - metrics.height()*2;
+        group->addAnimation(growAnimation(ui->label,QSize(0,slideDistance)));
+
+        int lateralShift = 0;
+        int hMaxLocal = 0;
+        for (int i = 0; i < imageSlots.size(); ++i) {
+            lateralShift = (imageSlots[i]->pos().x()-borderSize)/(imageSlots.size()+1);
+            group->addAnimation(slideAnimation(imageSlots[i],QPoint(-lateralShift,slideDistance)));
+            imageSlots[i]->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+            group->addAnimation(growAnimation(imageSlots[i],(imageSlots[i]->size()/(imageSlots.size()+1))*(-1)));
+            saveImageShift[i] = QPoint(lateralShift,0);
+            saveImageSize[i] = imageSlots[i]->size()/(imageSlots.size()+1);
+            if ((imageSlots[i]->size().height() - (imageSlots[i]->size()/(imageSlots.size()+1)).height()) > hMaxLocal)
+                hMaxLocal = (imageSlots[i]->size().height() - (imageSlots[i]->size()/(imageSlots.size()+1)).height());
+        }
+        saveDeltaSizeimage = hMax-hMaxLocal;
+        slideDistance -= (state==states::opened?saveDeltaSizeimage:0);
+        group->addAnimation(growAnimation(this,QSize(0,slideDistance)));
+        group->addAnimation(slideAnimation(ui->showButton,QPoint(0,slideDistance)));
+        finalLabelHeight += metrics.height()*2;
+
+        int x,y,h,w;
+        x = imageSlots.last()->pos().x() + (this->size().width() - imageSlots.last()->pos().x())/2;
+        y = imageSlots.last()->pos().y() + imageSlots.last()->size().height()/2;
+        h = (imageSlots.last()->size() - imageSlots.last()->size()/(imageSlots.size()+1)).height();
+        w = (imageSlots.last()->size() - imageSlots.last()->size()/(imageSlots.size()+1)).width();
+        ui->newImageButton->move(x,y);
+        ui->newImageButton->show();
+        group->addAnimation(slideAnimation(ui->newImageButton,QPoint(-(w/2 - borderSize),-(h/2- borderSize))));
+
+        QPropertyAnimation *animation = new QPropertyAnimation(ui->newImageButton, "size");
+        animation->setDuration(1000);
+        animation->setStartValue(QSize(0,0));
+        animation->setEndValue(QSize(w,h));
+        animation->setEasingCurve(QEasingCurve::InOutQuart);
+        group->addAnimation(animation);
+
+    } else {
+        group->addAnimation(growAnimation(ui->label,QSize(0,ui->rankButton->height() - ui->label->height())));
+        finalLabelHeight += ui->rankButton->height() - ui->label->height();
+
+        int lateralShift = 0;
+        for (int i = 0; i < imageSlots.size(); ++i) {
+            lateralShift = (imageSlots[i]->pos().x()-borderSize)/(imageSlots.size()+1);
+            group->addAnimation(slideAnimation(imageSlots[i],QPoint(-lateralShift,0)));
+            imageSlots[i]->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+            group->addAnimation(growAnimation(imageSlots[i],(imageSlots[i]->size()/(imageSlots.size()+1))*(-1)));
+            saveImageShift[i] = QPoint(lateralShift,0);
+            saveImageSize[i] = imageSlots[i]->size()/(imageSlots.size()+1);
+        }
+    }
 
     interButton = (finalLabelHeight - ui->saveButton->height() - ui->cancelButton->height())/3;
     ui->saveButton->move(QPoint(-ui->saveButton->width(),borderSize+interButton));
@@ -212,32 +266,6 @@ void c_stepView::editStepAnimationOn() {
     interButton = (finalLabelHeight - ui->upButton->height() - ui->downButton->height())/3;
     ui->upButton->move(QPoint(this->width(),borderSize+interButton));
     ui->downButton->move(QPoint(this->width(),borderSize+2*interButton+ui->upButton->height()));
-
-    if (metrics.height()*2+ui->label->height() > ui->rankButton->height()) {
-        slideDistance = ui->rankButton->height() - metrics.height()*2;
-
-        group->addAnimation(growAnimation(this,slideDistance));
-        group->addAnimation(slideAnimation(ui->showButton,QPoint(0,slideDistance)));
-        group->addAnimation(growAnimation(ui->label,metrics.height()*2));
-
-        finalLabelHeight += metrics.height()*2;
-
-//        for (int i = 0; i < imageSlots.size(); ++i) {
-//            QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(imageSlots[i]);
-//            imageSlots[i]->setGraphicsEffect(effect);
-//            QPropertyAnimation *animation = new QPropertyAnimation(effect, "opacity");
-//            animation->setDuration(1000);
-//            animation->setStartValue(0.0);
-//            animation->setEndValue(1.0);
-//            animation->setEasingCurve(QEasingCurve::InOutQuart);
-//            group->addAnimation(animation);
-//        }
-
-    } else {
-        group->addAnimation(growAnimation(ui->label,ui->rankButton->height() - ui->label->height()));
-
-        finalLabelHeight += ui->rankButton->height() - ui->label->height();
-    }
 
     group->addAnimation(slideAnimation(ui->rankButton,QPoint(ui->rankButton->width()+borderSize,0)));
     group->addAnimation(slideAnimation(ui->saveButton,QPoint(ui->saveButton->width()+borderSize,0)));
@@ -274,12 +302,22 @@ void c_stepView::editStepAnimationOff() {
     int slide = 0;
     slide = ui->label->height()-newHeightLabel-8;
     if (newHeightLabel > ui->rankButton->height()) {
-        group->addAnimation(growAnimation(ui->label,-slide));
-        group->addAnimation(growAnimation(this,-slide));
-        group->addAnimation(slideAnimation(ui->showButton,QPoint(0,-slide)));
-    } else {
-        group->addAnimation(growAnimation(ui->label,-slide));
+
+        for (int i = 0; i < imageSlots.size(); ++i) {
+            if (imageNumberChanged) {
+                group->addAnimation(slideAnimation(imageSlots[i],QPoint(0,-slide)));
+                imageSlots[i]->setFixedSize(imageSlots[i]->size());
+            } else {
+                group->addAnimation(slideAnimation(imageSlots[i],QPoint(0,-slide)+saveImageShift[i]));
+                group->addAnimation(growAnimation(imageSlots[i],saveImageSize[i]));
+            }
+        }
+        int resize = slide - (imageNumberChanged?0:saveDeltaSizeimage);
+        qDebug() << slide<< resize;
+        group->addAnimation(growAnimation(this,QSize(0,-resize)));
+        group->addAnimation(slideAnimation(ui->showButton,QPoint(0,-resize)));
     }
+    group->addAnimation(growAnimation(ui->label,QSize(0,-slide)));
 
     group->addAnimation(slideAnimation(ui->upButton,QPoint(ui->upButton->width()+borderMenuButton + (ui->menuButton->width()-ui->upButton->width())/2,0)));
     group->addAnimation(slideAnimation(ui->downButton,QPoint(ui->downButton->width()+borderMenuButton + (ui->menuButton->width()-ui->downButton->width())/2,0)));
@@ -293,14 +331,14 @@ void c_stepView::editStepAnimationOff() {
 void c_stepView::endStepAnimationOff(int _state) {
     ui->label->setReadOnly(true);
     ui->label->setStyleSheet("QTextEdit {"
-                             "  border : 0px solid black;"
+                             "  border : 1px solid white;"
                              "  background: transparent;"
                              "}");
     ui->label->raise();
     ui->label->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
-    ui->label->setFixedWidth(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton -4 );
+    ui->label->setFixedWidth(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton );
 
-    ui->label->move(ui->rankButton->width()+borderSize*2+2,borderSize+2);
+    ui->label->move(ui->rankButton->width()+borderSize*2,borderSize);
     this->endTransition(_state);
 }
 
@@ -347,8 +385,8 @@ void c_stepView::editAreaSizeChanged(int increment) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
     QRect rect;
 
-    group->addAnimation(growAnimation(ui->label,increment));
-    group->addAnimation(growAnimation(this,increment));
+    group->addAnimation(growAnimation(ui->label,QSize(0,increment)));
+    group->addAnimation(growAnimation(this,QSize(0,increment)));
     group->addAnimation(slideAnimation(ui->showButton,QPoint(0,increment)));
 
     int nextState = state;
@@ -402,6 +440,7 @@ QPropertyAnimation *c_stepView::slideAnimation(QWidget *parent, QPoint slide) {
     animation->setDuration(1000);
     rect = parent->rect();
     rect.setTopLeft(parent->pos());
+    qDebug() << parent->pos() << parent->pos() + slide;
     animation->setStartValue(rect);
     rect.setTopLeft(parent->pos() + slide);
     animation->setEndValue(rect);
@@ -410,11 +449,11 @@ QPropertyAnimation *c_stepView::slideAnimation(QWidget *parent, QPoint slide) {
     return animation;
 }
 
-QPropertyAnimation *c_stepView::growAnimation(QWidget *parent, int growth) {
+QPropertyAnimation *c_stepView::growAnimation(QWidget *parent, QSize growth) {
     QPropertyAnimation *animation = new QPropertyAnimation(parent, "size");
     animation->setDuration(1000);
     animation->setStartValue(parent->size());
-    animation->setEndValue(parent->size() + QSize(0,growth));
+    animation->setEndValue(parent->size() + growth);
 
     animation->setEasingCurve(QEasingCurve::InOutQuart);
 
@@ -431,4 +470,24 @@ QPropertyAnimation *c_stepView::fadeAnimation(QWidget *parent, bool up) {
     animation->setEasingCurve(QEasingCurve::InOutQuart);
 
     return animation;
+}
+
+QList<QPropertyAnimation *> c_stepView::arrangeImagesEdit(QPoint verticalShift) {
+    QList<QPropertyAnimation*> res;
+    float sizeAvailable = float(this->width() - 2*borderSize - (imageSlots.size()-1)*interImageSpace);
+    float sizeAvailableAfter = float(this->width() - 2*borderSize - (imageSlots.size())*interImageSpace)*float(imageSlots.size())/float(imageSlots.size()+1);
+    float ratio = sizeAvailableAfter/sizeAvailable;
+    QPoint shift;
+    QPoint point = imageSlots[0]->pos() + verticalShift;
+    for (int i = 0; i < imageSlots.size(); ++i) {
+        imageSlots[i]->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+        QSize growth(-int((1.0f-ratio)*float(imageSlots[i]->width())),-int((1.0f-ratio)*float(imageSlots[i]->height())));
+        //res.push_back(growAnimation(imageSlots[i],growth));
+        //qDebug() << growth << imageSlots[i]->size() << point;
+        qDebug() << i;
+        shift = point - imageSlots[i]->pos();
+        res.push_back(slideAnimation(imageSlots[i],shift));
+        point.setX(interImageSpace + imageSlots[i]->width() - growth.width() + point.x());
+    }
+    return res;
 }

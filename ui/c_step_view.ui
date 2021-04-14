@@ -79,7 +79,7 @@
    </property>
    <property name="styleSheet">
     <string notr="true">QTextEdit {
-	border : 0px solid black;
+	border : 1px solid white;
 	background: transparent;
 }</string>
    </property>
@@ -202,6 +202,19 @@
    </property>
    <property name="text">
     <string>↑</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="newImageButton">
+   <property name="geometry">
+    <rect>
+     <x>520</x>
+     <y>170</y>
+     <width>80</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>New Image</string>
    </property>
   </widget>
  </widget>

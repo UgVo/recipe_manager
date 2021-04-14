@@ -25,6 +25,7 @@ public:
 
     void setRank(int rank);
 
+    QList<QPropertyAnimation *> arrangeImagesEdit(QPoint verticalShift);
 public slots:
     void slot_triggerShowImages();
     void resizeEvent(QResizeEvent *event);
@@ -56,19 +57,25 @@ private:
     int getHeightText();
     void lockSize(bool flag);
     QPropertyAnimation *slideAnimation(QWidget *parent, QPoint slide);
-    QPropertyAnimation *growAnimation(QWidget *parent, int growth);
+    QPropertyAnimation *growAnimation(QWidget *parent, QSize growth);
     QPropertyAnimation *fadeAnimation(QWidget *parent, bool up);
+    QPropertyAnimation *homothetyAnimation(QWidget * parent, QRect end);
+
 
     Ui::c_stepView *ui;
     c_step* step;
     QList<QLabel*> imageSlots;
     QList<QPixmap> imageList;
+    QList<QPoint> saveImageShift;
+    QList<QSize> saveImageSize;
+    int saveDeltaSizeimage;
     QRect rectInit;
     QRect rectEnd;
     int hMax, wMax;
     bool showImage;
     int state;
     int rankEdit;
+    bool imageNumberChanged;
 
     enum states{retracted,opened,transition};
     static int maxHeightImage;
