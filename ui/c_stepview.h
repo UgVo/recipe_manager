@@ -7,6 +7,8 @@
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QGraphicsOpacityEffect>
+#include <QTextBlock>
+#include <QMenu>
 #include <utils/c_step.h>
 
 namespace Ui {
@@ -21,16 +23,42 @@ public:
     explicit c_stepView(c_step *step, QWidget *parent = nullptr);
     ~c_stepView();
 
+    void setRank(int rank);
+
 public slots:
     void slot_triggerShowImages();
     void resizeEvent(QResizeEvent *event);
 
-    void openImageSlot(QRect sizeInit, QRect sizeEnd);
-    void endOpen();
+    void openImageSlot();
     void closeImageSlot();
-    void endClose();
+
+    void editStepAnimationOn();
+    void editStepAnimationOff();
+
+    void endStepAnimationOff(int state);
+
+    void editSaved();
+    void editCanceled();
+
+    void upEdit();
+    void downEdit();
+
+    void editAreaSizeChanged(int increment);
+
+    void endTransition(int state);
+
+signals:
+    void new_rank(int newRank);
+    void saved(c_step* step);
 
 private:
+
+    int getHeightText();
+    void lockSize(bool flag);
+    QPropertyAnimation *slideAnimation(QWidget *parent, QPoint slide);
+    QPropertyAnimation *growAnimation(QWidget *parent, int growth);
+    QPropertyAnimation *fadeAnimation(QWidget *parent, bool up);
+
     Ui::c_stepView *ui;
     c_step* step;
     QList<QLabel*> imageSlots;
@@ -40,11 +68,15 @@ private:
     int hMax, wMax;
     bool showImage;
     int state;
+    int rankEdit;
 
-    enum states{retracted,opening,opened,retracting};
+    enum states{retracted,opened,transition};
     static int maxHeightImage;
-    static int interimageSpace;
+    static int interImageSpace;
     static int borderSize;
+    static int showButtonHeight;
+    static int borderMenuButton;
+
 };
 
 #endif // C_STEP_VIEW_H
