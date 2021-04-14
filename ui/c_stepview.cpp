@@ -207,9 +207,29 @@ void c_stepView::editStepAnimationOn() {
 
     ui->label->move(ui->rankButton->width()+borderSize*2,borderSize);
 
+    int hMaxLocal = 0;
+    float widthTotal = 0;
     if (metrics.height()*2+ui->label->height() > ui->rankButton->height()) {
         slideDistance = ui->rankButton->height() - metrics.height()*2;
         group->addAnimation(growAnimation(ui->label,QSize(0,slideDistance)));
+
+        // resize and move the images to include image button
+        QList<QPropertyAnimation*> res = arrangeImagesEdit(QPoint(0,slideDistance));
+        qDebug() << res.size();
+        for (int i = 0; i < res.size(); ++i) {
+            group->addAnimation(res[i]);
+        }
+
+        for (int i = 0; i < imageSlots.size(); ++i) {
+            if (int(float(imageSlots[i]->size().height())*ratio) > hMaxLocal)
+                hMaxLocal = (imageSlots[i]->size().height() - (imageSlots[i]->size()/(imageSlots.size()+1)).height());
+            widthTotal += float(imageSlots[i]->size().width())*ratio;
+        }
+        finalLabelHeight += metrics.height()*2;
+
+    } else {
+        group->addAnimation(growAnimation(ui->label,QSize(0,ui->rankButton->height() - ui->label->height())));
+        finalLabelHeight += ui->rankButton->height() - ui->label->height();
 
         QList<QPropertyAnimation*> res = arrangeImagesEdit(QPoint(0,slideDistance));
         qDebug() << res.size();
@@ -217,52 +237,37 @@ void c_stepView::editStepAnimationOn() {
             group->addAnimation(res[i]);
         }
 
-        int hMaxLocal = 0;
-        float widthTotal = 0;
         for (int i = 0; i < imageSlots.size(); ++i) {
             if (int(float(imageSlots[i]->size().height())*ratio) > hMaxLocal)
                 hMaxLocal = (imageSlots[i]->size().height() - (imageSlots[i]->size()/(imageSlots.size()+1)).height());
             widthTotal += float(imageSlots[i]->size().width())*ratio;
         }
-
-        int x,y,h,w;
-        x = int(widthTotal) + borderSize + (imageSlots.size()-1)*interImageSpace + imageSlots[0]->pos().x();
-        y = imageSlots.last()->pos().y() + slideDistance;
-        h = hMaxLocal;
-        w = int(float(imageSlots[0]->width()) * ratio);
-        ui->newImageButton->move(x,y);
-        if (state == states::opened)
-            ui->newImageButton->show();
-
-        QPropertyAnimation *animation = new QPropertyAnimation(ui->newImageButton, "size");
-        animation->setDuration(1000);
-        animation->setStartValue(QSize(0,0));
-        animation->setEndValue(QSize(w,h));
-        animation->setEasingCurve(QEasingCurve::InOutQuart);
-        group->addAnimation(animation);
-
-        saveDeltaSizeimage = hMax-hMaxLocal;
-        int slide = slideDistance - (state==states::opened?saveDeltaSizeimage:0);
-
-        group->addAnimation(growAnimation(this,QSize(0,slide)));
-        group->addAnimation(slideAnimation(ui->showButton,QPoint(0,slide)));
-        finalLabelHeight += metrics.height()*2;
-
-    } else {
-        group->addAnimation(growAnimation(ui->label,QSize(0,ui->rankButton->height() - ui->label->height())));
-        finalLabelHeight += ui->rankButton->height() - ui->label->height();
-
-        int lateralShift = 0;
-        for (int i = 0; i < imageSlots.size(); ++i) {
-            lateralShift = (imageSlots[i]->pos().x()-borderSize)/(imageSlots.size()+1);
-            group->addAnimation(slideAnimation(imageSlots[i],QPoint(-lateralShift,0)));
-            imageSlots[i]->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
-            group->addAnimation(growAnimation(imageSlots[i],(imageSlots[i]->size()/(imageSlots.size()+1))*(-1)));
-            saveImageShift[i] = QPoint(lateralShift,0);
-            saveImageSize[i] = imageSlots[i]->size()/(imageSlots.size()+1);
-        }
     }
 
+    saveDeltaSizeimage = hMax-hMaxLocal;
+    int slide = slideDistance - (state==states::opened?saveDeltaSizeimage:0);
+
+    group->addAnimation(growAnimation(this,QSize(0,slide)));
+    group->addAnimation(slideAnimation(ui->showButton,QPoint(0,slide)));
+
+    // New image button
+    int x,y,h,w;
+    x = int(widthTotal) + borderSize + (imageSlots.size()-1)*interImageSpace + imageSlots[0]->pos().x();
+    y = imageSlots.last()->pos().y() + slideDistance;
+    h = hMaxLocal;
+    w = int(float(imageSlots[0]->width()) * ratio);
+    ui->newImageButton->move(x,y);
+    if (state == states::opened)
+        ui->newImageButton->show();
+
+    QPropertyAnimation *animation = new QPropertyAnimation(ui->newImageButton, "size");
+    animation->setDuration(1000);
+    animation->setStartValue(QSize(0,0));
+    animation->setEndValue(QSize(w,h));
+    animation->setEasingCurve(QEasingCurve::InOutQuart);
+    group->addAnimation(animation);
+
+    // Other buttons handeling
     interButton = (finalLabelHeight - ui->saveButton->height() - ui->cancelButton->height())/3;
     ui->saveButton->move(QPoint(-ui->saveButton->width(),borderSize+interButton));
     ui->cancelButton->move(QPoint(-ui->cancelButton->width(),borderSize+2*interButton + ui->saveButton->height()));
