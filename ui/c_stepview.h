@@ -56,7 +56,7 @@ private:
 
     int getHeightText();
     void lockSize(bool flag);
-    QPropertyAnimation *slideAnimation(QWidget *parent, QPoint slide);
+    QPropertyAnimation *slideAnimation(QWidget *parent, QPoint slide, QSize growth = QSize());
     QPropertyAnimation *growAnimation(QWidget *parent, QSize growth);
     QPropertyAnimation *fadeAnimation(QWidget *parent, bool up);
     QPropertyAnimation *homothetyAnimation(QWidget * parent, QRect end);
@@ -76,6 +76,7 @@ private:
     int state;
     int rankEdit;
     bool imageNumberChanged;
+    float ratio;
 
     enum states{retracted,opened,transition};
     static int maxHeightImage;
