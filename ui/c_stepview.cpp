@@ -298,7 +298,7 @@ void c_stepView::editStepAnimationOff() {
     group->addAnimation(fadeAnimation(ui->menuButton,true));
 
     int nextState = state;
-    QObject::connect(group,&QParallelAnimationGroup::finished,[=] () {endStepAnimationOff(nextState);});
+    QObject::connect(group,&QParallelAnimationGroup::finished,[=] () {endStepAnimationOff(states::opened);});
     state = states::transition;
     mode = modes::display;
     group->start(QAbstractAnimation::DeleteWhenStopped);
