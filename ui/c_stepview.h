@@ -28,7 +28,7 @@ public:
 
     void setRank(int rank);
 
-    QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift,bool update = false);
+    QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift, bool update = false, int time = 1000);
     QList<QPropertyAnimation *> arrangeImagesEditOff(QPoint verticalShift);
 
 public slots:
@@ -49,6 +49,7 @@ public slots:
     void upEdit();
     void downEdit();
 
+    void slotTextModified();
     void editAreaSizeChanged(int increment);
 
     void endTransition(int state);
@@ -67,8 +68,8 @@ private:
 
     int getHeightText();
     void lockSize(bool flag);
-    QPropertyAnimation *slideAnimation(QWidget *parent, QPoint slide, QSize growth = QSize());
-    QPropertyAnimation *growAnimation(QWidget *parent, QSize growth);
+    QPropertyAnimation *slideAnimation(QWidget *parent, QPoint slide, QSize growth = QSize(), int time = 1000);
+    QPropertyAnimation *growAnimation(QWidget *parent, QSize growth, int time = 1000);
     QPropertyAnimation *fadeAnimation(QWidget *parent, bool up);
 
     QList<QPoint> arrangeImages(bool mode = modes::display, QPoint verticalShift = QPoint());

@@ -20,6 +20,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     ui->label->append(step->getDescription());
     ui->label->setAlignment(Qt::AlignJustify);
+    QObject::connect(ui->label,&QTextEdit::textChanged,this,&c_stepView::slotTextModified);
 
     ui->rankButton->setText(QString("%1").arg(step->getRank()));
     rankEdit = step->getRank();
@@ -297,7 +298,6 @@ void c_stepView::editStepAnimationOff() {
     group->addAnimation(slideAnimation(ui->cancelButton,QPoint(-(ui->cancelButton->width()+borderSize),0)));
     group->addAnimation(fadeAnimation(ui->menuButton,true));
 
-    int nextState = state;
     QObject::connect(group,&QParallelAnimationGroup::finished,[=] () {endStepAnimationOff(states::opened);});
     state = states::transition;
     mode = modes::display;
@@ -386,35 +386,54 @@ void c_stepView::downEdit() {
     emit new_rank(rankEdit);
 }
 
+void c_stepView::slotTextModified() {
+    QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
+    if (ui->label->height() - getHeightText() < metrics.height()) {
+        editAreaSizeChanged(metrics.height());
+    }
+    if (ui->label->height() - getHeightText() > 3*metrics.height()) {
+        editAreaSizeChanged(-metrics.height());
+    }
+}
+
 void c_stepView::editAreaSizeChanged(int increment) {
     lockSize(false);
 
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
     QRect rect;
 
-    group->addAnimation(growAnimation(ui->label,QSize(0,increment)));
-    group->addAnimation(growAnimation(this,QSize(0,increment)));
-    group->addAnimation(slideAnimation(ui->showButton,QPoint(0,increment)));
+    group->addAnimation(growAnimation(ui->label,QSize(0,increment),250));
+    group->addAnimation(growAnimation(this,QSize(0,increment),250));
+    group->addAnimation(slideAnimation(ui->showButton,QPoint(0,increment),QSize(),250));
 
-    int nextState = state;
-    QObject::connect(group,&QParallelAnimationGroup::finished,[=] () {endTransition(nextState);});
+    QList<QPropertyAnimation*> arrangedImages = arrangeImagesEditOn(QPoint(0,increment),true,250);
+    for (int i = 0; i < arrangedImages.size(); ++i) {
+        group->addAnimation(arrangedImages[i]);
+    }
+
+    QList<QPropertyAnimation*> deletebuttons = enableDeleteButtons(false);
+    for (int i = 0; i < deletebuttons.size(); ++i) {
+        group->addAnimation(deletebuttons[i]);
+    }
+
+    QObject::connect(group,&QParallelAnimationGroup::finished,[=] () {endTransition(states::opened);});
     state = states::transition;
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void c_stepView::endTransition(int _state) {
-    if (mode == modes::edition) {
-        enableDeleteButtons(true);
-    } else {
-        enableDeleteButtons(false);
-    }
-
     switch (_state) {
     case states::opened :
+        if (mode == modes::edition) {
+            enableDeleteButtons(true);
+        } else {
+            enableDeleteButtons(false);
+        }
         state = states::opened;
         this->setFixedSize(this->size());
         break;
     case states::retracted :
+        enableDeleteButtons(false);
         state = states::retracted;
         this->setFixedSize(this->size());
         for (int i = 0; i < imageSlots.size(); ++i) {
@@ -553,11 +572,11 @@ void c_stepView::lockSize(bool flag) {
     }
 }
 
-QPropertyAnimation *c_stepView::slideAnimation(QWidget *parent, QPoint slide, QSize growth) {
+QPropertyAnimation *c_stepView::slideAnimation(QWidget *parent, QPoint slide, QSize growth, int time) {
     QRect rect;
     QSize size;
     QPropertyAnimation *animation = new QPropertyAnimation(parent,"geometry");
-    animation->setDuration(1000);
+    animation->setDuration(time);
     rect = parent->rect();
     size = parent->size();
     rect.setTopLeft(parent->pos());
@@ -571,9 +590,9 @@ QPropertyAnimation *c_stepView::slideAnimation(QWidget *parent, QPoint slide, QS
     return animation;
 }
 
-QPropertyAnimation *c_stepView::growAnimation(QWidget *parent, QSize growth) {
+QPropertyAnimation *c_stepView::growAnimation(QWidget *parent, QSize growth, int time) {
     QPropertyAnimation *animation = new QPropertyAnimation(parent, "size");
-    animation->setDuration(1000);
+    animation->setDuration(time);
     animation->setStartValue(parent->size());
     animation->setEndValue(parent->size() + growth);
 
@@ -594,7 +613,7 @@ QPropertyAnimation *c_stepView::fadeAnimation(QWidget *parent, bool up) {
     return animation;
 }
 
-QList<QPropertyAnimation *> c_stepView::arrangeImagesEditOn(QPoint verticalShift, bool update) {
+QList<QPropertyAnimation *> c_stepView::arrangeImagesEditOn(QPoint verticalShift, bool update, int time) {
     QList<QPropertyAnimation*> res;
     QList<QPoint> newPos = arrangeImages(modes::edition,verticalShift);
     qDebug() << newPos;
@@ -609,16 +628,17 @@ QList<QPropertyAnimation *> c_stepView::arrangeImagesEditOn(QPoint verticalShift
             sizeButtonsEnd = addImageButtons[i]->size();
          } else {
             sizeButtonsEnd = QSize(int(float(maxSizeImage.width())*ratio),int(float(getImagesMaxHeigth())*ratio));
-         }
             addImageButtons[i]->move(newPos[i]);
+         }
             addImageButtons[i]->lower();
 
             QPropertyAnimation *animation = new QPropertyAnimation( addImageButtons[i], "geometry");
-            animation->setDuration(1000);
+            animation->setDuration(time);
             rect = addImageButtons[i]->rect();
             rect.setTopLeft(addImageButtons[i]->pos());
             rect.setSize(sizeButtonStart);
             animation->setStartValue(rect);
+            rect.setTopLeft(newPos[i]);
             rect.setSize(sizeButtonsEnd);
             animation->setEndValue(rect);
             animation->setEasingCurve(QEasingCurve::InOutQuart);
@@ -630,12 +650,11 @@ QList<QPropertyAnimation *> c_stepView::arrangeImagesEditOn(QPoint verticalShift
                 growth = QSize(-int((1.0f-ratio)*float(imageSlots[i]->width())),-int((1.0f-ratio)*float(imageSlots[i]->height())));
             }
             shift = newPos[i] - imageSlots[i]->pos();
-            res.push_back(slideAnimation(imageSlots[i],shift,growth));
+            res.push_back(slideAnimation(imageSlots[i],shift,growth,time));
             addImageButtons[i]->hide();
         } else if (i < imageSlots.size() + newImageSlots.size()) {
             shift = newPos[i] - newImageSlots[i-imageSlots.size()]->pos();
-            qDebug() << "[arrangeImagesEditOn] shift :" << shift;
-            res.push_back(slideAnimation(newImageSlots[i-imageSlots.size()],shift,growth));
+            res.push_back(slideAnimation(newImageSlots[i-imageSlots.size()],shift,growth,time));
             addImageButtons[i]->hide();
         } else {
             addImageButtons[i]->show();
