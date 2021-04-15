@@ -57,6 +57,9 @@ public slots:
     void handleAddImage();
     void handleDeleteImage();
 
+    void slotAddNote();
+    void slotShowNotes();
+
 signals:
     void new_rank(int newRank);
     void saved(c_step* step);

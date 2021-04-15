@@ -60,7 +60,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     QMenu *menu = new QMenu();
     menu->addAction("Edit",this,&c_stepView::editStepAnimationOn);
     menu->addAction("Delete");
-    menu->addAction("Add note");
+    menu->addAction("Add note",this,&c_stepView::slotAddNote);
 
     ui->menuButton->setMenu(menu);
     ui->rankButton->move(borderSize,borderSize);
@@ -122,6 +122,14 @@ void c_stepView::resizeEvent(QResizeEvent */*event*/) {
 
             // menu button
             ui->menuButton->move(this->width()-borderMenuButton-ui->menuButton->width(),borderSize);
+
+            // note button
+            ui->noteButton->move(this->width()- borderMenuButton- (ui->menuButton->width() + ui->noteButton->width())/2 , 2*borderSize + ui->menuButton->height() );
+            if (step->getNotes().isEmpty()) {
+                ui->noteButton->hide();
+            } else {
+                ui->noteButton->show();
+            }
 
             int heightMin = borderSize*2 + std::max(ui->rankButton->height(),ui->label->height()) + ui->showButton->height();
             this->setFixedHeight(heightMin);
@@ -556,6 +564,18 @@ void c_stepView::handleDeleteImage() {
     state = states::transition;
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void c_stepView::slotAddNote() {
+    if (step->getNotes().isEmpty()) {
+        ui->noteButton->hide();
+    } else {
+        ui->noteButton->show();
+    }
+}
+
+void c_stepView::slotShowNotes() {
+
 }
 
 int c_stepView::getHeightText() {
