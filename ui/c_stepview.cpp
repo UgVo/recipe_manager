@@ -39,6 +39,10 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     ui->newImageButton->hide();
 
     QList<QString> imageStringList = step->getImagesUrl();
+    while (imageStringList.size() > maxNumberImages) {
+        imageStringList.removeLast();
+    }
+
     for (QList<QString>::iterator it = imageStringList.begin(); it != imageStringList.end() ; ++it ) {
         imageList.push_back(QPixmap(*it));
         imageSlots.push_back(new QLabel(this));
