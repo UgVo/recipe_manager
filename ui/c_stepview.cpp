@@ -562,7 +562,7 @@ void c_stepView::handleDeleteImage() {
     }
     QObject::connect(group,&QParallelAnimationGroup::finished,[=] () {endTransition(states::opened);});
     state = states::transition;
-
+    enableDeleteButtons(false);
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
