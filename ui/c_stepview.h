@@ -8,7 +8,10 @@
 #include <QParallelAnimationGroup>
 #include <QGraphicsOpacityEffect>
 #include <QTextBlock>
+#include <QPushButton>
 #include <QMenu>
+#include <QFileDialog>
+#include <QElapsedTimer>
 #include <utils/c_step.h>
 
 namespace Ui {
@@ -25,7 +28,9 @@ public:
 
     void setRank(int rank);
 
-    QList<QPropertyAnimation *> arrangeImagesEdit(QPoint verticalShift);
+    QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift);
+    QList<QPropertyAnimation *> arrangeImagesEditOff(QPoint verticalShift);
+
 public slots:
     void slot_triggerShowImages();
     void resizeEvent(QResizeEvent *event);
@@ -48,42 +53,52 @@ public slots:
 
     void endTransition(int state);
 
+    void handleAddimage();
+
 signals:
     void new_rank(int newRank);
     void saved(c_step* step);
 
 private:
 
+    enum states{retracted,opened,transition};
+    enum modes{edition,display};
+
     int getHeightText();
     void lockSize(bool flag);
     QPropertyAnimation *slideAnimation(QWidget *parent, QPoint slide, QSize growth = QSize());
     QPropertyAnimation *growAnimation(QWidget *parent, QSize growth);
     QPropertyAnimation *fadeAnimation(QWidget *parent, bool up);
-    QPropertyAnimation *homothetyAnimation(QWidget * parent, QRect end);
 
+    QList<QPoint> arrangeImages(bool mode = modes::display, QPoint verticalShift = QPoint());
+    int getImagesMaxHeigth();
 
     Ui::c_stepView *ui;
     c_step* step;
     QList<QLabel*> imageSlots;
     QList<QPixmap> imageList;
+    QList<QLabel*> newImageSlots;
+    QList<QPixmap> newImageList;
     QList<QPoint> saveImageShift;
     QList<QSize> saveImageSize;
+    QList<float> ratioImages;
+    QList<QPushButton*> addImageButtons;
     int saveDeltaSizeimage;
     QRect rectInit;
     QRect rectEnd;
-    int hMax, wMax;
     bool showImage;
     int state;
     int rankEdit;
     bool imageNumberChanged;
     float ratio;
 
-    enum states{retracted,opened,transition};
     static int maxHeightImage;
+    static QSize maxSizeImage;
     static int interImageSpace;
     static int borderSize;
     static int showButtonHeight;
     static int borderMenuButton;
+    static int maxNumberImages;
 
 };
 
