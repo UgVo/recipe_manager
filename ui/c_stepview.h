@@ -28,7 +28,7 @@ public:
 
     void setRank(int rank);
 
-    QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift);
+    QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift,bool update = false);
     QList<QPropertyAnimation *> arrangeImagesEditOff(QPoint verticalShift);
 
 public slots:
@@ -53,7 +53,8 @@ public slots:
 
     void endTransition(int state);
 
-    void handleAddimage();
+    void handleAddImage();
+    void handleDeleteImage();
 
 signals:
     void new_rank(int newRank);
@@ -71,7 +72,8 @@ private:
     QPropertyAnimation *fadeAnimation(QWidget *parent, bool up);
 
     QList<QPoint> arrangeImages(bool mode = modes::display, QPoint verticalShift = QPoint());
-    int getImagesMaxHeigth();
+    QList<QPropertyAnimation*> enableDeleteButtons(bool flag);
+    int getImagesMaxHeigth(bool flag = true);
 
     Ui::c_stepView *ui;
     c_step* step;
@@ -79,17 +81,15 @@ private:
     QList<QPixmap> imageList;
     QList<QLabel*> newImageSlots;
     QList<QPixmap> newImageList;
-    QList<QPoint> saveImageShift;
-    QList<QSize> saveImageSize;
-    QList<float> ratioImages;
+    QList<QLabel*> oldImageSlots;
+    QList<QPixmap> oldImagesList;
     QList<QPushButton*> addImageButtons;
+    QList<QPushButton*> deleteButtons;
+
     int saveDeltaSizeimage;
-    QRect rectInit;
-    QRect rectEnd;
-    bool showImage;
     int state;
+    int mode;
     int rankEdit;
-    bool imageNumberChanged;
     float ratio;
 
     static int maxHeightImage;
