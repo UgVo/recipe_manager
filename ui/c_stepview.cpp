@@ -59,7 +59,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     QMenu *menu = new QMenu();
     menu->addAction("Edit",this,&c_stepView::editStepAnimationOn);
-    menu->addAction("Delete");
+    menu->addAction("Delete",this,&c_stepView::slotDelete);
     menu->addAction("Add note",this,&c_stepView::slotAddNote);
 
     ui->menuButton->setMenu(menu);
@@ -566,6 +566,10 @@ void c_stepView::handleDeleteImage() {
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
+void c_stepView::slotDelete() {
+    emit toDelete(this);
+}
+
 void c_stepView::slotAddNote() {
     if (step->getNotes().isEmpty()) {
         ui->noteButton->hide();
@@ -813,4 +817,8 @@ int c_stepView::getImagesMaxHeigth(bool flag) {
         }
     }
     return max;
+}
+
+c_step *c_stepView::getStep() const {
+    return step;
 }

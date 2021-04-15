@@ -31,6 +31,8 @@ public:
     QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift, bool update = false, int time = 1000);
     QList<QPropertyAnimation *> arrangeImagesEditOff(QPoint verticalShift);
 
+    c_step *getStep() const;
+
 public slots:
     void slot_triggerShowImages();
     void resizeEvent(QResizeEvent *event);
@@ -57,12 +59,14 @@ public slots:
     void handleAddImage();
     void handleDeleteImage();
 
+    void slotDelete();
     void slotAddNote();
     void slotShowNotes();
 
 signals:
     void new_rank(int newRank);
     void saved(c_step* step);
+    void toDelete(c_stepView *widget);
 
 private:
 
