@@ -79,11 +79,11 @@ private:
     Ui::c_stepView *ui;
     c_step* step;
     QList<QLabel*> imageSlots;
-    QList<QPixmap> imageList;
+    QList<QString> imageList;
     QList<QLabel*> newImageSlots;
-    QList<QPixmap> newImageList;
+    QList<QString> newImageList;
     QList<QLabel*> oldImageSlots;
-    QList<QPixmap> oldImagesList;
+    QList<QString> oldImagesList;
     QList<QPushButton*> addImageButtons;
     QList<QPushButton*> deleteButtons;
 

@@ -44,7 +44,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     }
 
     for (QList<QString>::iterator it = imageStringList.begin(); it != imageStringList.end() ; ++it ) {
-        imageList.push_back(QPixmap(*it));
+        imageList.push_back(*it);
         imageSlots.push_back(new QLabel(this));
     }
 
@@ -133,7 +133,7 @@ void c_stepView::resizeEvent(QResizeEvent */*event*/) {
                 maxW = maxW>maxSizeImage.width()?maxSizeImage.width():maxW;
                 QSize labelsize(maxW>maxSizeImage.width()?maxSizeImage.width():maxW,maxSizeImage.height());
                 for (int i = 0; i < imageSlots.size(); ++i) {
-                    image = imageList[i].scaled(labelsize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                    image = QPixmap(imageList[i]).scaled(labelsize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
                     imageSlots[i]->setFixedHeight(image.size().height());
                     imageSlots[i]->setFixedWidth(image.size().width());
                     imageSlots[i]->setPixmap(image);
@@ -328,6 +328,8 @@ void c_stepView::editSaved() {
     imageList.append(newImageList);
     imageSlots.append(newImageSlots);
 
+    step->setImagesUrl(imageList);
+
     newImageList.clear();
     newImageSlots.clear();
 
@@ -464,7 +466,7 @@ void c_stepView::handleAddImage() {
         if (!pix.isNull()) {
             QParallelAnimationGroup *group = new QParallelAnimationGroup;
 
-            newImageList.push_back(pix);
+            newImageList.push_back(fileName);
             newImageSlots.push_back(new QLabel(this));
 
             int maxW = (this->size().width() - (newImageSlots.size()-1)*interImageSpace - 2*borderSize)/newImageSlots.size();
