@@ -7,7 +7,7 @@
 
 namespace recipe
 {
-    enum unit {g,L,cuillere,pincee,none};
+    enum unit {g,L,dL,cL,mL,cuillere,pincee,none};
     extern QMap<int,QString> unitToString;
 }
 

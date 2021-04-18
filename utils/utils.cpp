@@ -8,6 +8,9 @@ namespace recipe {
     QMap<int,QString> unitToString {
         {unit::g,"g"},
         {unit::L,"L"},
+        {unit::dL,"dL"},
+        {unit::cL,"cL"},
+        {unit::mL,"mL"},
         {unit::cuillere,QObject::tr("cuillère")},
         {unit::pincee,QObject::tr("pincée")},
         {unit::none,""}
