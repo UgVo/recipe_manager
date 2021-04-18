@@ -13,7 +13,7 @@ class c_step
 public:
     c_step(int rank = 0, QString description = QString(), QList<QString> imagesUrl = QList<QString>(),
             QList<QString> equipments = QList<QString>(), QList<c_component> components = QList<c_component>(),
-            QList<c_note> notes = QList<c_note>(),int id = -1 );
+            QList<c_note> notes = QList<c_note>(), QList<c_process> processings = QList<c_process>(), int id = -1 );
     ~c_step();
     c_step(const c_step &other);
 
@@ -38,7 +38,10 @@ public:
     void setImagesUrlStr(const QString &value);
 
     QList<c_note> getNotes() const;
+    QList<c_note*> getNotesPtr();
     void setNotes(const QList<c_note> &value);
+    c_note* addNote(const c_note value);
+    void deleteNote(const c_note value);
 
     c_step &operator=(const c_step &other);
     bool operator==(const c_step &other) const;

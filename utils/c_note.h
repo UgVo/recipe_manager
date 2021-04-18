@@ -8,7 +8,7 @@
 class c_note
 {
 public:
-    c_note(QString text, QDateTime date = QDateTime::currentDateTime() , int id = -1);
+    c_note(QString text = "", QDateTime date = QDateTime::currentDateTime() , int id = -1);
 
     int getId() const;
     void setId(int value);

@@ -1,9 +1,10 @@
 #include "c_step.h"
 #include "c_dbmanager.h"
 
-c_step::c_step(int _rank, QString _description, QList<QString> _imagesUrl, QList<QString> _equipments, QList<c_component> _components, QList<c_note> _notes, int _id)
-    : id(_id), rank(_rank), components(_components), equipments(_equipments), description(_description), imagesUrl(_imagesUrl), notes(_notes) {
+c_step::c_step(int _rank, QString _description, QList<QString> _imagesUrl, QList<QString> _equipments, QList<c_component> _components, QList<c_note> _notes, QList<c_process> _processings, int _id)
+    : id(_id), rank(_rank), components(_components), equipments(_equipments), description(_description), imagesUrl(_imagesUrl), notes(_notes), processings(_processings) {
     complete = true;
+    std::sort(notes.begin(),notes.end());
 }
 
 c_step::~c_step() {
@@ -19,6 +20,7 @@ c_step::c_step(const c_step &other) {
     description = other.getDescription();
     imagesUrl = other.getImagesUrl();
     notes = other.getNotes();
+    std::sort(notes.begin(),notes.end());
 }
 
 int c_step::getId() const {
@@ -87,8 +89,28 @@ QList<c_note> c_step::getNotes() const {
     return notes;
 }
 
+QList<c_note *> c_step::getNotesPtr() {
+    QList<c_note*> res;
+    for (int i = 0; i < notes.size(); ++i) {
+        res.push_back(&(notes[i]));
+    }
+    return res;
+}
+
 void c_step::setNotes(const QList<c_note> &value) {
     notes = value;
+    std::sort(notes.begin(),notes.end());
+}
+
+c_note *c_step::addNote(const c_note value) {
+    notes.append(value);
+    c_note* ptr = &notes.last();
+    std::sort(notes.begin(),notes.end());
+    return ptr;
+}
+
+void c_step::deleteNote(const c_note value){
+    notes.removeOne(value);
 }
 
 QList<c_process> c_step::getProcessings() const {

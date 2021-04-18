@@ -67,12 +67,17 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     ratio = 1.0f;
 
+    noteDialog = new c_notesDialog(step->getNotesPtr(),this);
+    noteDialog->hide();
+    QObject::connect(ui->noteButton,&QPushButton::released,this,&c_stepView::slotShowNotes);
+
     state = states::retracted;
     mode = modes::display;
 }
 
 c_stepView::~c_stepView() {
     delete ui;
+    delete noteDialog;
 }
 
 void c_stepView::setRank(int rank) {
@@ -100,7 +105,7 @@ void c_stepView::slot_triggerShowImages() {
     }
 }
 
-void c_stepView::resizeEvent(QResizeEvent */*event*/) {
+void c_stepView::resizeEvent(QResizeEvent *) {
     QPixmap image;
     switch (state) {
         case states::retracted : {
@@ -109,7 +114,7 @@ void c_stepView::resizeEvent(QResizeEvent */*event*/) {
             // label
             QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
             ui->label->setFixedWidth(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton);
-            ui->label->setFixedHeight(getHeightText()+8);
+            ui->label->setFixedHeight(getHeightText());
             ui->label->move(ui->rankButton->width()+borderSize*2,borderSize);
             ui->label->setReadOnly(true);
 
@@ -579,7 +584,15 @@ void c_stepView::slotAddNote() {
 }
 
 void c_stepView::slotShowNotes() {
+    noteDialog->exec();
+}
 
+c_note *c_stepView::addNoteToStep(c_note* newNote) {
+    return step->addNote(*newNote);
+}
+
+void c_stepView::deleteNote(c_note *note) {
+    step->deleteNote(*note);
 }
 
 int c_stepView::getHeightText() {

@@ -13,6 +13,7 @@
 #include <QFileDialog>
 #include <QElapsedTimer>
 #include <utils/c_step.h>
+#include "c_notesdialog.h"
 
 namespace Ui {
 class c_stepView;
@@ -32,6 +33,9 @@ public:
     QList<QPropertyAnimation *> arrangeImagesEditOff(QPoint verticalShift);
 
     c_step *getStep() const;
+
+    c_note* addNoteToStep(c_note *newNote);
+    void deleteNote(c_note *note);
 
 public slots:
     void slot_triggerShowImages();
@@ -63,6 +67,7 @@ public slots:
     void slotAddNote();
     void slotShowNotes();
 
+
 signals:
     void new_rank(int newRank);
     void saved(c_step* step);
@@ -93,6 +98,8 @@ private:
     QList<QString> oldImagesList;
     QList<QPushButton*> addImageButtons;
     QList<QPushButton*> deleteButtons;
+
+    c_notesDialog *noteDialog;
 
     int saveDeltaSizeimage;
     int state;
