@@ -20,6 +20,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     c_mainwindow.cpp \
+    ui/c_image.cpp \
     ui/c_notesdialog.cpp \
     ui/c_noteview.cpp \
     ui/c_stepview.cpp \
@@ -36,6 +37,7 @@ SOURCES += \
 
 HEADERS += \
     c_mainwindow.h \
+    ui/c_image.h \
     ui/c_notesdialog.h \
     ui/c_noteview.h \
     ui/c_stepview.h \
@@ -52,6 +54,7 @@ HEADERS += \
 
 FORMS += \
     c_mainwindow.ui \
+    ui/c_image.ui \
     ui/c_notesdialog.ui \
     ui/c_noteview.ui \
     ui/c_step_view.ui
