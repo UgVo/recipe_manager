@@ -15,6 +15,34 @@ c_image::c_image(QString _pathImage, QWidget *_parent) :
 
     QObject::connect(ui->addButton,&QPushButton::clicked,this,&c_image::addButtonClicked);
     QObject::connect(ui->deleteButton,&QPushButton::clicked,this,&c_image::deleteButtonClicked);
+
+    if (static_cast<c_stepView*>(parent())) {
+        int width = static_cast<c_stepView*>(parent())->width();
+        int count = static_cast<c_stepView*>(parent())->countImage();
+
+        computeSizes(width,count);
+
+        ui->addButton->setFixedSize(imageSizes[recipe::modes::display] );
+        this->setFixedSize(imageSizes[recipe::modes::display] );
+        ui->deleteButton->move(QPoint(imageSizes[recipe::modes::display] .width()-ui->deleteButton->width(),0));
+
+        if (!pathImage.isEmpty()) {
+            image = QPixmap(pathImage).scaled(imageSizes[recipe::modes::display], Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            ui->imageLabel->setFixedSize(image.size());
+            ui->imageLabel->setPixmap(image);
+            ui->imageLabel->setBackgroundRole(QPalette::Base);
+            ui->imageLabel->setScaledContents(true);
+            this->setFixedSize(image.size());
+
+            ui->imageLabel->show();
+            ui->addButton->hide();
+            ui->deleteButton->hide();
+        } else {
+            ui->imageLabel->hide();
+            ui->addButton->show();
+            ui->deleteButton->hide();
+        }
+    }
 }
 
 c_image::~c_image() {
@@ -25,6 +53,10 @@ QPixmap c_image::getImage() const {
     return image;
 }
 
+QSize c_image::getSize(int mode) const {
+    return isEmpty()?addButtonSizes[mode]:imageSizes[mode];
+}
+
 void c_image::setImage(const QPixmap &value) {
     oldImage = image;
     image = value;
@@ -32,6 +64,7 @@ void c_image::setImage(const QPixmap &value) {
 
 QString c_image::save() {
     oldImage = QPixmap();
+    pathOldImage = QString();
     return pathImage;
 }
 
@@ -41,26 +74,105 @@ void c_image::rollback() {
     pathOldImage = QString();
     oldImage = QPixmap();
 
+    if (image.isNull()) {
+        ui->imageLabel->hide();
+        ui->addButton->show();
+        ui->deleteButton->hide();
+    } else {
+        ui->imageLabel->setPixmap(image);
+        ui->imageLabel->setBackgroundRole(QPalette::Base);
+        ui->imageLabel->setScaledContents(true);
+        ui->imageLabel->show();
+        ui->addButton->hide();
+        ui->deleteButton->hide();
+    }
     this->resize(this->size());
 }
 
-bool c_image::isEmpty() {
+void c_image::updateSizes(int count) {
+    if (static_cast<c_stepView*>(parent())) {
+        int width = static_cast<c_stepView*>(parent())->width();
+        computeSizes(width,count);
+    }
+}
+
+bool c_image::isEmpty() const{
     return pathImage.isEmpty();
 }
 
-void c_image::switchMode(int newMode) {
+QList<QPropertyAnimation*> c_image::switchMode(int newMode) {
+    QList<QPropertyAnimation*> res;
+
+    ui->imageLabel->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+    ui->addButton->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+
+    QPropertyAnimation* anim = new QPropertyAnimation(ui->imageLabel,"geometry");
+    anim->setDuration(1000);
+    QRect rect = ui->imageLabel->rect();
+    rect.setTopLeft(ui->imageLabel->pos());
+    rect.setSize(ui->imageLabel->size());
+    anim->setStartValue(rect);
+    rect.setTopLeft(QPoint(0,0));
+    rect.setSize(imageSizes[newMode]);
+    anim->setEndValue(rect);
+    anim->setEasingCurve(QEasingCurve::InOutQuart);
+    res.append(anim);
+
+    QPropertyAnimation* animAddButton = new QPropertyAnimation(ui->addButton,"geometry");
+    animAddButton->setDuration(1000);
+    rect = ui->addButton->rect();
+    rect.setTopLeft(ui->addButton->pos());
+    rect.setSize(ui->addButton->size());
+    animAddButton->setStartValue(rect);
+    rect.setTopLeft(QPoint(0,0));
+    rect.setSize(addButtonSizes[newMode]);
+    animAddButton->setEndValue(rect);
+    animAddButton->setEasingCurve(QEasingCurve::InOutQuart);
+    res.append(animAddButton);
+
+    QPropertyAnimation *animation = new QPropertyAnimation(this, "size");
+    animation->setDuration(1000);
+    animation->setStartValue(this->size());
+    animation->setEndValue(imageSizes[newMode]);
+    animation->setEasingCurve(QEasingCurve::InOutQuart);
+    res.append(animation);
+
+    if (newMode == recipe::modes::edition) {
+        oldImage = image;
+        pathOldImage = pathImage;
+
+        ui->deleteButton->show();
+        ui->deleteButton->resize(21,21);
+        QPoint startPoint = isEmpty() ? QPoint(addButtonSizes[newMode].width()-ui->deleteButton->width(),0):QPoint(imageSizes[newMode].width()-ui->deleteButton->width(),0);
+        ui->deleteButton->move(startPoint);
+        res.append(recipe::inflateAnimation(ui->deleteButton,ui->deleteButton->size()));
+    } else {
+        res.append(recipe::deflateAnimation(ui->deleteButton,200));
+    }
+    if (isEmpty()) {
+        ui->deleteButton->hide();
+    }
+
+    QObject::connect(anim,&QPropertyAnimation::finished,[=] () {
+        state = recipe::states::fixed;
+        ui->imageLabel->setFixedSize(ui->imageLabel->size());
+        ui->addButton->setFixedSize(ui->addButton->size());
+    });
+
+    state = recipe::states::transition;
     mode = newMode;
-    this->resize(this->size());
+
+    return res;
 }
 
 void c_image::resizeEvent(QResizeEvent *) {
     if (state != recipe::states::transition) {
-        int width, count, availableWidth;
-//        if (static_cast<c_stepView*>(parent())) {
-//            width = static_cast<c_stepView*>(parent())->width();
-//            count = static_cast<c_stepView*>(parent())->countImage();
-            width = 606;
-            count = 2;
+        int width, count;
+        if (static_cast<c_stepView*>(parent())) {
+            width = static_cast<c_stepView*>(parent())->width();
+            count = static_cast<c_stepView*>(parent())->countImage();
+
+            computeSizes(width,count);
 
             ui->imageLabel->move(0,0);
             ui->addButton->move(0,0);
@@ -69,15 +181,11 @@ void c_image::resizeEvent(QResizeEvent *) {
                 case recipe::modes::resume:
                     break;
                 case recipe::modes::display:
-                    availableWidth =  (width - 2*c_stepView::borderSize  - (count-1)*c_stepView::interImageSpace)/count;
-                    availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
-                    imagelSize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
-
-                    ui->addButton->setFixedSize(imagelSize);
-                    ui->deleteButton->move(QPoint(imagelSize.width()-ui->deleteButton->width(),0));
+                    ui->addButton->setFixedSize(addButtonSizes[recipe::modes::display]);
+                    ui->deleteButton->move(QPoint(imageSizes[recipe::modes::display].width()-ui->deleteButton->width(),0));
 
                     if (!pathImage.isEmpty()) {
-                        image = QPixmap(pathImage).scaled(imagelSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                        image = QPixmap(pathImage).scaled(imageSizes[recipe::modes::display], Qt::KeepAspectRatio, Qt::SmoothTransformation);
                         ui->imageLabel->setFixedSize(image.size());
                         ui->imageLabel->setPixmap(image);
                         ui->imageLabel->setBackgroundRole(QPalette::Base);
@@ -87,6 +195,8 @@ void c_image::resizeEvent(QResizeEvent *) {
                         ui->imageLabel->show();
                         ui->addButton->hide();
                         ui->deleteButton->hide();
+
+                        qDebug() << image.size() << imageSizes[recipe::modes::display];
                     } else {
                         ui->imageLabel->hide();
                         ui->addButton->show();
@@ -94,16 +204,12 @@ void c_image::resizeEvent(QResizeEvent *) {
                     }
                     break;
                 case recipe::modes::edition:
-                    availableWidth =  (width - 2*c_stepView::borderSize  - (c_stepView::maxNumberImages-1)*c_stepView::interImageSpace)/c_stepView::maxNumberImages;
-                    availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
-                    imagelSize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
-
-                    ui->addButton->setFixedSize(imagelSize);
-                    this->setFixedSize(imagelSize);
-                    ui->deleteButton->move(QPoint(imagelSize.width()-ui->deleteButton->width(),0));
+                    ui->addButton->setFixedSize(addButtonSizes[recipe::modes::edition]);
+                    this->setFixedSize(imageSizes[recipe::modes::edition]);
+                    ui->deleteButton->move(QPoint(imageSizes[recipe::modes::edition].width()-ui->deleteButton->width(),0));
 
                     if (!pathImage.isEmpty()) {
-                        image = QPixmap(pathImage).scaled(imagelSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                        image = QPixmap(pathImage).scaled(imageSizes[recipe::modes::edition], Qt::KeepAspectRatio, Qt::SmoothTransformation);
                         ui->imageLabel->setFixedSize(image.size());
                         ui->imageLabel->setPixmap(image);
                         ui->imageLabel->setBackgroundRole(QPalette::Base);
@@ -113,6 +219,8 @@ void c_image::resizeEvent(QResizeEvent *) {
                         ui->imageLabel->show();
                         ui->deleteButton->show();
                         ui->addButton->hide();
+
+                        qDebug() << image.size() << imageSizes[recipe::modes::edition];
                     } else {
                         ui->imageLabel->hide();
                         ui->addButton->show();
@@ -123,7 +231,7 @@ void c_image::resizeEvent(QResizeEvent *) {
                     break;
             }
         }
-//    }
+    }
 }
 
 QString c_image::getPathImage() const {
@@ -136,7 +244,7 @@ void c_image::addButtonClicked() {
     if (!fileName.isEmpty()) {
         QPixmap pixmap = QPixmap(fileName);
         if (!pixmap.isNull()) {
-            image = pixmap.scaled(imagelSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            image = pixmap.scaled(ui->addButton->size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
             QSize endSize = image.size();
             ui->imageLabel->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
             ui->imageLabel->setPixmap(image);
@@ -162,7 +270,6 @@ void c_image::addButtonClicked() {
             anim->setEasingCurve(QEasingCurve::InOutQuart);
 
             state = recipe::states::transition;
-            //anim->start(QAbstractAnimation::DeleteWhenStopped);
             QObject::connect(anim,&QPropertyAnimation::finished,[=] () {
                 state = recipe::states::fixed;
             });
@@ -174,9 +281,11 @@ void c_image::addButtonClicked() {
 }
 
 void c_image::deleteButtonClicked() {
-    pathOldImage = pathImage;
+    if (pathOldImage.isEmpty()) {
+        pathOldImage = pathImage;
+        oldImage = image;
+    }
     pathImage = QString();
-    oldImage = image;
     image = QPixmap();
 
     ui->imageLabel->hide();
@@ -184,4 +293,26 @@ void c_image::deleteButtonClicked() {
     ui->addButton->show();
 
     this->setFixedSize(ui->addButton->size());
+}
+
+void c_image::computeSizes(int width, int count) {
+    int availableWidth =  (width - 2*c_stepView::borderSize  - (count-1)*c_stepView::interImageSpace)/count;
+    availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
+    QSize displaySize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
+
+    availableWidth =  (width - 2*c_stepView::borderSize  - (c_stepView::maxNumberImages-1)*c_stepView::interImageSpace)/c_stepView::maxNumberImages;
+    availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
+    QSize editSize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
+
+    if (!pathImage.isEmpty()) {
+        imageSizes[recipe::modes::display] = QPixmap(pathImage).scaled(displaySize, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
+        imageSizes[recipe::modes::edition] = QPixmap(pathImage).scaled(editSize, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
+        addButtonSizes[recipe::modes::display] = displaySize;
+        addButtonSizes[recipe::modes::edition] = editSize;
+    } else {
+        imageSizes[recipe::modes::display] = displaySize;
+        imageSizes[recipe::modes::edition] = editSize;
+        addButtonSizes[recipe::modes::display] = displaySize;
+        addButtonSizes[recipe::modes::edition] = editSize;
+    }
 }

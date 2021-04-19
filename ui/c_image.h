@@ -19,13 +19,16 @@ public:
     ~c_image();
 
     QPixmap getImage() const;
+    QSize getSize(int mode = recipe::modes::display) const;
     void setImage(const QPixmap &value);
 
     QString save();
     void rollback();
 
-    bool isEmpty();
-    void switchMode(int mode = recipe::modes::resume);
+    void updateSizes(int count);
+
+    bool isEmpty() const;
+    QList<QPropertyAnimation *> switchMode(int mode = recipe::modes::resume);
     void resizeEvent(QResizeEvent *event);
 
     QString getPathImage() const;
@@ -38,11 +41,15 @@ signals:
     void newImage(QPropertyAnimation* animation,QSize newSize);
 
 private:
+    void computeSizes(int width, int count);
+
+
     Ui::c_image *ui;
     int mode;
     int state;
 
-    QSize imagelSize;
+    QMap<int,QSize> imageSizes;
+    QMap<int,QSize> addButtonSizes;
 
     QString pathImage;
     QString pathOldImage;
