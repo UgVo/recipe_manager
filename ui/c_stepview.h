@@ -14,6 +14,7 @@
 #include <QElapsedTimer>
 #include <utils/c_step.h>
 #include "c_notesdialog.h"
+#include "c_image.h"
 
 namespace Ui {
 class c_stepView;
@@ -29,13 +30,23 @@ public:
 
     void setRank(int rank);
 
-    QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift, bool update = false, int time = 1000);
+    QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift, int time = 1000);
     QList<QPropertyAnimation *> arrangeImagesEditOff(QPoint verticalShift);
 
     c_step *getStep() const;
 
     c_note* addNoteToStep(c_note *newNote);
     void deleteNote(c_note *note);
+
+    void checkCount();
+
+    static int maxHeightImage;
+    static QSize maxSizeImage;
+    static int interImageSpace;
+    static int borderSize;
+    static int showButtonHeight;
+    static int borderMenuButton;
+    static int maxNumberImages;
 
 public slots:
     void slot_triggerShowImages();
@@ -46,8 +57,6 @@ public slots:
 
     void editStepAnimationOn();
     void editStepAnimationOff();
-
-    void endStepAnimationOff(int state);
 
     void editSaved();
     void editCanceled();
@@ -60,13 +69,13 @@ public slots:
 
     void endTransition(int state);
 
-    void handleAddImage();
-    void handleDeleteImage();
-
     void slotDelete();
     void slotAddNote();
     void slotShowNotes();
 
+    int countImage();
+
+    void imageAdded(QPropertyAnimation *animations);
 
 signals:
     void new_rank(int newRank);
@@ -75,18 +84,13 @@ signals:
 
 private:
 
-    enum states{retracted,opened,transition};
-    enum modes{edition,display};
-
     int getHeightText();
     void lockSize(bool flag);
-    QPropertyAnimation *slideAnimation(QWidget *parent, QPoint slide, QSize growth = QSize(), int time = 1000);
-    QPropertyAnimation *growAnimation(QWidget *parent, QSize growth, int time = 1000);
-    QPropertyAnimation *fadeAnimation(QWidget *parent, bool up);
 
-    QList<QPoint> arrangeImages(bool mode = modes::display, QPoint verticalShift = QPoint());
-    QList<QPropertyAnimation*> enableDeleteButtons(bool flag);
-    int getImagesMaxHeigth(bool flag = true);
+    QList<QPoint> arrangeImages(int target = recipe::modes::display, QPoint verticalShift = QPoint());
+    int getImagesMaxHeigth(int mode = recipe::modes::display);
+
+    bool hasImages();
 
     Ui::c_stepView *ui;
     c_step* step;
@@ -98,22 +102,14 @@ private:
     QList<QString> oldImagesList;
     QList<QPushButton*> addImageButtons;
     QList<QPushButton*> deleteButtons;
+    QList<c_image*> images;
 
     c_notesDialog *noteDialog;
 
-    int saveDeltaSizeimage;
     int state;
     int mode;
     int rankEdit;
-    float ratio;
-
-    static int maxHeightImage;
-    static QSize maxSizeImage;
-    static int interImageSpace;
-    static int borderSize;
-    static int showButtonHeight;
-    static int borderMenuButton;
-    static int maxNumberImages;
+    int countImages;
 
 };
 
