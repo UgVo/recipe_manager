@@ -23,6 +23,7 @@ SOURCES += \
     ui/c_image.cpp \
     ui/c_notesdialog.cpp \
     ui/c_noteview.cpp \
+    ui/c_processview.cpp \
     ui/c_stepview.cpp \
     utils/c_component.cpp \
     utils/c_dbmanager.cpp \
@@ -40,6 +41,7 @@ HEADERS += \
     ui/c_image.h \
     ui/c_notesdialog.h \
     ui/c_noteview.h \
+    ui/c_processview.h \
     ui/c_stepview.h \
     utils/c_component.h \
     utils/c_dbmanager.h \
@@ -57,6 +59,7 @@ FORMS += \
     ui/c_image.ui \
     ui/c_notesdialog.ui \
     ui/c_noteview.ui \
+    ui/c_processview.ui \
     ui/c_step_view.ui
 
 TRANSLATIONS += \
