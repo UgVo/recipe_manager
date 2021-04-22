@@ -28,7 +28,7 @@ public:
     void updateSizes(int count);
 
     bool isEmpty() const;
-    QList<QPropertyAnimation *> switchMode(int mode = recipe::modes::resume);
+    QList<QPropertyAnimation *> switchMode(int mode = recipe::modes::resume, bool animate = true, int time = 1000);
     void resizeEvent(QResizeEvent *event);
 
     QString getPathImage() const;

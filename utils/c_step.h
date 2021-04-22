@@ -24,6 +24,7 @@ public:
     void setRank(int value);
 
     QList<c_component> getComponents() const;
+    QList<c_component *> getComponentsPtr();
     void setComponents(const QList<c_component> &value);
 
     QList<QString> getEquipments() const;
@@ -49,6 +50,7 @@ public:
     bool operator<(const c_step &other) const;
 
     QList<c_process> getProcessings() const;
+    QList<c_process*> getProcessingsPtr();
     void setProcessings(const QList<c_process> &value);
 
     bool isCompleted() const;

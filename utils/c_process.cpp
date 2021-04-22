@@ -23,7 +23,7 @@ void c_process::setId(int value) {
 }
 
 QString c_process::getType() const {
-    return type;
+    return type.left(1).toUpper()+type.mid(1);
 }
 
 void c_process::setType(const QString &value) {

@@ -13,8 +13,11 @@
 #include <QFileDialog>
 #include <QElapsedTimer>
 #include <utils/c_step.h>
-#include "c_notesdialog.h"
-#include "c_image.h"
+#include <ui/c_notesdialog.h>
+#include <ui/c_image.h>
+#include <ui/c_processview.h>
+#include <ui/c_componentview.h>
+#include <ui/c_equipementsview.h>
 
 namespace Ui {
 class c_stepView;
@@ -33,6 +36,11 @@ public:
     QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift, int time = 1000);
     QList<QPropertyAnimation *> arrangeImagesEditOff(QPoint verticalShift);
 
+    void switchMode(int target = recipe::modes::resume, bool animated = true, int time = 1000);
+    QList<QPropertyAnimation *> switchState(int targetState = recipe::states::retracted, bool animated = true, int time = 1000);
+
+    int getHeightWidget(int mode, int state = recipe::states::retracted);
+
     c_step *getStep() const;
 
     c_note* addNoteToStep(c_note *newNote);
@@ -48,12 +56,10 @@ public:
     static int borderMenuButton;
     static int maxNumberImages;
 
-public slots:
-    void slot_triggerShowImages();
-    void resizeEvent(QResizeEvent *event);
+    int getLimit() const;
 
-    void openImageSlot();
-    void closeImageSlot();
+public slots:
+    void triggerShowButton();
 
     void editStepAnimationOn();
     void editStepAnimationOff();
@@ -84,25 +90,22 @@ signals:
 
 private:
 
-    int getHeightText();
+    int getHeightText(int targetMode = recipe::modes::resume);
     void lockSize(bool flag);
 
     QList<QPoint> arrangeImages(int target = recipe::modes::display, QPoint verticalShift = QPoint());
+    QList<QPoint> arrangeProcess(int target = recipe::modes::display, QPoint verticalShift = QPoint());
     int getImagesMaxHeigth(int mode = recipe::modes::display);
 
     bool hasImages();
 
     Ui::c_stepView *ui;
     c_step* step;
-    QList<QLabel*> imageSlots;
     QList<QString> imageList;
-    QList<QLabel*> newImageSlots;
-    QList<QString> newImageList;
-    QList<QLabel*> oldImageSlots;
-    QList<QString> oldImagesList;
-    QList<QPushButton*> addImageButtons;
-    QList<QPushButton*> deleteButtons;
     QList<c_image*> images;
+    QList<c_processView*> processes;
+    c_componentView* components;
+    c_equipementsView* equipements;
 
     c_notesDialog *noteDialog;
 
@@ -110,6 +113,7 @@ private:
     int mode;
     int rankEdit;
     int countImages;
+    int limit;
 
 };
 

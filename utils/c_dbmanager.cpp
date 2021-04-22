@@ -304,7 +304,7 @@ bool c_dbManager::loadProcessTypes() {
     if (query.exec()) {
         int id = query.record().indexOf("name");
         while (query.next()) {
-            processTypes.insert(query.value(id).toString());
+            processTypes.insert(recipe::toCapitalised(query.value(id).toString()));
         }
         return true;
     }
@@ -354,7 +354,7 @@ bool c_dbManager::loadEquipments() {
     if (query.exec()) {
         int id = query.record().indexOf("name");
         while (query.next()) {
-            equipments.insert(query.value(id).toString());
+            equipments.insert(recipe::toCapitalised(query.value(id).toString()));
         }
         return true;
     }

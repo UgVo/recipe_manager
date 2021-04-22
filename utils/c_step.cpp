@@ -43,6 +43,14 @@ QList<c_component> c_step::getComponents() const {
     return components;
 }
 
+QList<c_component *> c_step::getComponentsPtr() {
+    QList<c_component*> res;
+    for (int i = 0; i < components.size(); ++i) {
+        res.push_back(&(components[i]));
+    }
+    return res;
+}
+
 void c_step::setComponents(const QList<c_component> &value) {
     components = value;
 }
@@ -115,6 +123,14 @@ void c_step::deleteNote(const c_note value){
 
 QList<c_process> c_step::getProcessings() const {
     return processings;
+}
+
+QList<c_process *> c_step::getProcessingsPtr() {
+    QList<c_process*> res;
+    for (int i = 0; i < processings.size(); ++i) {
+        res.push_back(&(processings[i]));
+    }
+    return res;
 }
 
 void c_step::setProcessings(const QList<c_process> &value) {

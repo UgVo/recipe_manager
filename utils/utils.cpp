@@ -45,15 +45,24 @@ namespace recipe {
         return animation;
     }
 
-    QPropertyAnimation *fadeAnimation(QWidget *parent, bool up) {
-        QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(parent);
-        parent->setGraphicsEffect(effect);
-        QPropertyAnimation *animation = new QPropertyAnimation(effect, "opacity");
-        animation->setDuration(1000);
-        animation->setStartValue(up ? 0.0 : 1.0);
-        animation->setEndValue(up ? 1.0 : 0.0);
-        animation->setEasingCurve(QEasingCurve::InOutQuart);
+    QPropertyAnimation *fadeAnimation(QWidget *parent, bool up, int time) {
+        QPropertyAnimation *animation = nullptr;
+        qDebug() << up << parent->isHidden();
+        if ((up && parent->isHidden()) || (!up && !parent->isHidden())) {
+            parent->show();
+            QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(parent);
+            parent->setGraphicsEffect(effect);
+            animation = new QPropertyAnimation(effect, "opacity");
+            animation->setDuration(time);
+            animation->setStartValue(up ? 0.0 : 1.0);
+            animation->setEndValue(up ? 1.0 : 0.0);
+            animation->setEasingCurve(QEasingCurve::InOutQuart);
 
+            QObject::connect(animation,&QPropertyAnimation::finished,[=] () {
+                animation->disconnect();
+                parent->setHidden(!up);
+            });
+        }
         return animation;
     }
 
@@ -94,5 +103,66 @@ namespace recipe {
 
         return animation;
     }
+
+    QString toCapitalised(QString str) {
+        return str.left(1).toUpper()+str.mid(1);
+    }
+
+    QPropertyAnimation *targetGeometryAnimation(QWidget *parent, QSize targetSize, QPoint targetPos, int time) {
+        parent->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+        QRect rect;
+        QPropertyAnimation *animation = new QPropertyAnimation(parent,"geometry");
+        animation->setDuration(time);
+        rect = parent->rect();
+        rect.setTopLeft(parent->pos());
+        rect.setSize(parent->size());
+        animation->setStartValue(rect);
+        rect.setTopLeft(targetPos);
+        rect.setSize(targetSize);
+        animation->setEndValue(rect);
+        animation->setEasingCurve(QEasingCurve::InOutQuart);
+
+        QObject::connect(animation,&QPropertyAnimation::finished,[=] () {
+            animation->disconnect();
+            parent->setFixedSize(targetSize);
+        });
+
+        return animation;
+    }
+
+    QPropertyAnimation *targetPositionAnimation(QWidget *parent, QPoint targetPos, int time) {
+        QRect rect;
+        QPropertyAnimation *animation = new QPropertyAnimation(parent,"geometry");
+        animation->setDuration(time);
+        rect = parent->rect();
+        rect.setTopLeft(parent->pos());
+        rect.setSize(parent->size());
+        animation->setStartValue(rect);
+        rect.setTopLeft(targetPos);
+        rect.setSize(parent->size());
+        animation->setEndValue(rect);
+        animation->setEasingCurve(QEasingCurve::InOutQuart);
+
+        return animation;
+    }
+
+    QPropertyAnimation *targetSizeAnimation(QWidget *parent, QSize targetSize, int time) {
+        parent->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+        QPropertyAnimation *animation = new QPropertyAnimation(parent, "size");
+        animation->setDuration(time);
+        animation->setStartValue(parent->size());
+        animation->setEndValue(targetSize);
+
+        animation->setEasingCurve(QEasingCurve::InOutQuart);
+
+        QObject::connect(animation,&QPropertyAnimation::finished,[=] () {
+            animation->disconnect();
+            parent->setFixedSize(targetSize);
+        });
+
+        return animation;
+    }
+
+
 
 }
