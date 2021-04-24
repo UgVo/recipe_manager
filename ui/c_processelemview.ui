@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>c_processView</class>
- <widget class="QWidget" name="c_processView">
+ <class>c_processElemView</class>
+ <widget class="QWidget" name="c_processElemView">
   <property name="geometry">
    <rect>
     <x>0</x>

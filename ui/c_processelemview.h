@@ -11,16 +11,16 @@
 
 
 namespace Ui {
-class c_processView;
+class c_processElemView;
 }
 
-class c_processView : public QWidget
+class c_processElemView : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit c_processView(c_process* process, QWidget *parent = nullptr);
-    ~c_processView();
+    explicit c_processElemView(c_process* process, QWidget *parent = nullptr);
+    ~c_processElemView();
 
     QList<QPropertyAnimation*> switchMode(int mode);
     QSize getSize(int mode);
@@ -28,7 +28,7 @@ public:
     static int heightProcess;
 
 private:
-    Ui::c_processView *ui;
+    Ui::c_processElemView *ui;
     c_process* process;
     int mode;
     QMap<int,QSize> sizes;

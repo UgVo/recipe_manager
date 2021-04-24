@@ -15,7 +15,7 @@
 #include <utils/c_step.h>
 #include <ui/c_notesdialog.h>
 #include <ui/c_image.h>
-#include <ui/c_processview.h>
+#include <ui/c_processelemview.h>
 #include <ui/c_componentview.h>
 #include <ui/c_equipementsview.h>
 
@@ -103,7 +103,7 @@ private:
     c_step* step;
     QList<QString> imageList;
     QList<c_image*> images;
-    QList<c_processView*> processes;
+    QList<c_processElemView*> processes;
     c_componentView* components;
     c_equipementsView* equipements;
 

@@ -61,7 +61,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     QList<c_process* > processList = step->getProcessingsPtr();
     for (int i = 0; i < processList.size(); ++i) {
-        processes.push_back(new c_processView(processList[i],this));
+        processes.push_back(new c_processElemView(processList[i],this));
     }
 
     components = new c_componentView(step->getComponentsPtr(),this);
@@ -478,7 +478,7 @@ void c_stepView::switchMode(int target, bool animated, int time) {
             // Display button
             checkCount();
             if (countImages>maxNumberImages/2) {
-                int y = borderSize + ui->label->height() + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace)
+                int y = borderSize + ui->label->height() + (processes.isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace)
                         + getImagesMaxHeigth(recipe::modes::resume) - ui->displayButton->height() - interImageSpace ;
                 ui->displayButton->move(QPoint(posList[1].x() - (interImageSpace+ui->displayButton->width())/2,y));
                 ui->displayButton->setText(QString("+%1").arg(countImages-maxNumberImages/2));
@@ -515,7 +515,8 @@ void c_stepView::switchMode(int target, bool animated, int time) {
 
             // Ingredients
             targetPos = QPoint(limit + interImageSpace,borderSize+std::max(ui->rankButton->height(),ui->label->height())
-                               + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace));
+                               + (processes.isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace));
+
             if (animated) {
                 group->addAnimation(recipe::targetPositionAnimation(components,targetPos,time));
                 QPropertyAnimation* anim = recipe::fadeAnimation(components,true,1000);
@@ -528,7 +529,7 @@ void c_stepView::switchMode(int target, bool animated, int time) {
 
             // Equipments
             targetPos = QPoint(limit + interImageSpace, borderSize+std::max(ui->rankButton->height(),ui->label->height())
-                               + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace) + components->height() + interImageSpace);
+                               + (processes.isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace) + components->height() + interImageSpace);
             if (animated) {
                 group->addAnimation(recipe::targetPositionAnimation(equipments,targetPos,time));
                 QPropertyAnimation* anim = recipe::fadeAnimation(equipments,true,1000);
@@ -952,10 +953,10 @@ int c_stepView::getHeightWidget(int mode, int state) {
             switch (state) {
                 case recipe::states::retracted:
                     return std::max(ui->rankButton->height(),ui->label->height()) + borderSize + ui->showButton->height()
-                            + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace);
+                            + (processes.isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace);
                 case recipe::states::opened:
                     return std::max(ui->rankButton->height(),ui->label->height()) + borderSize + ui->showButton->height()
-                            + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace)
+                            + (processes.isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace)
                             + std::max(getImagesMaxHeigth(mode),components->height() + equipments->getSize(mode).height() + 2*interImageSpace);
                 default:
                     break;
@@ -966,10 +967,10 @@ int c_stepView::getHeightWidget(int mode, int state) {
             switch (state) {
                 case recipe::states::retracted:
                     return std::max(ui->rankButton->height(),ui->label->height()) + borderSize + ui->showButton->height()
-                            + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace);
+                            + (processes.isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace);
                 case recipe::states::opened:
                     return std::max(ui->rankButton->height(),ui->label->height()) + borderSize + ui->showButton->height()
-                            + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace)
+                            + (processes.isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace)
                             + getImagesMaxHeigth(mode);
                 default:
                     break;
@@ -1014,7 +1015,7 @@ QList<QPoint> c_stepView::arrangeImages(int target, QPoint verticalShift) {
                 }
                 point = QPoint( (this->width() - 2*borderSize - totalWidth - ((countImage-1)*interImageSpace))/2 + borderSize,
                                 borderSize*2 + std::max(ui->rankButton->height(),ui->label->height()) +
-                                    (processes.isEmpty()?0:c_processView::heightProcess))
+                                    (processes.isEmpty()?0:c_processElemView::heightProcess))
                         + verticalShift;
                 for (int i = 0; i < images.size(); ++i) {
                     res.push_back(point);
@@ -1031,7 +1032,7 @@ QList<QPoint> c_stepView::arrangeImages(int target, QPoint verticalShift) {
                 }
                 point = QPoint( (limit - borderSize - totalWidth - ((countImage)*interImageSpace))/2 + borderSize,
                                 borderSize*2 + std::max(ui->rankButton->height(),ui->label->height()) +
-                                    (processes.isEmpty()?0:c_processView::heightProcess)) + verticalShift;
+                                    (processes.isEmpty()?0:c_processElemView::heightProcess)) + verticalShift;
                 for (int i = 0; i < maxNumberImages/2; ++i) {
                     res.push_back(point);
                     point += QPoint(images[i]->getSize(recipe::modes::resume).width() + interImageSpace,0);

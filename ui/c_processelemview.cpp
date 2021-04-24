@@ -1,11 +1,11 @@
-#include "c_processview.h"
-#include "ui_c_processview.h"
+#include "c_processelemview.h"
+#include "ui_c_processelemview.h"
 
-int c_processView::heightProcess = 20;
+int c_processElemView::heightProcess = 20;
 
-c_processView::c_processView(c_process *_process, QWidget *parent) :
+c_processElemView::c_processElemView(c_process *_process, QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::c_processView), process(_process) {
+    ui(new Ui::c_processElemView), process(_process) {
     ui->setupUi(this);
     ui->duration->setValue(process->getDuration());
     ui->temperature->setValue(process->getTemperature());
@@ -52,12 +52,12 @@ c_processView::c_processView(c_process *_process, QWidget *parent) :
     switchMode(recipe::modes::display);
 }
 
-c_processView::~c_processView()
+c_processElemView::~c_processElemView()
 {
     delete ui;
 }
 
-QList<QPropertyAnimation *> c_processView::switchMode(int _mode) {
+QList<QPropertyAnimation *> c_processElemView::switchMode(int _mode) {
     QList<QPropertyAnimation*> res;
     QFontMetrics metrics(ui->label->font());
     switch (_mode) {
@@ -116,7 +116,7 @@ QList<QPropertyAnimation *> c_processView::switchMode(int _mode) {
     return res;
 }
 
-QSize c_processView::getSize(int mode) {
+QSize c_processElemView::getSize(int mode) {
     return sizes[mode];
 }
 
