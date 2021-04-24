@@ -105,7 +105,7 @@ private:
     QList<c_image*> images;
     QList<c_processElemView*> processes;
     c_componentView* components;
-    c_equipementsView* equipements;
+    c_equipementsView* equipments;
 
     c_notesDialog *noteDialog;
 

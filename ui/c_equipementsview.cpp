@@ -21,7 +21,7 @@ c_equipementsView::c_equipementsView(QList<QString> _equipmentList, QWidget *par
         buttonList.last()->setFixedWidth(metrics.horizontalAdvance(equipmentList[i]) + 10);
         QObject::connect(buttonList.last(),&QPushButton::clicked,this,&c_equipementsView::removeEquipment);
     }
-    switchMode();
+    switchMode(recipe::modes::resume,false);
     ui->newEquipment->installEventFilter(this);
 
     model = new QStringListModel(allEquipementsList);
@@ -39,16 +39,20 @@ c_equipementsView::c_equipementsView(QList<QString> _equipmentList, QWidget *par
     write = false;
 }
 
-c_equipementsView::~c_equipementsView()
-{
+c_equipementsView::~c_equipementsView() {
     delete ui;
 }
 
-void c_equipementsView::switchMode(int targetMode) {
+QList<QPropertyAnimation *> c_equipementsView::switchMode(int targetMode, bool animated, int time) {
+    QList<QPropertyAnimation *> res;
     switch (targetMode) {
         case recipe::modes::display:
         case recipe::modes::resume: {
-            this->setFixedSize(getSize(targetMode));
+            if (animated) {
+                res.push_back(recipe::targetSizeAnimation(this,getSize(targetMode),time));
+            } else {
+                this->setFixedSize(getSize(targetMode));
+            }
 
             QFontMetrics metrics =  QFontMetrics(ui->textEdit->document()->firstBlock().charFormat().font());
             ui->textEdit->setFixedHeight(metrics.boundingRect(ui->textEdit->rect(),Qt::TextWordWrap,equipmentList.join(",")).height());
@@ -65,9 +69,11 @@ void c_equipementsView::switchMode(int targetMode) {
         }
         break;
         case recipe::modes::edition: {
-            int width = static_cast<c_stepView*>(parent())->width() - 2*c_stepView::borderSize;
-            this->setFixedWidth(width);
-
+            if (animated) {
+                res.push_back(recipe::targetSizeAnimation(this,getSize(targetMode),time));
+            } else {
+                this->setFixedSize(getSize(targetMode));
+            }
             ui->textEdit->hide();
             ui->widgetEdit->show();
             ui->widgetEdit->setStyleSheet("QWidget#widgetEdit {"
@@ -83,6 +89,7 @@ void c_equipementsView::switchMode(int targetMode) {
         default:
             break;
     }
+    return res;
 }
 
 QSize c_equipementsView::getSize(int mode) {

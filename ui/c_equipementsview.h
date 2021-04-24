@@ -7,6 +7,7 @@
 #include <QCompleter>
 #include <QTimer>
 #include <QStringListModel>
+#include <QPropertyAnimation>
 #include <utils/utils.h>
 
 namespace Ui {
@@ -21,7 +22,7 @@ public:
     explicit c_equipementsView(QList<QString> equipmentList, QWidget *parent = nullptr);
     ~c_equipementsView();
 
-    void switchMode(int targetMode = recipe::modes::resume);
+    QList<QPropertyAnimation *> switchMode(int targetMode = recipe::modes::resume, bool animated = true, int time = 1000);
     QSize getSize(int mode);
 
     bool eventFilter(QObject* obj, QEvent* event);

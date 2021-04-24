@@ -69,7 +69,8 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     limit = this->width() - borderSize - interImageSpace - components->width();
     limit = limit>(this->width()/3)*2?(this->width()/3)*2:limit;
 
-    equipements = new c_equipementsView(step->getEquipments(),this);
+    equipments = new c_equipementsView(step->getEquipments(),this);
+    equipments->lower();
 
     QMenu *menu = new QMenu();
     menu->addAction("Edit",this,&c_stepView::editStepAnimationOn);
@@ -530,8 +531,12 @@ void c_stepView::switchMode(int target, bool animated, int time) {
             // Equipments
             targetPos = QPoint(limit + interImageSpace, borderSize+std::max(ui->rankButton->height(),ui->label->height())
                                + (processes.isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace) + components->height() + interImageSpace);
+            QList<QPropertyAnimation *> anims = equipments->switchMode(target,animated,time);
             if (animated) {
                 group->addAnimation(recipe::targetPositionAnimation(equipments,targetPos,time));
+                for (int i = 0; i < anims.size(); ++i) {
+                    group->addAnimation(anims[i]);
+                }
                 QPropertyAnimation* anim = recipe::fadeAnimation(equipments,true,1000);
                 if (anim != nullptr)
                     group->addAnimation(anim);
@@ -819,11 +824,14 @@ void c_stepView::switchMode(int target, bool animated, int time) {
             }
 
             // Equipments
-            targetPos = QPoint(borderSize, borderSize + getHeightText(recipe::modes::edition) + interImageSpace);
-            equipments->switchMode(recipe::modes::edition);
+            targetPos = QPoint(borderSize, borderSize + getHeightText(target) + interImageSpace);
+            QList<QPropertyAnimation *> anims = equipments->switchMode(target,animated,time);
             if (animated) {
                 group->addAnimation(recipe::targetPositionAnimation(equipments,targetPos,time));
-                QPropertyAnimation* anim = recipe::fadeAnimation(equipments,true,1000);
+                for (int i = 0; i < anims.size(); ++i) {
+                    group->addAnimation(anims[i]);
+                }
+                QPropertyAnimation* anim = recipe::fadeAnimation(equipments,true,time);
                 if (anim != nullptr)
                     group->addAnimation(anim);
             } else {
