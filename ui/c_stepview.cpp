@@ -530,13 +530,13 @@ void c_stepView::switchMode(int target, bool animated, int time) {
             targetPos = QPoint(limit + interImageSpace, borderSize+std::max(ui->rankButton->height(),ui->label->height())
                                + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace) + components->height() + interImageSpace);
             if (animated) {
-                group->addAnimation(recipe::targetPositionAnimation(equipements,targetPos,time));
-                QPropertyAnimation* anim = recipe::fadeAnimation(equipements,true,1000);
+                group->addAnimation(recipe::targetPositionAnimation(equipments,targetPos,time));
+                QPropertyAnimation* anim = recipe::fadeAnimation(equipments,true,1000);
                 if (anim != nullptr)
                     group->addAnimation(anim);
             } else {
-                equipements->move(targetPos);
-                equipements->show();
+                equipments->move(targetPos);
+                equipments->show();
             }
 
             // Show button
@@ -677,11 +677,11 @@ void c_stepView::switchMode(int target, bool animated, int time) {
 
             // Equipments
             if (animated) {
-                QPropertyAnimation* anim = recipe::fadeAnimation(equipements,false,1000);
+                QPropertyAnimation* anim = recipe::fadeAnimation(equipments,false,1000);
                 if (anim != nullptr)
                     group->addAnimation(anim);
             } else {
-                equipements->hide();
+                equipments->hide();
             }
 
             // Show button
@@ -818,10 +818,16 @@ void c_stepView::switchMode(int target, bool animated, int time) {
             }
 
             // Equipments
+            targetPos = QPoint(borderSize, borderSize + getHeightText(recipe::modes::edition) + interImageSpace);
+            equipments->switchMode(recipe::modes::edition);
             if (animated) {
-                group->addAnimation(recipe::fadeAnimation(equipements,false,1000));
+                group->addAnimation(recipe::targetPositionAnimation(equipments,targetPos,time));
+                QPropertyAnimation* anim = recipe::fadeAnimation(equipments,true,1000);
+                if (anim != nullptr)
+                    group->addAnimation(anim);
             } else {
-                equipements->hide();
+                equipments->show();
+                equipments->move(targetPos);
             }
 
             // Show button
@@ -950,7 +956,7 @@ int c_stepView::getHeightWidget(int mode, int state) {
                 case recipe::states::opened:
                     return std::max(ui->rankButton->height(),ui->label->height()) + borderSize + ui->showButton->height()
                             + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace)
-                            + std::max(getImagesMaxHeigth(mode),components->height() + equipements->height() + 2*interImageSpace);
+                            + std::max(getImagesMaxHeigth(mode),components->height() + equipments->getSize(mode).height() + 2*interImageSpace);
                 default:
                     break;
             }
@@ -979,6 +985,7 @@ int c_stepView::getHeightWidget(int mode, int state) {
                     qDebug() << getHeightText(recipe::modes::edition) << getImagesMaxHeigth(recipe::modes::edition);
                     return getHeightText(recipe::modes::edition) + 3*borderSize + ui->showButton->height()
 //                            + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace)
+                            + equipments->getSize(mode).height()
                             + getImagesMaxHeigth(recipe::modes::edition);
                 default:
                     break;
@@ -1038,7 +1045,7 @@ QList<QPoint> c_stepView::arrangeImages(int target, QPoint verticalShift) {
                 totalWidth += images[i]->getSize(recipe::modes::edition).width();
             }
             point = QPoint((this->width() - 2*borderSize - totalWidth - ((maxNumberImages-1)*interImageSpace))/2 + borderSize,
-                           borderSize*2 + getHeightText(recipe::modes::edition));
+                           borderSize + getHeightText(recipe::modes::edition) +2*interImageSpace + equipments->getSize(recipe::modes::edition).height());
             for (int i = 0; i < images.size(); ++i) {
                 res.push_back(point);
                 point += QPoint(images[i]->getSize(recipe::modes::edition).width() + interImageSpace,0);
