@@ -1,49 +1,41 @@
 #include "c_processelemview.h"
 #include "ui_c_processelemview.h"
+#include "c_processview.h"
 
-int c_processElemView::heightProcess = 20;
+int c_processElemView::heightProcess = 25;
 
 c_processElemView::c_processElemView(c_process *_process, QWidget *parent) :
     QWidget(parent),
     ui(new Ui::c_processElemView), process(_process) {
     ui->setupUi(this);
-    ui->duration->setValue(process->getDuration());
-    ui->temperature->setValue(process->getTemperature());
+
     QSet<QString> processTypes = c_dbManager::getProcessTypes();
     QStringListModel *model = new QStringListModel(QList<QString>(processTypes.begin(),processTypes.end()));
     ui->processType->setModel(model);
-    ui->processType->setCurrentText(process->getType());
+    ui->processType->insertItem(0,"");
 
     QFontMetrics metrics(ui->processTypeLabel->font());
 
+    if (process != nullptr) {
+        ui->duration->setValue(process->getDuration());
+        ui->temperature->setValue(process->getTemperature());
+        ui->processType->setCurrentText(process->getType());
+        ui->durationLabel->setText(QString("%1 min").arg(process->getDuration()));
+        ui->temperatureLabel->setText(QString("%1°C").arg(process->getTemperature()));
+        ui->processTypeLabel->setText(process->getType());
+        ui->processTypeLabel->setFixedWidth(metrics.horizontalAdvance(process->getType())+2);
+    } else {
+        ui->processType->setCurrentText("");
+        ui->temperature->setValue(0);
+        ui->duration->setValue(0);
+    }
+
     ui->temperature->setFixedWidth(ui->temperature->width());
     ui->duration->setFixedWidth(ui->duration->width());
-    ui->durationLabel->setText(QString("%1 min").arg(process->getDuration()));
-    ui->temperatureLabel->setText(QString("%1°C").arg(process->getTemperature()));
     ui->durationLabel->setFixedWidth(metrics.horizontalAdvance(ui->durationLabel->text()));
     ui->temperatureLabel->setFixedWidth(metrics.horizontalAdvance(ui->temperatureLabel->text()));
 
-    ui->processTypeLabel->setText(process->getType());
-    ui->processTypeLabel->setFixedWidth(metrics.horizontalAdvance(process->getType())+2);
     ui->label->setFixedWidth(metrics.horizontalAdvance(ui->label->text())+2);
-    ui->label_2->setFixedWidth(metrics.horizontalAdvance(ui->label_2->text())+2);
-
-    int marginLeft,marginRight;
-    ui->widget->layout()->getContentsMargins(&marginLeft,nullptr,&marginRight,nullptr);
-
-    sizes[recipe::modes::display] = QSize(ui->durationLabel->width() + (ui->temperature->value()?ui->temperatureLabel->width():0)
-                                          + ui->processTypeLabel->width()
-                                          + marginLeft + marginRight
-                                          + ui->widget->layout()->spacing()*2,heightProcess);
-    sizes[recipe::modes::resume] = QSize(ui->durationLabel->width() + (ui->temperature->value()?ui->temperatureLabel->width():0)
-                                          + ui->processTypeLabel->width()
-                                          + marginLeft + marginRight
-                                          + ui->widget->layout()->spacing()*2,heightProcess);
-    sizes[recipe::modes::edition] = QSize(ui->duration->width() + ui->temperature->width()
-                                          + ui->label->width() + ui->label_2->width()
-                                          + ui->processType->width()
-                                          + marginLeft + marginRight
-                                          + ui->widget->layout()->spacing()*4,heightProcess);
     ui->widget->setStyleSheet("QWidget#widget {"
                               " border : 1px solid white;"
                               " border-radius : 2px;"
@@ -78,9 +70,10 @@ QList<QPropertyAnimation *> c_processElemView::switchMode(int _mode) {
             metrics = QFontMetrics(ui->label->font());
 
             ui->label->setFixedWidth(metrics.boundingRect(ui->label->text()).width()+2);
-            ui->label_2->setFixedWidth(metrics.boundingRect(ui->label_2->text()).width()+2);
 
-            this->setFixedSize(sizes[recipe::modes::edition]);
+            this->setFixedSize(getSize(_mode));
+            this->setFixedHeight(heightProcess);
+
             break;
         case recipe::modes::display:
         case recipe::modes::resume:
@@ -107,7 +100,7 @@ QList<QPropertyAnimation *> c_processElemView::switchMode(int _mode) {
             ui->durationLabel->setFixedWidth(metrics.horizontalAdvance(ui->durationLabel->text()));
             ui->temperatureLabel->setFixedWidth(metrics.horizontalAdvance(ui->temperatureLabel->text()));
 
-            this->setFixedSize(sizes[recipe::modes::display]);
+            this->setFixedSize(getSize(_mode));
 
             break;
     default:
@@ -117,6 +110,26 @@ QList<QPropertyAnimation *> c_processElemView::switchMode(int _mode) {
 }
 
 QSize c_processElemView::getSize(int mode) {
-    return sizes[mode];
+    int marginLeft,marginRight;
+    ui->widget->layout()->getContentsMargins(&marginLeft,nullptr,&marginRight,nullptr);
+    switch (mode) {
+        case recipe::modes::resume:
+        case recipe::modes::display:
+            if (isEmpty())
+                return QSize();
+            return QSize(ui->durationLabel->width() + (ui->temperature->value()?ui->temperatureLabel->width():0)
+                         + ui->processTypeLabel->width()
+                         + marginLeft + marginRight
+                         + ui->widget->layout()->spacing()*2,heightProcess);
+        case recipe::modes::edition:
+            return QSize(static_cast<c_processView *>(parent())->getSize(mode).width(),heightProcess);
+        default:
+            break;
+    }
+    return QSize();
+}
+
+bool c_processElemView::isEmpty() {
+    return process == nullptr;
 }
 

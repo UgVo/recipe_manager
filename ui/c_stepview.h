@@ -18,6 +18,7 @@
 #include <ui/c_processelemview.h>
 #include <ui/c_componentview.h>
 #include <ui/c_equipementsview.h>
+#include <ui/c_processview.h>
 
 namespace Ui {
 class c_stepView;
@@ -94,7 +95,6 @@ private:
     void lockSize(bool flag);
 
     QList<QPoint> arrangeImages(int target = recipe::modes::display, QPoint verticalShift = QPoint());
-    QList<QPoint> arrangeProcess(int target = recipe::modes::display, QPoint verticalShift = QPoint());
     int getImagesMaxHeigth(int mode = recipe::modes::display);
 
     bool hasImages();
@@ -103,9 +103,9 @@ private:
     c_step* step;
     QList<QString> imageList;
     QList<c_image*> images;
-    QList<c_processElemView*> processes;
     c_componentView* components;
     c_equipementsView* equipments;
+    c_processView* processes;
 
     c_notesDialog *noteDialog;
 

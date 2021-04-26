@@ -3,5 +3,6 @@
         <file>step_img_1.png</file>
         <file>step_img_2.png</file>
         <file>step_img_3.png</file>
+        <file>temp.png</file>
     </qresource>
 </RCC>

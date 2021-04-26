@@ -134,17 +134,32 @@
       </item>
       <item>
        <widget class="QLabel" name="label_2">
+        <property name="minimumSize">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>70</width>
+          <width>20</width>
           <height>16777215</height>
          </size>
         </property>
         <property name="text">
-         <string>Température</string>
+         <string/>
+        </property>
+        <property name="pixmap">
+         <pixmap resource="../rsc/rsc.qrc">:/images/temp.png</pixmap>
+        </property>
+        <property name="scaledContents">
+         <bool>true</bool>
         </property>
         <property name="alignment">
          <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="wordWrap">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -186,6 +201,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../rsc/rsc.qrc"/>
+ </resources>
  <connections/>
 </ui>

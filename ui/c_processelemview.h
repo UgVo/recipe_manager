@@ -1,5 +1,5 @@
-#ifndef C_PROCESSVIEW_H
-#define C_PROCESSVIEW_H
+#ifndef C_PROCESSELEMVIEW_H
+#define C_PROCESSELEMVIEW_H
 
 #include <QWidget>
 #include <QStringListModel>
@@ -19,19 +19,19 @@ class c_processElemView : public QWidget
     Q_OBJECT
 
 public:
-    explicit c_processElemView(c_process* process, QWidget *parent = nullptr);
+    explicit c_processElemView(c_process* process =  nullptr, QWidget *parent = nullptr);
     ~c_processElemView();
 
     QList<QPropertyAnimation*> switchMode(int mode);
     QSize getSize(int mode);
+
+    bool isEmpty();
 
     static int heightProcess;
 
 private:
     Ui::c_processElemView *ui;
     c_process* process;
-    int mode;
-    QMap<int,QSize> sizes;
 };
 
-#endif // C_PROCESSVIEW_H
+#endif // C_PROCESSELEMVIEW_H
