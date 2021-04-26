@@ -75,7 +75,9 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     equipments->lower();
 
     QMenu *menu = new QMenu();
-    menu->addAction("Edit",this,&c_stepView::editStepAnimationOn);
+    menu->addAction("Edit",[this] () {
+        switchMode(recipe::modes::edition);
+    });
     menu->addAction("Delete",this,&c_stepView::slotDelete);
     menu->addAction("Add note",this,&c_stepView::slotAddNote);
 
@@ -127,10 +129,6 @@ void c_stepView::triggerShowButton() {
         default:
             break;
     }
-}
-
-void c_stepView::editStepAnimationOn() {
-    switchMode(recipe::modes::edition);
 }
 
 void c_stepView::editStepAnimationOff() {

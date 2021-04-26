@@ -62,7 +62,6 @@ public:
 public slots:
     void triggerShowButton();
 
-    void editStepAnimationOn();
     void editStepAnimationOff();
 
     void editSaved();
