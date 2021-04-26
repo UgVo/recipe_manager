@@ -22,6 +22,12 @@ public:
 
     QList<QPropertyAnimation *> switchMode(int mode = recipe::modes::resume);
 
+    c_component *getComponent();
+    void setFocus();
+
+signals:
+    void deleteMe();
+
 private:
     Ui::c_componentElemView *ui;
     c_component *component;

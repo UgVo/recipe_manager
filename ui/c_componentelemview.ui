@@ -59,6 +59,25 @@
    <item>
     <widget class="QLineEdit" name="ingredientLineEdit"/>
    </item>
+   <item>
+    <widget class="QPushButton" name="deleteButton">
+     <property name="minimumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>x</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

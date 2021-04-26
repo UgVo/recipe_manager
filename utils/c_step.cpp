@@ -55,6 +55,20 @@ void c_step::setComponents(const QList<c_component> &value) {
     components = value;
 }
 
+c_component *c_step::newComponent() {
+    components.push_back(c_component(c_ingredient()));
+    return &components.last();
+}
+
+void c_step::removeComponent(const c_component *value) {
+    for (int i = 0; i < components.size(); ++i) {
+        if (&components[i] == value) {
+            components.removeAt(i);
+            return;
+        }
+    }
+}
+
 QList<QString> c_step::getEquipments() const {
     return equipments;
 }

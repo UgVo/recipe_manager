@@ -26,6 +26,8 @@ public:
     QList<c_component> getComponents() const;
     QList<c_component *> getComponentsPtr();
     void setComponents(const QList<c_component> &value);
+    c_component *newComponent();
+    void removeComponent(const c_component *value);
 
     QList<QString> getEquipments() const;
     void setEquipments(const QList<QString> &value);

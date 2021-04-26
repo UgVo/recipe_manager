@@ -145,7 +145,9 @@ QList<QPropertyAnimation*> c_image::switchMode(int newMode, bool animate, int ti
             ui->deleteButton->resize(21,21);
             QPoint startPoint = isEmpty() ? QPoint(addButtonSizes[newMode].width()-ui->deleteButton->width(),0):QPoint(imageSizes[newMode].width()-ui->deleteButton->width(),0);
             ui->deleteButton->move(startPoint);
-            res.append(recipe::inflateAnimation(ui->deleteButton,ui->deleteButton->size()));
+            if (mode != newMode) {
+                res.append(recipe::inflateAnimation(ui->deleteButton,ui->deleteButton->size()));
+            }
         } else {
             res.append(recipe::deflateAnimation(ui->deleteButton,200));
         }

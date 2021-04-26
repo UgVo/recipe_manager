@@ -11,6 +11,12 @@ c_componentElemView::c_componentElemView(c_component *_component, QWidget *paren
     ui->unitComboBox->setCurrentText(recipe::unitToString[component->getUnit()]);
     ui->quantitySpinBox->setValue(double(component->getQuantity()));
 
+    QObject::connect(ui->deleteButton,&QPushButton::clicked, [=] () {
+        emit deleteMe();
+    });
+
+    this->setFixedHeight(23);
+
     switchMode();
 }
 
@@ -27,6 +33,7 @@ QList<QPropertyAnimation *> c_componentElemView::switchMode(int mode) {
         case recipe::modes::resume:
             ui->unitComboBox->hide();
             ui->quantitySpinBox->hide();
+            ui->deleteButton->hide();
             ui->checkBox->show();
             ui->quantityUnitLabel->show();
             ui->ingredientLineEdit->setReadOnly(true);
@@ -40,15 +47,26 @@ QList<QPropertyAnimation *> c_componentElemView::switchMode(int mode) {
         case recipe::modes::edition:
             ui->unitComboBox->show();
             ui->quantitySpinBox->show();
+            ui->deleteButton->show();
             ui->checkBox->hide();
             ui->quantityUnitLabel->hide();
             ui->ingredientLineEdit->setReadOnly(false);
             ui->ingredientLineEdit->setStyleSheet("");
             widthTotal = metrics.horizontalAdvance(ui->quantityUnitLabel->text()+ui->ingredientLineEdit->text()) + ui->checkBox->width() + static_cast<QHBoxLayout*>(this->layout())->spacing()*2 + 10;
             this->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
+            this->setFixedHeight(23);
             break;
     default:
         break;
     }
     return res;
+}
+
+c_component *c_componentElemView::getComponent() {
+    return component;
+}
+
+void c_componentElemView::setFocus() {
+    ui->ingredientLineEdit->setFocus();
+    ui->ingredientLineEdit->clear();
 }
