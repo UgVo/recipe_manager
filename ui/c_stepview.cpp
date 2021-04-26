@@ -493,6 +493,7 @@ void c_stepView::switchMode(int target, bool animated, int time) {
                 } else {
                     ui->displayButton->show();
                 }
+                ui->displayButton->raise();
             } else {
                 if (animated) {
                     QPropertyAnimation* anim = recipe::fadeAnimation(ui->displayButton,false,1000);
