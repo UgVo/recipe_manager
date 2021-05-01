@@ -53,11 +53,15 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     for (int i = 0; i < imageStringList.size(); ++i) {
         images.push_back(new c_image(imageStringList[i],this));
-        QObject::connect(images.last(),&c_image::newImage,this,&c_stepView::imageAdded);
     }
     for (int i = imageStringList.size(); i < maxNumberImages; ++i) {
-        images.push_back(new c_image("",this));
-        QObject::connect(images.last(),&c_image::newImage,this,&c_stepView::imageAdded);
+        images.push_back(new c_image("",this));       
+    }
+    for (int i = 0; i < images.size(); ++i) {
+        QObject::connect(images[i],&c_image::newImage,this,&c_stepView::imageAdded);
+        QObject::connect(images[i],&c_image::resized, [=] () {
+            switchMode(mode,true,500);
+        });
     }
 
     QList<c_process* > processList = step->getProcessingsPtr();
@@ -330,22 +334,12 @@ void c_stepView::slotShowNotes() {
     noteDialog->exec();
 }
 
-int c_stepView::countImage(){
+int c_stepView::getImageCount(){
     return countImages;
 }
 
 void c_stepView::imageAdded(QPropertyAnimation * animations) {
-    QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    int shift = ui->label->height() + borderSize*3 + getImagesMaxHeigth(recipe::modes::edition) - ui->showButton->y();
-    if (shift != 0) {
-        lockSize(false);
-        group->addAnimation(recipe::slideAnimation(ui->showButton,QPoint(0,shift)));
-        group->addAnimation(recipe::growAnimation(this,QSize(0,shift)));
-    }
-    group->addAnimation(animations);
-    QObject::connect(group,&QParallelAnimationGroup::finished,[=] () {endTransition(recipe::states::opened);});
-    state = recipe::states::transition;
-    group->start(QAbstractAnimation::DeleteWhenStopped);
+    switchMode(mode,true,500,QList<QPropertyAnimation *>{animations});
     checkCount();
 }
 
@@ -416,8 +410,12 @@ QList<QPropertyAnimation *> c_stepView::arrangeImagesEditOff(QPoint verticalShif
     return res;
 }
 
-void c_stepView::switchMode(int target, bool animated, int time) {
+void c_stepView::switchMode(int target, bool animated, int time, QList<QPropertyAnimation *> otherAnims) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
+    qDebug() << "size animation other" << otherAnims << otherAnims.size();
+    for (int i = 0; i < otherAnims.size(); ++i) {
+        group->addAnimation(otherAnims[i]);
+    }
     QSize targetSize;
     QPoint targetPos;
     QList<QPropertyAnimation *> anims;
@@ -458,9 +456,9 @@ void c_stepView::switchMode(int target, bool animated, int time) {
             group->addAnimation(processes->switchMode(target,animated,time));
 
             // Images
-            QList<QPoint> posList = arrangeImages(recipe::modes::resume);
+            QList<QPoint> posList = arrangeImages(target);
             for (int i = 0; i < images.size(); ++i) {
-                anims = images[i]->switchMode(recipe::modes::resume,animated);
+                anims = images[i]->switchMode(target,animated);
                 if (animated) {
                     group->addAnimation(recipe::targetPositionAnimation(images[i],posList[i],time));
                     for (int i = 0; i < anims.size(); ++i) {
@@ -479,9 +477,9 @@ void c_stepView::switchMode(int target, bool animated, int time) {
             // Display button
             checkCount();
             if (countImages>maxNumberImages/2) {
-                int y = borderSize + ui->label->height() + (processes->isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace)
+                int y = borderSize + getHeightText(target) + (processes->isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace)
                         + getImagesMaxHeigth(recipe::modes::resume) - ui->displayButton->height() - interImageSpace ;
-                ui->displayButton->move(QPoint(posList[1].x() - (interImageSpace+ui->displayButton->width())/2,y));
+                ui->displayButton->move(QPoint((limit-borderSize-interImageSpace)/2+borderSize - ui->displayButton->width()/2,y));
                 ui->displayButton->setText(QString("+%1").arg(countImages-maxNumberImages/2));
                 if (animated) {
                     QPropertyAnimation* anim = recipe::fadeAnimation(ui->displayButton,true,1000);
@@ -1028,7 +1026,8 @@ int c_stepView::getHeightWidget(int mode, int state) {
 QList<QPoint> c_stepView::arrangeImages(int target, QPoint verticalShift) {
     QList<QPoint> res;
     int totalWidth = 0;
-    int countImage;
+    int countImage, resumeImagesCount;
+
     QPoint point;
     switch (target) {
         case recipe::modes::display:
@@ -1057,14 +1056,17 @@ QList<QPoint> c_stepView::arrangeImages(int target, QPoint verticalShift) {
                     }
                 }
                 point = QPoint( (limit - borderSize - totalWidth - ((countImage)*interImageSpace))/2 + borderSize,
-                                borderSize*2 + std::max(ui->rankButton->height(),ui->label->height()) +
+                                borderSize*2 + std::max(ui->rankButton->height(),getHeightText(target)) +
                                     (processes->isEmpty()?0:c_processElemView::heightProcess)) + verticalShift;
-                for (int i = 0; i < maxNumberImages/2; ++i) {
-                    res.push_back(point);
-                    point += QPoint(images[i]->getSize(recipe::modes::resume).width() + interImageSpace,0);
-                }
-                for (int i = maxNumberImages/2; i < images.size(); ++i) {
-                    res.push_back(QPoint(this->width(),0));
+                resumeImagesCount = 0;
+                for (int i = 0; i < images.size(); ++i) {
+                    if ((resumeImagesCount < maxNumberImages/2) && !images[i]->isEmpty()) {
+                        res.push_back(point);
+                        point += QPoint(images[i]->getSize(recipe::modes::resume).width() + interImageSpace,0);
+                        ++resumeImagesCount;
+                    } else {
+                        res.push_back(QPoint(this->width(),0));
+                    }
                 }
             break;
         case recipe::modes::edition:
@@ -1106,8 +1108,8 @@ int c_stepView::getImagesMaxHeigth(int mode) {
             break;
         case recipe::modes::edition:
             for (int i = 0; i < images.size(); ++i) {
-                if (images[i]->height() > max) {
-                    max = images[i]->getSize(recipe::modes::edition).height();
+                if (images[i]->getSize(mode).height() > max) {
+                    max = images[i]->getSize(mode).height();
                 }
             }
             break;

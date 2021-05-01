@@ -37,10 +37,11 @@ public:
     QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift, int time = 1000);
     QList<QPropertyAnimation *> arrangeImagesEditOff(QPoint verticalShift);
 
-    void switchMode(int target = recipe::modes::resume, bool animated = true, int time = 1000);
+    void switchMode(int target = recipe::modes::resume, bool animated = true, int time = 1000, QList<QPropertyAnimation *> otherAnims = QList<QPropertyAnimation *>());
     QList<QPropertyAnimation *> switchState(int targetState = recipe::states::retracted, bool animated = true, int time = 1000);
 
     int getHeightWidget(int mode, int state = recipe::states::retracted);
+    int getImageCount();
 
     c_step *getStep() const;
 
@@ -78,8 +79,6 @@ public slots:
     void slotDelete();
     void slotAddNote();
     void slotShowNotes();
-
-    int countImage();
 
     void imageAdded(QPropertyAnimation *animations);
 

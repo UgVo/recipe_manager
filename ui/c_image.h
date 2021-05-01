@@ -28,8 +28,7 @@ public:
     void updateSizes(int count);
 
     bool isEmpty() const;
-    QList<QPropertyAnimation *> switchMode(int mode = recipe::modes::resume, bool animate = true, int time = 1000);
-    void resizeEvent(QResizeEvent *event);
+    QList<QPropertyAnimation *> switchMode(int target = recipe::modes::resume, bool animated = true, int time = 1000);
 
     QString getPathImage() const;
 
@@ -39,10 +38,9 @@ public slots:
 
 signals:
     void newImage(QPropertyAnimation* animation,QSize newSize);
+    void resized();
 
 private:
-    void computeSizes(int width, int count);
-
 
     Ui::c_image *ui;
     int mode;
@@ -55,6 +53,8 @@ private:
     QString pathOldImage;
     QPixmap image;
     QPixmap oldImage;
+
+    QSize deleteButtonSize;
 };
 
 #endif // C_IMAGE_H
