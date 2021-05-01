@@ -500,7 +500,7 @@ void c_stepView::switchMode(int target, bool animated, int time, QList<QProperty
             }
 
             // Resume button
-            targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize + ui->label->height() - ui->resumeButton->height());
+            targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize + getHeightText(target) - ui->resumeButton->height());
             targetSize = ui->menuButton->size();
             if (animated) {
                 group->addAnimation(recipe::targetGeometryAnimation(ui->resumeButton,targetSize,targetPos,time));
@@ -514,7 +514,7 @@ void c_stepView::switchMode(int target, bool animated, int time, QList<QProperty
             }
 
             // Components
-            targetPos = QPoint(limit + interImageSpace,borderSize+std::max(ui->rankButton->height(),ui->label->height())
+            targetPos = QPoint(limit + interImageSpace,borderSize+std::max(ui->rankButton->height(),getHeightText(target))
                                + (processes->isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace));
             anims = components->switchMode(target,animated,time);
             if (animated) {
@@ -531,8 +531,8 @@ void c_stepView::switchMode(int target, bool animated, int time, QList<QProperty
             }
 
             // Equipments
-            targetPos = QPoint(limit + interImageSpace, borderSize+std::max(ui->rankButton->height(),ui->label->height())
-                               + (processes->isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace) + components->height() + interImageSpace);
+            targetPos = QPoint(limit + interImageSpace, borderSize+std::max(ui->rankButton->height(),getHeightText(target))
+                               + (processes->isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace) + components->getSize(target).height() + interImageSpace);
             anims = equipments->switchMode(target,animated,time);
             if (animated) {
                 group->addAnimation(recipe::targetPositionAnimation(equipments,targetPos,time));
@@ -662,7 +662,7 @@ void c_stepView::switchMode(int target, bool animated, int time, QList<QProperty
             }
 
             // Resume button
-            targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize + ui->label->height() - ui->resumeButton->height());
+            targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize + getHeightText(target) - ui->resumeButton->height());
             targetSize = ui->menuButton->size();
             if (animated) {
                 group->addAnimation(recipe::targetGeometryAnimation(ui->resumeButton,targetSize,targetPos,time));
@@ -811,7 +811,7 @@ void c_stepView::switchMode(int target, bool animated, int time, QList<QProperty
             }
 
             // Resume button
-            targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize + ui->label->height() - ui->resumeButton->height());
+            targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize + getHeightText(target) - ui->resumeButton->height());
             targetSize = ui->menuButton->size();
             if (animated) {
                 group->addAnimation(recipe::targetGeometryAnimation(ui->resumeButton,targetSize,targetPos,time));
@@ -975,12 +975,12 @@ int c_stepView::getHeightWidget(int mode, int state) {
         case recipe::modes::resume: {
             switch (state) {
                 case recipe::states::retracted:
-                    return std::max(ui->rankButton->height(),ui->label->height()) + borderSize + ui->showButton->height()
+                    return std::max(ui->rankButton->height(),getHeightText(mode)) + borderSize + ui->showButton->height()
                             + (processes->isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace);
                 case recipe::states::opened:
-                    return std::max(ui->rankButton->height(),ui->label->height()) + borderSize + ui->showButton->height()
+                    return std::max(ui->rankButton->height(),getHeightText(mode)) + borderSize + ui->showButton->height()
                             + (processes->isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace)
-                            + std::max(getImagesMaxHeigth(mode),components->height() + equipments->getSize(mode).height() + 2*interImageSpace);
+                            + std::max(getImagesMaxHeigth(mode),components->getSize(mode).height() + equipments->getSize(mode).height() + 2*interImageSpace);
                 default:
                     break;
             }
@@ -989,10 +989,10 @@ int c_stepView::getHeightWidget(int mode, int state) {
         case recipe::modes::display: {
             switch (state) {
                 case recipe::states::retracted:
-                    return std::max(ui->rankButton->height(),ui->label->height()) + borderSize + ui->showButton->height()
+                    return std::max(ui->rankButton->height(),getHeightText(mode)) + borderSize + ui->showButton->height()
                             + (processes->isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace);
                 case recipe::states::opened:
-                    return std::max(ui->rankButton->height(),ui->label->height()) + borderSize + ui->showButton->height()
+                    return std::max(ui->rankButton->height(),getHeightText(mode)) + borderSize + ui->showButton->height()
                             + (processes->isEmpty()?borderSize:c_processElemView::heightProcess + 2*interImageSpace)
                             + getImagesMaxHeigth(mode);
                 default:
@@ -1039,7 +1039,7 @@ QList<QPoint> c_stepView::arrangeImages(int target, QPoint verticalShift) {
                     }
                 }
                 point = QPoint( (this->width() - 2*borderSize - totalWidth - ((countImage-1)*interImageSpace))/2 + borderSize,
-                                borderSize*2 + std::max(ui->rankButton->height(),ui->label->height()) +
+                                borderSize*2 + std::max(ui->rankButton->height(),getHeightText(target)) +
                                     (processes->isEmpty()?0:c_processElemView::heightProcess))
                         + verticalShift;
                 for (int i = 0; i < images.size(); ++i) {
