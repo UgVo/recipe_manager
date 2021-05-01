@@ -42,8 +42,6 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
         switchMode(recipe::modes::resume);
     });
 
-    ui->ingredientsLabel->hide();
-
     QList<QString> imageStringList = step->getImagesUrl();
     while (imageStringList.size() > maxNumberImages) {
         imageStringList.removeLast();
@@ -1004,10 +1002,8 @@ int c_stepView::getHeightWidget(int mode, int state) {
             switch (state) {
                 case recipe::states::retracted:
                     return getHeightText(recipe::modes::edition) + 2*borderSize + ui->showButton->height();
-                            //+ (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace);
                 case recipe::states::opened:
                     return  borderSize + getHeightText(mode) + 4*interImageSpace
-//                            + (processes.isEmpty()?borderSize:c_processView::heightProcess + 2*interImageSpace)
                             + ui->showButton->height()
                             + components->getSize(mode).height()
                             + equipments->getSize(mode).height()
