@@ -29,6 +29,7 @@ SOURCES += \
     ui/c_processelemview.cpp \
     ui/c_processview.cpp \
     ui/c_stepview.cpp \
+    ui/c_widget.cpp \
     utils/c_component.cpp \
     utils/c_dbmanager.cpp \
     utils/c_ingredient.cpp \
@@ -51,6 +52,7 @@ HEADERS += \
     ui/c_processelemview.h \
     ui/c_processview.h \
     ui/c_stepview.h \
+    ui/c_widget.h \
     utils/c_component.h \
     utils/c_dbmanager.h \
     utils/c_ingredient.h \

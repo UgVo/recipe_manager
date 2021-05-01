@@ -27,6 +27,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     ui->saveButton->setFixedWidth(ui->rankButton->width());
     ui->saveButton->setFixedSize(ui->saveButton->size());
+    QObject::connect(ui->saveButton,&QPushButton::clicked,this,&c_stepView::editSaved);
     ui->cancelButton->setFixedSize(ui->saveButton->size());
     ui->upButton->setFixedSize(ui->upButton->size());
     ui->downButton->setFixedSize(ui->downButton->size());
@@ -206,8 +207,8 @@ void c_stepView::editSaved() {
     }
 
     step->setImagesUrl(imageList);
+    processes->save();
 
-    editStepAnimationOff();
     QObject::disconnect(ui->saveButton,&QPushButton::released,this,&c_stepView::editSaved);
     QObject::disconnect(ui->cancelButton,&QPushButton::released,this,&c_stepView::editCanceled);
 
@@ -219,6 +220,7 @@ void c_stepView::editSaved() {
     res.remove(QRegExp("\n$"));
     step->setDescription(res);
     emit saved(step);
+    switchMode(recipe::modes::resume);
 }
 
 void c_stepView::editCanceled() {
@@ -448,15 +450,12 @@ void c_stepView::switchMode(int target, bool animated, int time) {
 
             // Process Views
             targetPos = QPoint((this->width() - 2*borderSize - processes->getSize(target).width())/2,borderSize + interImageSpace + std::max(ui->rankButton->height(),getHeightText(target)));
-            anims = processes->switchMode(target,animated,time);
             if (animated) {
                 group->addAnimation(recipe::targetPositionAnimation(processes,targetPos,time));
-                for (int i = 0; i < anims.size(); ++i) {
-                    group->addAnimation(anims[i]);
-                }
             } else {
                 processes->move(targetPos);
             }
+            group->addAnimation(processes->switchMode(target,animated,time));
 
             // Images
             QList<QPoint> posList = arrangeImages(recipe::modes::resume);
@@ -624,7 +623,6 @@ void c_stepView::switchMode(int target, bool animated, int time) {
 
             // Process Views
             targetPos = QPoint((this->width() - 2*borderSize - processes->getSize(target).width())/2,borderSize + interImageSpace + std::max(ui->rankButton->height(),getHeightText(target)));
-            anims = processes->switchMode(target,animated,time);
             if (animated) {
                 group->addAnimation(recipe::targetPositionAnimation(processes,targetPos,time));
                 for (int i = 0; i < anims.size(); ++i) {
@@ -633,6 +631,7 @@ void c_stepView::switchMode(int target, bool animated, int time) {
             } else {
                 processes->move(targetPos);
             }
+            group->addAnimation(processes->switchMode(target,animated,time));
 
 
             // Images
@@ -769,7 +768,7 @@ void c_stepView::switchMode(int target, bool animated, int time) {
 
             // Process Views
             targetPos = QPoint(borderSize,borderSize + getHeightText(target) + interImageSpace);
-            anims = processes->switchMode(target,animated,time);
+            processes->lower();
             if (animated) {
                 group->addAnimation(recipe::targetPositionAnimation(processes,targetPos,time));
                 for (int i = 0; i < anims.size(); ++i) {
@@ -782,6 +781,7 @@ void c_stepView::switchMode(int target, bool animated, int time) {
                 processes->move(targetPos);
                 processes->show();
             }
+            group->addAnimation(processes->switchMode(target,animated,time));
 
             // Images
             QList<QPoint> posList = arrangeImages(recipe::modes::edition);

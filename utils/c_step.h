@@ -54,6 +54,8 @@ public:
     QList<c_process> getProcessings() const;
     QList<c_process*> getProcessingsPtr();
     void setProcessings(const QList<c_process> &value);
+    c_process *newProcessing();
+    void removeProcessing(const c_process *value);
 
     bool isCompleted() const;
     void setComplete(bool value);

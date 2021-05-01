@@ -151,6 +151,20 @@ void c_step::setProcessings(const QList<c_process> &value) {
     processings = value;
 }
 
+c_process *c_step::newProcessing() {
+    processings.push_back(c_process());
+    return &processings.last();
+}
+
+void c_step::removeProcessing(const c_process *value) {
+    for (int i = 0; i < processings.size(); ++i) {
+        if (&processings[i] == value) {
+            processings.removeAt(i);
+            return;
+        }
+    }
+}
+
 c_step &c_step::operator=(const c_step &other) {
     complete = other.isCompleted();
     id = other.getId();

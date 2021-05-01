@@ -5,87 +5,118 @@
 int c_processView::maxNumberProcess = 3;
 
 c_processView::c_processView(QList<c_process *> _processes, QWidget *parent) :
-    QWidget(parent),
+    c_widget(parent),
     ui(new Ui::c_processView), processes(_processes) {
     ui->setupUi(this);
     while (processes.size() > maxNumberProcess) {
         processes.pop_back();
     }
     for (int i = 0; i < processes.size(); ++i) {
-        processViews.push_back(new c_processElemView(processes[i],this));
+        processElems.push_back(new c_processElemView(processes[i],this));
     }
     for (int i = processes.size(); i < maxNumberProcess; ++i) {
-        processViews.push_back(new c_processElemView(nullptr,this));
+        processElems.push_back(new c_processElemView(nullptr,this));
     }
 
+    for (int i = 0; i < processElems.size(); ++i) {
+        QObject::connect(processElems[i],&c_processElemView::removeProcess, [=] (const c_process *process) {
+            static_cast<c_stepView *>(this->parent())->getStep()->removeProcessing(process);
+        });
+    }
+    mode = modes::resume;
+    state = states::fixed;
 }
 
 c_processView::~c_processView() {
     delete ui;
 }
 
-QList<QPropertyAnimation *> c_processView::switchMode(int target, bool animated, int time) {
-    QList<QPropertyAnimation *> res;
+QAnimationGroup* c_processView::switchMode(int target, bool animated, int time) {
+    QParallelAnimationGroup *res =  new QParallelAnimationGroup();
     switch (target) {
-    case recipe::modes::resume:
-    case recipe::modes::display: {
+    case modes::resume:
+    case modes::display: {
         QPoint pos = QPoint(0,0);
-        for (int i = 0; i < processViews.size(); ++i) {
-            if (!processViews[i]->isEmpty()) {
-                res.append(processViews[i]->switchMode(target));
-                if (animated) {
-                    res.push_back(recipe::targetPositionAnimation(processViews[i],pos,time));
-                } else {
-                    processViews[i]->move(pos);
-                }
-                pos += QPoint(processViews[i]->getSize(target).width() + c_stepView::interImageSpace,0);
+        for (int i = 0; i < processElems.size(); ++i) {
+            if (animated && mode != target) {
+                res->addAnimation(slideAndDeployAnimation(processElems[i],pos,time,[=] () {
+                    processElems[i]->switchMode(target);
+                    processElems[i]->show();
+                },mode));
+            } else {
+                processElems[i]->switchMode(target);
+                processElems[i]->move(pos);
             }
+            pos += QPoint(processElems[i]->getSize(target).width() + c_stepView::interImageSpace,0);
+
         }
-        ui->label->hide();
+        if (animated) {
+            res->addAnimation(targetSizeAnimation(this,getSize(target)));
+            QPropertyAnimation* anim = fadeAnimation(ui->label,false,time/2);
+            if (anim != nullptr)
+                res->addAnimation(anim);
+        } else {
+            this->setFixedSize(getSize(target));
+            ui->label->hide();
+        }
     }
         break;
-    case recipe::modes::edition: {
+    case modes::edition: {
         QPoint pos = QPoint(0,0);
         ui->label->move(pos);
-        ui->label->show();
+        processSave = processes;
         pos += QPoint(0,ui->label->height() + c_stepView::interImageSpace);
-        for (int i = 0; i < processViews.size(); ++i) {
-            res.append(processViews[i]->switchMode(target));
-            if (animated) {
-                res.push_back(recipe::targetPositionAnimation(processViews[i],pos,time));
+        for (int i = 0; i < processElems.size(); ++i) {
+            if (animated && mode != target) {
+                res->addAnimation(slideAndDeployAnimation(processElems[i],pos,time,[=] () {
+                    processElems[i]->switchMode(target);
+                    processElems[i]->show();
+                },target));
             } else {
-                processViews[i]->move(pos);
+                processElems[i]->switchMode(target);
+                processElems[i]->move(pos);
             }
-            pos += QPoint(0,processViews[i]->getSize(target).height() + c_stepView::interImageSpace);
+            pos += QPoint(0,processElems[i]->getSize(target).height() + c_stepView::interImageSpace);
+        }
+        if (animated) {
+            res->addAnimation(targetSizeAnimation(this,getSize(target)));
+            QPropertyAnimation* anim = fadeAnimation(ui->label,true,time,time/2);
+            if (anim != nullptr)
+                res->addAnimation(anim);
+        } else {
+            this->setFixedSize(getSize(target));
+            ui->label->show();
         }
     }
         break;
     default:
         break;
     }
+    mode = target;
     return res;
 }
 
-QSize c_processView::getSize(int mode) {
+QSize c_processView::getSize(int target) {
     QSize res;
     int totalWidth = 0;
     int totalHeight = 0;
-    switch (mode) {
-        case recipe::modes::display:
-        case recipe::modes::resume:
-            for (int i = 0; i < processViews.size(); ++i) {
-                totalWidth += processViews[i]->getSize(recipe::modes::display).width();
+    switch (target) {
+        case modes::display:
+        case modes::resume:
+            for (int i = 0; i < processElems.size(); ++i) {
+                totalWidth += processElems[i]->getSize(target).width();
+                qDebug() << "c_processView::getSize" << processElems[i]->getSize(target).width();
             }
-            totalWidth += (processViews.size()-1)*c_stepView::interImageSpace;
+            totalWidth += (processElems.size()-1)*c_stepView::interImageSpace;
             if (!isEmpty()) {
-                totalHeight = processViews[0]->getSize(recipe::modes::display).height();
+                totalHeight = processElems[0]->getSize(target).height();
             }
             break;
-        case recipe::modes::edition:
-            for (int i = 0; i < processViews.size(); ++i) {
-                totalHeight += processViews[i]->getSize(recipe::modes::display).width();
+        case modes::edition:
+            for (int i = 0; i < processElems.size(); ++i) {
+                totalHeight += processElems[i]->getSize(target).height();
             }
-            totalHeight += (processViews.size()-1)*c_stepView::interImageSpace;
+            totalHeight += maxNumberProcess*c_stepView::interImageSpace + ui->label->height();
             totalWidth = static_cast<c_stepView *>(parent())->width()/2 - c_stepView::borderSize - c_stepView::interImageSpace;
             break;
     default:
@@ -96,9 +127,50 @@ QSize c_processView::getSize(int mode) {
     return res;
 }
 
+int c_processView::getWidth(int target) {
+    int totalWidth = 0;
+    switch (target) {
+        case modes::display:
+        case modes::resume:
+            for (int i = 0; i < processElems.size(); ++i) {
+                totalWidth += processElems[i]->getSize(target).width();
+            }
+            totalWidth += (processElems.size()-1)*c_stepView::interImageSpace;
+            break;
+        case modes::edition:
+            totalWidth = static_cast<c_stepView *>(parent())->width()/2 - c_stepView::borderSize - c_stepView::interImageSpace;
+            break;
+    default:
+        break;
+    }
+
+    return totalWidth;
+}
+
+void c_processView::save() {
+    processSave.clear();
+    for (int i = 0; i < processElems.size(); ++i) {
+        processElems[i]->save();
+    }
+}
+
+void c_processView::rollback() {
+    processes = processSave;
+    for (int i = 0; i < processes.size(); ++i) {
+        processElems[i]->setProcess(processes[i]);
+    }
+    for (int i = processes.size(); i < maxNumberProcess; ++i) {
+        processElems[i]->setProcess(nullptr);
+    }
+}
+
+c_process *c_processView::newProcessing() {
+    return static_cast<c_stepView *>(parent())->getStep()->newProcessing();
+}
+
 bool c_processView::isEmpty() {
-    for (int i = 0; i < processViews.size(); ++i) {
-        if(!processViews.isEmpty())
+    for (int i = 0; i < processElems.size(); ++i) {
+        if(!processElems.isEmpty())
             return false;
     }
     return true;
