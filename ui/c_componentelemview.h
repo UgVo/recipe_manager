@@ -21,6 +21,8 @@ public:
     ~c_componentElemView();
 
     QList<QPropertyAnimation *> switchMode(int mode = recipe::modes::resume);
+    void save();
+    void rollback();
 
     c_component *getComponent();
     void setFocus();

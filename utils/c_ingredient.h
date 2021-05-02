@@ -32,6 +32,8 @@ public:
     QString getName() const;
     void setName(const QString &value);
 
+    bool isEmpty();
+
 private:
     QString type;
     QString name;

@@ -74,3 +74,10 @@ QString c_ingredient::getName() const {
 void c_ingredient::setName(const QString &value) {
     name = value.toLower();
 }
+
+bool c_ingredient::isEmpty() {
+    if (!name.compare("none") && !type.compare("none")) {
+        return true;
+    }
+    return false;
+}

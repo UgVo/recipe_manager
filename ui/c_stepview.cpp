@@ -221,6 +221,9 @@ void c_stepView::editSaved() {
     }
     res.remove(QRegExp("\n$"));
     step->setDescription(res);
+
+    components->save();
+
     emit saved(step);
     switchMode(recipe::modes::resume);
 }

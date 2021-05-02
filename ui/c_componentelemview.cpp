@@ -1,5 +1,6 @@
 #include "c_componentelemview.h"
 #include "ui_c_componentelemview.h"
+#include "utils/c_dbmanager.h"
 
 c_componentElemView::c_componentElemView(c_component *_component, QWidget *parent) :
     QWidget(parent),
@@ -9,7 +10,7 @@ c_componentElemView::c_componentElemView(c_component *_component, QWidget *paren
     ui->ingredientLineEdit->setText(component->getIngredient().getName());
     ui->quantityUnitLabel->setText(QString("%1%2").arg(component->getQuantity()).arg(recipe::unitToString[component->getUnit()]));
     ui->unitComboBox->setCurrentText(recipe::unitToString[component->getUnit()]);
-    ui->quantitySpinBox->setValue(double(component->getQuantity()));
+    ui->quantitySpinBox->setValue(component->getQuantity());
 
     QObject::connect(ui->deleteButton,&QPushButton::clicked, [=] () {
         emit deleteMe();
@@ -60,6 +61,37 @@ QList<QPropertyAnimation *> c_componentElemView::switchMode(int mode) {
         break;
     }
     return res;
+}
+
+void c_componentElemView::save() {
+    QString ingredientName = ui->ingredientLineEdit->text();
+    QList<c_ingredient> ingredients = c_dbManager::getIngredients().values();
+    c_ingredient ingre;
+    for (int i = 0; i < ingredients.size(); ++i) {
+        if (!ingredientName.compare(ingredients[i].getName())) {
+            if (ingre.isEmpty()) {
+                ingre = ingredients[i];
+            }
+            if (ingredients[i].getSubRecipe().isEmpty()) {
+                ingre = ingredients[i];
+                break;
+            }
+        }
+    }
+    if (ingre.isEmpty()) {
+        ingre.setName(ingredientName);
+    }
+
+    component->setIngredient(ingre);
+    component->setQuantity(ui->quantitySpinBox->value());
+    component->setUnit(recipe::unitToString.key(ui->unitComboBox->currentText()));
+
+    ui->ingredientLineEdit->setText(component->getIngredient().getName());
+    ui->quantityUnitLabel->setText(QString("%1%2").arg(component->getQuantity()).arg(recipe::unitToString[component->getUnit()]));
+}
+
+void c_componentElemView::rollback() {
+
 }
 
 c_component *c_componentElemView::getComponent() {

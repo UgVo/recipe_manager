@@ -59,6 +59,7 @@ QList<QPropertyAnimation *> c_componentView::switchMode(int target, bool animate
         }
         break;
         case recipe::modes::edition: {
+            componentsSave = components;
             for (int i = 0; i < componentsViews.size(); ++i) {
                 QList<QPropertyAnimation *> anims = componentsViews[i]->switchMode(recipe::modes::edition);
                 if (animated) {
@@ -135,6 +136,12 @@ QSize c_componentView::getSize(int mode) {
         break;
     }
     return res;
+}
+
+void c_componentView::save() {
+    for (int i = 0; i < componentsViews.size(); ++i) {
+        componentsViews[i]->save();
+    }
 }
 
 void c_componentView::newComponent() {

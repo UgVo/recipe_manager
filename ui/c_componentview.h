@@ -24,6 +24,9 @@ public:
     QList<QPropertyAnimation *> switchMode(int target = recipe::modes::resume, bool animated = true, int time = 1000);
     QSize getSize(int mode = recipe::modes::resume);
 
+    void save();
+    void rollback();
+
 public slots:
     void newComponent();
     void removeComponent();
@@ -34,6 +37,7 @@ signals:
 private:
     Ui::c_componentView *ui;
     QList<c_component *> components;
+    QList<c_component *> componentsSave;
     QList<c_componentElemView *> componentsViews;
     QPushButton *addComponentButton;
 };
