@@ -120,7 +120,6 @@ c_note *c_noteView::getNote() const
 }
 
 bool c_noteView::isEmpty() {
-    qDebug() << ui->textEdit->document()->toRawText();
     return ui->textEdit->document()->toRawText().isEmpty();
 }
 

@@ -125,7 +125,6 @@ QSize c_componentView::getSize(int mode) {
             layout->getContentsMargins(nullptr,&top,nullptr,&bottom);
             for (int i = 0; i < componentsViews.size(); ++i) {
                 heightMin += componentsViews[i]->height();
-                qDebug() << componentsViews[i]->height();
             }
             res.setWidth(max);
             res.setHeight(heightMin + (components.size()+2)*layout->spacing() + ui->label_2->height()

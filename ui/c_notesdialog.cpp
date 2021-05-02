@@ -147,7 +147,6 @@ void c_notesDialog::scrollTo() {
     int slide = -bar->value() - heightSliders - spaceSliders;
     for (int i = noteList.size()-1; i >= 0; --i) {
         if (sender != noteList[i]) {
-            qDebug() << noteList[i]->height() << i;
             slide += noteList[i]->height() + ui->scrollAreaContents->layout()->spacing();
         } else {
             break;
@@ -158,8 +157,6 @@ void c_notesDialog::scrollTo() {
     anim->setStartValue(bar->value());
     anim->setEndValue(slide);
     anim->start(QAbstractAnimation::DeleteWhenStopped);
-
-    qDebug() << bar->value() << slide;
 }
 
 void c_notesDialog::slotNewNote() {
