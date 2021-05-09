@@ -4,5 +4,8 @@
         <file>step_img_2.png</file>
         <file>step_img_3.png</file>
         <file>temp.png</file>
+        <file>speech-bubble.png</file>
+        <file>left2.png</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>
