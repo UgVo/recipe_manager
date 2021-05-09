@@ -160,35 +160,21 @@ void c_notesDialog::scrollTo() {
 }
 
 void c_notesDialog::slotNewNote() {
-    noteList.append(new c_noteView(new c_note()));
+    noteList.append(new c_noteView(static_cast<c_stepView*>(parent())->getStep()->newNote()));
     static_cast<QHBoxLayout*>(ui->scrollAreaContents->layout())->insertWidget(0,noteList.last());
     QObject::connect(noteList.last(),&c_noteView::scrollToMe,this,&c_notesDialog::scrollTo);
     QObject::connect(noteList.last(),&c_noteView::deleteMe,this,&c_notesDialog::slotDeleteNote);
-    QObject::connect(noteList.last(),&c_noteView::editFinished,this,&c_notesDialog::slotEditFinished);
     noteList.last()->modify();
 }
 
-void c_notesDialog::slotEditFinished() {
-    QObject::connect(noteList.last(),&c_noteView::editFinished,this,&c_notesDialog::slotEditFinished);
-    if (!noteList.last()->isEmpty()) {
-        if (static_cast<c_stepView*>(parent())) {
-            noteList.last()->setNote(static_cast<c_stepView*>(parent())->addNoteToStep(noteList.last()->getNote()));
-        }
-    } else {
-        noteList.last()->hide();
-        static_cast<QHBoxLayout*>(ui->scrollAreaContents->layout())->removeWidget(noteList.last());
-        noteList.last()->deleteLater();
-        noteList.removeLast();
-    }
-}
-
 void c_notesDialog::slotDeleteNote() {
+    c_noteView *sender = static_cast<c_noteView *>(QObject::sender());
     if (static_cast<c_stepView*>(parent())) {
-        static_cast<c_stepView*>(parent())->deleteNote(noteList.last()->getNote());
+        static_cast<c_stepView*>(parent())->deleteNote(sender->getNote());
     }
-    noteList.last()->hide();
-    static_cast<QHBoxLayout*>(ui->scrollAreaContents->layout())->removeWidget(noteList.last());
-    noteList.last()->deleteLater();
-    noteList.removeLast();
+    sender->hide();
+    static_cast<QHBoxLayout*>(ui->scrollAreaContents->layout())->removeWidget(sender);
+    sender->deleteLater();
+    noteList.removeOne(sender);
 }
 

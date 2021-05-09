@@ -31,7 +31,12 @@ c_noteView::c_noteView(c_note* _note, QWidget *parent) :
     QObject::connect(ui->buttonBox,&QDialogButtonBox::rejected,this,&c_noteView::cancel);
 
     textAltered = false;
-    QObject::connect(ui->textEdit,&QTextEdit::textChanged,[this](){textAltered = true;ui->buttonBox->show();});
+    QObject::connect(ui->textEdit,&QTextEdit::textChanged,[this] () {
+        if (!textAltered) {
+            textAltered = true;
+            ui->buttonBox->show();
+        }
+    });
 }
 
 c_noteView::~c_noteView() {
@@ -79,7 +84,6 @@ int c_noteView::getHeightText() {
 void c_noteView::modify() {
     ui->textEdit->setReadOnly(false);
     ui->textEdit->setFocus();
-    //ui->buttonBox->show();
 
     ui->textEdit->setStyleSheet("");
     emit scrollToMe();
@@ -87,7 +91,6 @@ void c_noteView::modify() {
 }
 
 void c_noteView::save() {
-    ui->textEdit->disconnect();
     note->setText(ui->textEdit->document()->toRawText());
     note->setDate(QDateTime::currentDateTime());
     ui->dateLabel->setText(QDateTime::currentDateTime().toString());
@@ -98,11 +101,9 @@ void c_noteView::save() {
     ui->buttonBox->hide();
     ui->textEdit->setReadOnly(true);
     textAltered = false;
-    emit editFinished();
 }
 
 void c_noteView::cancel() {
-    ui->textEdit->disconnect();
     ui->textEdit->setText(note->getText());
     ui->textEdit->setStyleSheet("QTextEdit {"
                              "  border : 0px solid white;"
@@ -111,7 +112,6 @@ void c_noteView::cancel() {
     ui->buttonBox->hide();
     ui->textEdit->setReadOnly(true);
     textAltered = false;
-    emit editFinished();
 }
 
 c_note *c_noteView::getNote() const

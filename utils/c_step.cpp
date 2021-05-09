@@ -124,15 +124,17 @@ void c_step::setNotes(const QList<c_note> &value) {
     std::sort(notes.begin(),notes.end());
 }
 
-c_note *c_step::addNote(const c_note value) {
-    notes.append(value);
-    c_note* ptr = &notes.last();
-    std::sort(notes.begin(),notes.end());
-    return ptr;
+c_note *c_step::newNote() {
+    notes.push_back(c_note());
+    return &notes.last();
 }
 
-void c_step::deleteNote(const c_note value){
-    notes.removeOne(value);
+void c_step::deleteNote(const c_note *value){
+    for (int i = 0; i < notes.size(); ++i) {
+        if (&notes[i] == value) {
+            notes.removeAt(i);
+        }
+    }
 }
 
 QList<c_process> c_step::getProcessings() const {

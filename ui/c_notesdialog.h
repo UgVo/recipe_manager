@@ -41,7 +41,6 @@ public slots:
     void scrollTo();
 
     void slotNewNote();
-    void slotEditFinished();
     void slotDeleteNote();
 
 private:

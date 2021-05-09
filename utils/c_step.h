@@ -43,8 +43,8 @@ public:
     QList<c_note> getNotes() const;
     QList<c_note*> getNotesPtr();
     void setNotes(const QList<c_note> &value);
-    c_note* addNote(const c_note value);
-    void deleteNote(const c_note value);
+    c_note *newNote();
+    void deleteNote(const c_note *value);
 
     c_step &operator=(const c_step &other);
     bool operator==(const c_step &other) const;
