@@ -2,6 +2,7 @@
 #define C_IMAGE_H
 
 #include <QWidget>
+#include <ui/c_widget.h>
 #include <QPropertyAnimation>
 #include "utils/utils.h"
 
@@ -9,7 +10,7 @@ namespace Ui {
 class c_image;
 }
 
-class c_image : public QWidget
+class c_image : public c_widget
 {
     Q_OBJECT
 
@@ -19,16 +20,14 @@ public:
     ~c_image();
 
     QPixmap getImage() const;
-    QSize getSize(int mode = recipe::modes::display) const;
+    QSize getSize(int target = modes::display) const;
     void setImage(const QPixmap &value);
 
-    QString save();
+    void save();
     void rollback();
 
-    void updateSizes(int count);
-
     bool isEmpty() const;
-    QList<QPropertyAnimation *> switchMode(int target = recipe::modes::resume, bool animated = true, int time = 1000);
+    QAbstractAnimation *switchMode(int target = modes::resume, bool animated = true, int time = 1000);
 
     QString getPathImage() const;
 
@@ -43,8 +42,6 @@ signals:
 private:
 
     Ui::c_image *ui;
-    int mode;
-    int state;
 
     QMap<int,QSize> imageSizes;
     QMap<int,QSize> addButtonSizes;
