@@ -23,6 +23,9 @@ c_processView::c_processView(QList<c_process *> _processes, QWidget *parent) :
             static_cast<c_stepView *>(this->parent())->getStep()->removeProcessing(process);
         });
     }
+
+    ui->label->setFixedHeight(labelHeight);
+
     mode = modes::resume;
     state = states::fixed;
 }
@@ -51,7 +54,7 @@ QAbstractAnimation *c_processView::switchMode(int target, bool animated, int tim
 
         }
         if (animated) {
-            res->addAnimation(targetSizeAnimation(this,getSize(target)));
+            res->addAnimation(targetSizeAnimation(this,getSize(target),time));
             QPropertyAnimation* anim = fadeAnimation(ui->label,false,time/2);
             if (anim != nullptr)
                 res->addAnimation(anim);
@@ -79,7 +82,7 @@ QAbstractAnimation *c_processView::switchMode(int target, bool animated, int tim
             pos += QPoint(0,processElems[i]->getSize(target).height() + c_stepView::interImageSpace);
         }
         if (animated) {
-            res->addAnimation(targetSizeAnimation(this,getSize(target)));
+            res->addAnimation(targetSizeAnimation(this,getSize(target),time));
             QPropertyAnimation* anim = fadeAnimation(ui->label,true,time,time/2);
             if (anim != nullptr)
                 res->addAnimation(anim);
@@ -103,9 +106,11 @@ QSize c_processView::getSize(int target) const {
     switch (target) {
         case modes::display:
         case modes::resume:
+            if (isEmpty()) {
+                return QSize(0,0);
+            }
             for (int i = 0; i < processElems.size(); ++i) {
                 totalWidth += processElems[i]->getSize(target).width();
-                qDebug() << "c_processView::getSize" << processElems[i]->getSize(target).width();
             }
             totalWidth += (processElems.size()-1)*c_stepView::interImageSpace;
             if (!isEmpty()) {
