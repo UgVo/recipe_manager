@@ -2,6 +2,7 @@
 #define C_COMPONENTVIEW_H
 
 #include <QWidget>
+#include <ui/c_widget.h>
 #include <ui/c_componentelemview.h>
 #include <QFontMetrics>
 #include <QCheckBox>
@@ -13,7 +14,7 @@ namespace Ui {
 class c_componentView;
 }
 
-class c_componentView : public QWidget
+class c_componentView : public c_widget
 {
     Q_OBJECT
 
@@ -21,11 +22,14 @@ public:
     explicit c_componentView(QList<c_component*> components, QWidget *parent = nullptr);
     ~c_componentView();
 
-    QList<QPropertyAnimation *> switchMode(int target = recipe::modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(int mode = recipe::modes::resume);
+    QAbstractAnimation *switchMode(int target = modes::resume, bool animated = true, int time = 1000);
+    QSize getSize(int target = modes::resume) const;
+    int getWidth(int target = modes::resume) const;
 
     void save();
     void rollback();
+
+    bool isEmpty() const;
 
 public slots:
     void newComponent();
@@ -36,10 +40,12 @@ signals:
 
 private:
     Ui::c_componentView *ui;
-    QList<c_component *> components;
-    QList<c_component *> componentsSave;
+    QList<c_componentElemView *> toDeleteComponents;
+    QList<c_componentElemView *> addedComponents;
     QList<c_componentElemView *> componentsViews;
     QPushButton *addComponentButton;
+
+    bool enableResize;
 };
 
 #endif // C_COMPONENTVIEW_H

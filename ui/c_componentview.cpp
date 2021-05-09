@@ -3,14 +3,12 @@
 #include "c_stepview.h"
 
 c_componentView::c_componentView(QList<c_component *> _components, QWidget *parent) :
-    QWidget(parent),
-    ui(new Ui::c_componentView), components(_components) {
+    c_widget(parent),
+    ui(new Ui::c_componentView) {
     ui->setupUi(this);
 
-    QHBoxLayout* layout = static_cast<QHBoxLayout*>(ui->widget->layout());
-    for (int i = 0; i < components.size(); ++i) {
-        componentsViews.push_back(new c_componentElemView(components[i],this));
-        layout->insertWidget(i+1,componentsViews.last());
+    for (int i = 0; i < _components.size(); ++i) {
+        componentsViews.push_back(new c_componentElemView(_components[i],this));
         QObject::connect(componentsViews.last(),&c_componentElemView::deleteMe,this,&c_componentView::removeComponent);
     }
 
@@ -18,117 +16,115 @@ c_componentView::c_componentView(QList<c_component *> _components, QWidget *pare
     addComponentButton->setFixedHeight(21);
 
     QObject::connect(addComponentButton,&QPushButton::clicked,this,&c_componentView::newComponent);
-    switchMode(recipe::modes::resume,false);
+
+    ui->labelIngredient->setFixedHeight(labelHeight);
+
+    enableResize = true;
+    switchMode(modes::resume,false);
 }
 
 c_componentView::~c_componentView() {
     delete ui;
 }
 
-QList<QPropertyAnimation *> c_componentView::switchMode(int target, bool animated, int time) {
-    QList<QPropertyAnimation *> res;
+QAbstractAnimation *c_componentView::switchMode(int target, bool animated, int time) {
+    QParallelAnimationGroup *res = new QParallelAnimationGroup();
     switch (target) {
-        case recipe::modes::display:
-        case recipe::modes::resume: {
+        case modes::display:
+        case modes::resume: {
+            QPoint pos(insideBorder,0);
+            ui->labelIngredient->move(pos);
+            pos += QPoint(0,ui->labelIngredient->height() + c_stepView::interImageSpace);
             for (int i = 0; i < componentsViews.size(); ++i) {
-                QList<QPropertyAnimation *> anims = componentsViews[i]->switchMode(recipe::modes::resume);
                 if (animated) {
-                    for (int i = 0; i < anims.size(); ++i) {
-                        res.push_back(anims[i]);
-                    }
+                    res->addAnimation(targetPositionAnimation(componentsViews[i],pos,time));
+                } else {
+                    componentsViews[i]->move(pos);
                 }
+                res->addAnimation(componentsViews[i]->switchMode(target,animated,time));
+                pos += QPoint(0,componentsViews[i]->getSize(target).height() + c_stepView::interImageSpace);
             }
             int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
-            QHBoxLayout* layout = static_cast<QHBoxLayout*>(ui->widget->layout());
-            int left, right;
-            layout->getContentsMargins(&left,nullptr,&right,nullptr);
-            addComponentButton->setFixedWidth(max - left - right);
-            addComponentButton->move(QPoint(left,getSize(target).height()-addComponentButton->height()));
-            QSize targetSize = getSize(target);
+            addComponentButton->setFixedWidth(max - 2*insideBorder);
             if (animated) {
-                res.push_back(recipe::targetSizeAnimation(this,targetSize,time));
-            } else {
-                this->setFixedSize(targetSize);
-            }
-
-            ui->widget->setStyleSheet("QWidget#widget {"
-                                      " border : 1px solid white;"
-                                      " border-radius : 2px;"
-                                      "}");
-            addComponentButton->hide();
-        }
-        break;
-        case recipe::modes::edition: {
-            componentsSave = components;
-            for (int i = 0; i < componentsViews.size(); ++i) {
-                QList<QPropertyAnimation *> anims = componentsViews[i]->switchMode(recipe::modes::edition);
-                if (animated) {
-                    for (int i = 0; i < anims.size(); ++i) {
-                        res.push_back(anims[i]);
-                    }
-                }
-            }
-            int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
-            QHBoxLayout* layout = static_cast<QHBoxLayout*>(ui->widget->layout());
-            int left, right;
-            layout->getContentsMargins(&left,nullptr,&right,nullptr);
-            addComponentButton->setFixedWidth(max - left - right);
-
-            if (animated) {
-                res.push_back(recipe::targetSizeAnimation(this,getSize(target),time));
-                res.push_back(recipe::targetPositionAnimation(addComponentButton,QPoint(left,getSize(target).height()-addComponentButton->height()),time));
+                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(mode).height()),time/3));
             } else {
                 this->setFixedSize(getSize(target));
-                addComponentButton->move(QPoint(left,getSize(target).height()-addComponentButton->height()));
+                addComponentButton->hide();
             }
+        }
+        break;
+        case modes::edition: {
+            QPoint pos(insideBorder,0);
+            ui->labelIngredient->move(pos);
+            pos += QPoint(0,ui->labelIngredient->height() + c_stepView::interImageSpace);
+            if (mode != target) {
+                 addComponentButton->move(QPoint(insideBorder,getSize(target).height()));
+                 addComponentButton->lower();
+            }
+            for (int i = 0; i < componentsViews.size(); ++i) {
+                if (animated) {
+                    res->addAnimation(targetPositionAnimation(componentsViews[i],pos,time));
+                } else {
+                    componentsViews[i]->move(pos);
+                }
+                res->addAnimation(componentsViews[i]->switchMode(target,animated,time));
+                pos += QPoint(0,componentsViews[i]->getSize(target).height() + c_stepView::interImageSpace);
+            }
+            int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+            addComponentButton->setFixedWidth(max - 2*insideBorder);
 
-            ui->widget->setStyleSheet("QWidget#widget {"
-                                      " border : 1px solid white;"
-                                      " border-radius : 2px;"
-                                      "}");
+            if (animated) {
+                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time + time/3,time));
+            } else {
+                this->setFixedSize(getSize(target));
+                addComponentButton->move(QPoint(insideBorder,getSize(target).height()-addComponentButton->height()));
+            }
             addComponentButton->show();
         }
         break;
     default:
         break;
     }
+    mode = target;
     return res;
 }
 
-QSize c_componentView::getSize(int mode) {
+QSize c_componentView::getSize(int target) const {
     QSize res;
-    switch (mode) {
-        case recipe::modes::display:
-        case recipe::modes::resume: {
+    switch (target) {
+        case modes::display:
+        case modes::resume: {
+            if (isEmpty()) {
+                return QSize(0,0);
+            }
             int widthMin = 0;
             int heightMin = 0;
             int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
-            QFontMetrics metric(ui->label_2->font());
-            QHBoxLayout* layout = static_cast<QHBoxLayout*>(ui->widget->layout());
+            QFontMetrics metric(ui->labelIngredient->font());
             for (int i = 0; i < componentsViews.size(); ++i) {
                 if (componentsViews[i]->width() > widthMin)
-                    widthMin = componentsViews[i]->width();
-                heightMin += componentsViews[i]->height();
+                    widthMin = componentsViews[i]->getSize(target).width();
+                heightMin += componentsViews[i]->getSize(target).height();
             }
-            widthMin = std::max(widthMin,metric.horizontalAdvance(ui->label_2->text()));
+            widthMin = std::max(widthMin,metric.horizontalAdvance(ui->labelIngredient->text()));
             widthMin = widthMin > max ? max : widthMin;
             res.setWidth(widthMin);
-            res.setHeight(heightMin + components.size()*layout->spacing() + ui->label_2->height());
+            res.setHeight(heightMin + componentsViews.size()*c_stepView::interImageSpace + ui->labelIngredient->height());
         }
         break;
-        case recipe::modes::edition: {
+        case modes::edition: {
             int heightMin = 0;
-            int top, bottom;
             int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
-            QFontMetrics metric(ui->label_2->font());
-            QHBoxLayout* layout = static_cast<QHBoxLayout*>(ui->widget->layout());
-            layout->getContentsMargins(nullptr,&top,nullptr,&bottom);
+            QFontMetrics metric(ui->labelIngredient->font());
             for (int i = 0; i < componentsViews.size(); ++i) {
-                heightMin += componentsViews[i]->height();
+                heightMin += componentsViews[i]->getSize(target).height();
             }
             res.setWidth(max);
-            res.setHeight(heightMin + (components.size()+2)*layout->spacing() + ui->label_2->height()
-                          + addComponentButton->height() + top + bottom);
+            res.setHeight(heightMin + (componentsViews.size()+1)*c_stepView::interImageSpace + ui->labelIngredient->height()
+                          + addComponentButton->height());
         }
         break;
     default:
@@ -137,33 +133,93 @@ QSize c_componentView::getSize(int mode) {
     return res;
 }
 
-void c_componentView::save() {
-    for (int i = 0; i < componentsViews.size(); ++i) {
-        componentsViews[i]->save();
+int c_componentView::getWidth(int target) const {
+    switch (target) {
+        case modes::display:
+        case modes::resume: {
+            int widthMin = 0;
+            QFontMetrics metric(ui->labelIngredient->font());
+            int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+            for (int i = 0; i < componentsViews.size(); ++i) {
+                if (componentsViews[i]->width() > widthMin)
+                    widthMin = componentsViews[i]->getSize(target).width();
+            }
+            widthMin = std::max(widthMin,metric.horizontalAdvance(ui->labelIngredient->text()));
+            widthMin = widthMin > max ? max : widthMin;
+            return widthMin;
+        }
+        case modes::edition:
+            return static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+    default:
+        break;
     }
+    return 0;
+}
+
+void c_componentView::save() {
+    c_step *step = static_cast<c_stepView *>(parent())->getStep();
+    QList<c_componentElemView *> componentViewCopy = componentsViews;
+    for (int i = 0; i < componentViewCopy.size(); ++i) {
+        componentViewCopy[i]->save();
+    }
+    for (int i = 0; i < toDeleteComponents.size(); ++i) {
+        step->removeComponent(toDeleteComponents[i]->getComponent());
+        toDeleteComponents[i]->hide();
+        toDeleteComponents[i]->deleteLater();
+    }
+    toDeleteComponents.clear();
+    addedComponents.clear();
+}
+
+void c_componentView::rollback() {
+    c_step *step = static_cast<c_stepView *>(parent())->getStep();
+    for (int i = 0; i < addedComponents.size(); ++i) {
+        if (toDeleteComponents.contains(addedComponents[i])) {
+            toDeleteComponents.removeOne(addedComponents[i]);
+        }
+        step->removeComponent(addedComponents[i]->getComponent());
+        componentsViews.removeOne(addedComponents[i]);
+        addedComponents[i]->hide();
+        addedComponents[i]->deleteLater();
+    }
+
+    for (int i = 0; i < toDeleteComponents.size(); ++i) {
+        componentsViews.push_back(toDeleteComponents[i]);
+        toDeleteComponents[i]->show();
+    }
+
+    for (int i = 0; i < componentsViews.size(); ++i) {
+        componentsViews[i]->rollback();
+    }
+    toDeleteComponents.clear();
+    addedComponents.clear();
+}
+
+bool c_componentView::isEmpty() const {
+    return componentsViews.isEmpty();
 }
 
 void c_componentView::newComponent() {
-    QHBoxLayout* layout = static_cast<QHBoxLayout*>(ui->widget->layout());
     c_step *step = static_cast<c_stepView *>(parent())->getStep();
-    components.push_back(step->newComponent());
-    componentsViews.push_back(new c_componentElemView(components.last(),this));
-    layout->insertWidget(componentsViews.size(),componentsViews.last());
+    componentsViews.push_back(new c_componentElemView(step->newComponent(),this));
+    componentsViews.last()->show();
     componentsViews.last()->setFocus();
+    componentsViews.last()->lower();
+    componentsViews.last()->move(insideBorder,-componentsViews.last()->getSize(modes::edition).height());
     QObject::connect(componentsViews.last(),&c_componentElemView::deleteMe,this,&c_componentView::removeComponent);
 
-    emit resized();
+    addedComponents.append(componentsViews.last());
+
+    if (enableResize)
+        emit resized();
 }
 
 void c_componentView::removeComponent() {
-    c_step *step = static_cast<c_stepView *>(parent())->getStep();
     c_componentElemView *sender = static_cast<c_componentElemView *>(QObject::sender());
-    c_component *component = sender->getComponent();
-    step->removeComponent(component);
-    components.removeOne(component);
     componentsViews.removeOne(sender);
+    toDeleteComponents.push_back(sender);
     sender->hide();
-    sender->deleteLater();
 
-    emit resized();
+    if (enableResize)
+        emit resized();
 }

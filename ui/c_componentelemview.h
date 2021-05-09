@@ -3,16 +3,18 @@
 
 #include <QWidget>
 #include <QPropertyAnimation>
+#include <QParallelAnimationGroup>
 #include <QFontMetrics>
 #include <utils/c_component.h>
 #include <utils/c_ingredient.h>
 #include <utils/utils.h>
+#include <ui/c_widget.h>
 
 namespace Ui {
 class c_componentElemView;
 }
 
-class c_componentElemView : public QWidget
+class c_componentElemView : public c_widget
 {
     Q_OBJECT
 
@@ -20,7 +22,8 @@ public:
     explicit c_componentElemView(c_component *component, QWidget *parent = nullptr);
     ~c_componentElemView();
 
-    QList<QPropertyAnimation *> switchMode(int mode = recipe::modes::resume);
+    QAbstractAnimation *switchMode(int mode = modes::resume, bool animated = true, int time = 1000);
+    QSize getSize(int target) const;
     void save();
     void rollback();
 
@@ -33,6 +36,8 @@ signals:
 private:
     Ui::c_componentElemView *ui;
     c_component *component;
+
+    static int heigthWidget;
 };
 
 #endif // C_COMPONENTELEMVIEW_H
