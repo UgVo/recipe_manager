@@ -214,7 +214,17 @@
     </rect>
    </property>
    <property name="text">
-    <string>n</string>
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../rsc/rsc.qrc">
+     <normaloff>:/images/speech-bubble.png</normaloff>:/images/speech-bubble.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
    </property>
   </widget>
   <widget class="QPushButton" name="displayButton">
@@ -240,10 +250,22 @@
     </rect>
    </property>
    <property name="text">
-    <string>r</string>
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset resource="../rsc/rsc.qrc">
+     <normaloff>:/images/left2.png</normaloff>:/images/left2.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>20</width>
+     <height>20</height>
+    </size>
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../rsc/rsc.qrc"/>
+ </resources>
  <connections/>
 </ui>
