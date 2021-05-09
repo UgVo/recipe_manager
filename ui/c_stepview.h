@@ -2,6 +2,7 @@
 #define C_STEP_VIEW_H
 
 #include <QWidget>
+#include <ui/c_widget.h>
 #include <QLabel>
 #include <QDebug>
 #include <QPropertyAnimation>
@@ -24,7 +25,7 @@ namespace Ui {
 class c_stepView;
 }
 
-class c_stepView : public QWidget
+class c_stepView : public c_widget
 {
     Q_OBJECT
 
@@ -34,13 +35,10 @@ public:
 
     void setRank(int rank);
 
-    QList<QPropertyAnimation *> arrangeImagesEditOn(QPoint verticalShift, int time = 1000);
-    QList<QPropertyAnimation *> arrangeImagesEditOff(QPoint verticalShift);
+    QAnimationGroup *switchMode(int target = modes::resume, bool animated = true, int time = 600, QAbstractAnimation *childAnims = nullptr);
+    QAnimationGroup *switchState(int targetState = states::retracted, bool animated = true, int time = 500);
 
-    void switchMode(int target = recipe::modes::resume, bool animated = true, int time = 1000, QList<QPropertyAnimation *> otherAnims = QList<QPropertyAnimation *>());
-    QList<QPropertyAnimation *> switchState(int targetState = recipe::states::retracted, bool animated = true, int time = 1000);
-
-    int getHeightWidget(int mode, int state = recipe::states::retracted);
+    int getHeightWidget(int targetMode, int targetState = states::retracted);
     int getImageCount();
 
     c_step *getStep() const;
@@ -49,6 +47,8 @@ public:
     void deleteNote(c_note *note);
 
     void checkCount();
+    int getLimit() const;
+    void updateLimit();
 
     static int maxHeightImage;
     static QSize maxSizeImage;
@@ -58,44 +58,25 @@ public:
     static int borderMenuButton;
     static int maxNumberImages;
 
-    int getLimit() const;
-
 public slots:
     void triggerShowButton();
-
-    void editStepAnimationOff();
-
     void editSaved();
     void editCanceled();
-
-    void upEdit();
-    void downEdit();
-
-    void slotTextModified();
-    void editAreaSizeChanged(int increment);
-
-    void endTransition(int state);
-
-    void slotDelete();
     void slotAddNote();
     void slotShowNotes();
-
-    void imageAdded(QPropertyAnimation *animations);
+    void imageAdded(QAbstractAnimation *animations);
 
 signals:
-    void new_rank(int newRank);
+    void upRank();
+    void downRank();
     void saved(c_step* step);
     void toDelete(c_stepView *widget);
 
 private:
 
-    int getHeightText(int targetMode = recipe::modes::resume);
-    void lockSize(bool flag);
-
-    QList<QPoint> arrangeImages(int target = recipe::modes::display, QPoint verticalShift = QPoint());
-    int getImagesMaxHeigth(int mode = recipe::modes::display);
-
-    bool hasImages();
+    int getHeightText(int targetMode = modes::resume);
+    QList<QPoint> arrangeImages(int target = modes::display);
+    int getImagesMaxHeigth(int target = modes::display);
 
     Ui::c_stepView *ui;
     c_step* step;
@@ -104,14 +85,13 @@ private:
     c_componentView* components;
     c_equipementsView* equipments;
     c_processView* processes;
-
     c_notesDialog *noteDialog;
 
-    int state;
-    int mode;
     int rankEdit;
     int countImages;
     int limit;
+
+    int defaultMode;
 
 };
 
