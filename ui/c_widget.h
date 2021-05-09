@@ -6,6 +6,8 @@
 #include <QWidget>
 #include <QAnimationGroup>
 #include <QPropertyAnimation>
+#include <QGraphicsOpacityEffect>
+#include <QSequentialAnimationGroup>
 #include <utils/utils.h>
 
 class c_widget : public QWidget
