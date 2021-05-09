@@ -34,6 +34,8 @@ c_notesDialog::c_notesDialog(QList<c_note *> notes, QWidget *parent) :
     addButton = new QPushButton("+",this);
     addButton->setFixedSize(QSize(20,20));
 
+    this->setWindowTitle("Notes");
+
     QObject::connect(upButton,&QPushButton::pressed,this,&c_notesDialog::slotUpButtonPressed);
     QObject::connect(upButton,&QPushButton::released,this,&c_notesDialog::slotUpButtonReleased);
     QObject::connect(downButton,&QPushButton::pressed,this,&c_notesDialog::slotDownButtonPressed);
