@@ -31,7 +31,7 @@ c_processView::~c_processView() {
     delete ui;
 }
 
-QAnimationGroup* c_processView::switchMode(int target, bool animated, int time) {
+QAbstractAnimation *c_processView::switchMode(int target, bool animated, int time) {
     QParallelAnimationGroup *res =  new QParallelAnimationGroup();
     switch (target) {
     case modes::resume:
@@ -96,7 +96,7 @@ QAnimationGroup* c_processView::switchMode(int target, bool animated, int time) 
     return res;
 }
 
-QSize c_processView::getSize(int target) {
+QSize c_processView::getSize(int target) const {
     QSize res;
     int totalWidth = 0;
     int totalHeight = 0;
@@ -127,7 +127,7 @@ QSize c_processView::getSize(int target) {
     return res;
 }
 
-int c_processView::getWidth(int target) {
+int c_processView::getWidth(int target) const {
     int totalWidth = 0;
     switch (target) {
         case modes::display:
@@ -168,7 +168,7 @@ c_process *c_processView::newProcessing() {
     return static_cast<c_stepView *>(parent())->getStep()->newProcessing();
 }
 
-bool c_processView::isEmpty() {
+bool c_processView::isEmpty() const {
     for (int i = 0; i < processElems.size(); ++i) {
         if(!processElems.isEmpty())
             return false;

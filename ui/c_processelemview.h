@@ -23,12 +23,12 @@ public:
     explicit c_processElemView(c_process* process =  nullptr, QWidget *parent = nullptr);
     ~c_processElemView();
 
-    QAnimationGroup *switchMode(int target = recipe::modes::resume, bool animated = true,int time = 1000);
-    QSize getSize(int target);
+    QAbstractAnimation *switchMode(int target = modes::resume, bool animated = true, int time = 1000);
+    QSize getSize(int target) const;
     void save();
     void rollback();
 
-    bool isEmpty();
+    bool isEmpty() const;
 
     static int heightProcess;
 

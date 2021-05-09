@@ -22,16 +22,16 @@ public:
     explicit c_processView(QList<c_process *> processes, QWidget *parent = nullptr);
     ~c_processView();
 
-    QAnimationGroup *switchMode(int mode = recipe::modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(int target);
-    int getWidth(int target);
+    QAbstractAnimation *switchMode(int mode = modes::resume, bool animated = true, int time = 1000);
+    QSize getSize(int target) const;
+    int getWidth(int target) const;
 
     void save();
     void rollback();
 
     c_process *newProcessing();
 
-    bool isEmpty();
+    bool isEmpty() const;
 
 private:
     Ui::c_processView *ui;
