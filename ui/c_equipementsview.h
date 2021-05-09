@@ -2,6 +2,7 @@
 #define C_EQUIPEMENTSVIEW_H
 
 #include <QWidget>
+#include <ui/c_widget.h>
 #include <QFontMetrics>
 #include <QPushButton>
 #include <QCompleter>
@@ -14,7 +15,7 @@ namespace Ui {
 class c_equipementsView;
 }
 
-class c_equipementsView : public QWidget
+class c_equipementsView : public c_widget
 {
     Q_OBJECT
 
@@ -22,8 +23,13 @@ public:
     explicit c_equipementsView(QList<QString> equipmentList, QWidget *parent = nullptr);
     ~c_equipementsView();
 
-    QList<QPropertyAnimation *> switchMode(int targetMode = recipe::modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(int mode);
+    QAbstractAnimation *switchMode(int target = modes::resume, bool animated = true, int time = 1000);
+    QSize getSize(int mode) const;
+
+    void save();
+    void rollback();
+
+    bool isEmpty() const;
 
     bool eventFilter(QObject* obj, QEvent* event);
 
@@ -39,9 +45,11 @@ private:
 
     Ui::c_equipementsView *ui;
     QList<QString> equipmentList;
+    QList<QString> addedEquipment;
+    QList<QString> toDeleteEquipment;
     QList<QPushButton *> buttonList;
     QStringListModel *model;
-    QList<QString> allEquipementsList;
+    QList<QString> equipementsListModel;
     QTimer timer;
 
     bool write;
