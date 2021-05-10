@@ -20,6 +20,7 @@ c_step::c_step(const c_step &other) {
     description = other.getDescription();
     imagesUrl = other.getImagesUrl();
     notes = other.getNotes();
+    processings = other.getProcessings();
     std::sort(notes.begin(),notes.end());
 }
 
