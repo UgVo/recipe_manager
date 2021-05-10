@@ -13,6 +13,8 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     ui(new Ui::c_stepView), step(_step) {
     ui->setupUi(this);
 
+    mode = modes::setup;
+
     QRect rect(2,2,46,46);
     QRegion region(rect, QRegion::Ellipse);
     ui->rankButton->setMask(region);
@@ -61,6 +63,13 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     countImages = imageStringList.size();
 
+    components = new c_componentView(step->getComponentsPtr(),this);
+    QObject::connect(components,&c_componentView::resized, [=] () {
+        switchMode(mode,true,500);
+    });
+
+    updateLimit();
+
     for (int i = 0; i < imageStringList.size(); ++i) {
         images.push_back(new c_image(imageStringList[i],this));
     }
@@ -77,13 +86,6 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     QList<c_process* > processList = step->getProcessingsPtr();
     processes = new c_processView(processList,this);
     processes->show();
-
-    components = new c_componentView(step->getComponentsPtr(),this);
-    QObject::connect(components,&c_componentView::resized, [=] () {
-        switchMode(mode,true,500);
-    });
-
-    updateLimit();
 
     equipments = new c_equipementsView(step->getEquipments(),this);
     equipments->lower();
@@ -983,7 +985,9 @@ int c_stepView::getLimit() const {
 }
 
 void c_stepView::updateLimit() {
-    checkCount();
+    if (mode != modes::setup) {
+        checkCount();
+    }
     if (countImages != 0) {
         limit = this->width() - borderSize - interImageSpace - components->getSize(modes::resume).width();
         limit = limit>(this->width()/3)*2?(this->width()/3)*2:limit;
