@@ -16,6 +16,7 @@ public:
     void setId(int value);
 
     QList<c_step> getSteps() const;
+    QList<c_step *> getStepsPtr();
     void setSteps(const QList<c_step> &value);
     QList<int> getStepsIds() const;
 

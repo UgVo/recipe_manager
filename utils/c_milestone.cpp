@@ -15,6 +15,14 @@ QList<c_step> c_milestone::getSteps() const {
     return steps;
 }
 
+QList<c_step *> c_milestone::getStepsPtr() {
+    QList<c_step *> res;
+    for (int i = 0; i < steps.size(); ++i) {
+        res.push_back(&steps[i]);
+    }
+    return res;
+}
+
 void c_milestone::setSteps(const QList<c_step> &value) {
     steps = value;
     std::sort(steps.begin(),steps.end());
