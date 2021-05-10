@@ -46,6 +46,7 @@ protected:
 
     static int insideBorder;
     static int labelHeight;
+    static int stepWidth;
 };
 
 #endif // C_WIDGET_H

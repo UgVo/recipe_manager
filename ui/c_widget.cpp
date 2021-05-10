@@ -2,6 +2,7 @@
 
 int c_widget::insideBorder = 4;
 int c_widget::labelHeight = 20;
+int c_widget::stepWidth = 606;
 
 c_widget::c_widget(QWidget *parent) : QWidget(parent) {
 

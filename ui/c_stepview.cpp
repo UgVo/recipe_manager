@@ -1,7 +1,7 @@
 #include "c_stepview.h"
 #include "ui_c_step_view.h"
 
-QSize c_stepView::maxSizeImage(194,194);
+QSize c_stepView::maxSizeImage((stepWidth/3)*2,(stepWidth/3)*2);
 int c_stepView::interImageSpace = 5;
 int c_stepView::borderSize = 9;
 int c_stepView::showButtonHeight = 21;
