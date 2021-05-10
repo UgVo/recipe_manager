@@ -3,6 +3,8 @@
 int c_widget::insideBorder = 4;
 int c_widget::labelHeight = 20;
 int c_widget::stepWidth = 606;
+int c_widget::buttonHeight = 21;
+int c_widget::borderSize = 9;
 
 c_widget::c_widget(QWidget *parent) : QWidget(parent) {
 

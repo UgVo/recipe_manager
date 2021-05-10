@@ -54,8 +54,6 @@ public:
     static int maxHeightImage;
     static QSize maxSizeImage;
     static int interImageSpace;
-    static int borderSize;
-    static int showButtonHeight;
     static int borderMenuButton;
     static int maxNumberImages;
 

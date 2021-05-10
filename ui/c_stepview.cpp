@@ -3,8 +3,6 @@
 
 QSize c_stepView::maxSizeImage((stepWidth/3)*2,(stepWidth/3)*2);
 int c_stepView::interImageSpace = 5;
-int c_stepView::borderSize = 9;
-int c_stepView::showButtonHeight = 21;
 int c_stepView::borderMenuButton = 6;
 int c_stepView::maxNumberImages = 4;
 
@@ -403,7 +401,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             group->addAnimation(equipments->switchMode(target,animated,time));
 
             // Show button
-            targetSize = QSize(this->width()-2*borderSize,showButtonHeight);
+            targetSize = QSize(this->width()-2*borderSize,buttonHeight);
             ui->showButton->setFixedSize(targetSize);
             ui->showButton->raise();
 
@@ -553,7 +551,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             equipments->lower();
 
             // Show button
-            targetSize = QSize(this->width()-2*borderSize,showButtonHeight);
+            targetSize = QSize(this->width()-2*borderSize,buttonHeight);
             ui->showButton->setFixedSize(targetSize);
             ui->showButton->raise();
 
@@ -710,7 +708,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             group->addAnimation(equipments->switchMode(target,animated,time));
 
             // Show button
-            targetSize = QSize(this->width()-2*borderSize,showButtonHeight);
+            targetSize = QSize(this->width()-2*borderSize,buttonHeight);
             ui->showButton->setFixedSize(targetSize);
             ui->showButton->raise();
 
