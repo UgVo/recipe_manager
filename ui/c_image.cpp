@@ -233,14 +233,17 @@ void c_image::deleteButtonClicked() {
 QSize c_image::getSize(modes target) const {
     int width = 0;
     int count = 0;
+    int limit = 0;
     int availableWidth = 0;
     if (static_cast<c_stepView *>(parent())) {
         width = static_cast<c_stepView *>(parent())->width();
+        limit = static_cast<c_stepView *>(parent())->getLimit();
         count = static_cast<c_stepView *>(parent())->getImageCount();
     }
     switch (target) {
     case modes::resume: {
-        availableWidth =  (width - c_stepView::borderSize  - ((c_stepView::maxNumberImages/2))*c_stepView::interImageSpace)/(c_stepView::maxNumberImages/2);
+        count = std::min(c_stepView::maxNumberImages/2,count);
+        availableWidth =  (limit - c_stepView::borderSize  - (count-1)*c_stepView::interImageSpace)/(count);
         availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
         QSize resumeSize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
         if (isEmpty())
@@ -262,10 +265,12 @@ QSize c_image::getSize(modes target) const {
         int availableWidth =  (width - 2*c_stepView::borderSize  - (c_stepView::maxNumberImages)*c_stepView::interImageSpace)/c_stepView::maxNumberImages;
         availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
         QSize displaySize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
-        if (isEmpty())
-            return displaySize;
-        else
+        if (isEmpty()) {
+            int length = std::min(displaySize.width(),displaySize.height());
+            return QSize(length,length);
+        } else {
             return QPixmap(pathImage).scaled(displaySize, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
+        }
     }
     default:
         break;
