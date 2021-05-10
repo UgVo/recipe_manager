@@ -246,7 +246,7 @@ void c_stepView::checkCount() {
     }
 }
 
-int c_stepView::getHeightText(int targetMode) {
+int c_stepView::getHeightText(modes targetMode) const {
     QRect rect = ui->label->rect();
     int res = 0;
     for (int i = 0; i < ui->label->document()->blockCount(); ++i) {
@@ -268,7 +268,7 @@ int c_stepView::getHeightText(int targetMode) {
     return res;
 }
 
-QAnimationGroup *c_stepView::switchMode(int target, bool animated, int time, QAbstractAnimation *childAnims) {
+QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, QAbstractAnimation *childAnims) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
     if (childAnims) {
         group->addAnimation(childAnims);
@@ -770,7 +770,7 @@ QAnimationGroup *c_stepView::switchMode(int target, bool animated, int time, QAb
     return group;
 }
 
-QAnimationGroup *c_stepView::switchState(int targetState, bool animated, int time) {
+QAnimationGroup *c_stepView::switchState(states targetState, bool animated, int time) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
     QPropertyAnimation *anim = nullptr;
     switch (targetState) {
@@ -821,7 +821,11 @@ QAnimationGroup *c_stepView::switchState(int targetState, bool animated, int tim
     return group;
 }
 
-int c_stepView::getHeightWidget(int targetMode, int targetState) {
+QSize c_stepView::getSize(modes target) const {
+    return QSize(stepWidth,getHeightWidget(target,state));
+}
+
+int c_stepView::getHeightWidget(modes targetMode, states targetState) const {
     int rightSide, leftSide;
     switch (targetMode) {
         case modes::resume: {
@@ -881,7 +885,7 @@ int c_stepView::getHeightWidget(int targetMode, int targetState) {
     return 0;
 }
 
-QList<QPoint> c_stepView::arrangeImages(int target) {
+QList<QPoint> c_stepView::arrangeImages(modes target) {
     QList<QPoint> res;
     int totalWidth = 0;
     int countImage, resumeImagesCount;
@@ -944,7 +948,7 @@ QList<QPoint> c_stepView::arrangeImages(int target) {
     return res;
 }
 
-int c_stepView::getImagesMaxHeigth(int target) {
+int c_stepView::getImagesMaxHeigth(modes target) const {
     int max = 0;
     switch (target) {
         case modes::display:

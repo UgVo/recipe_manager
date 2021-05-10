@@ -52,7 +52,7 @@ c_processElemView::~c_processElemView()
     delete ui;
 }
 
-QAbstractAnimation *c_processElemView::switchMode(int target, bool, int) {
+QAbstractAnimation *c_processElemView::switchMode(modes target, bool, int) {
     QParallelAnimationGroup *res = nullptr;
     QFontMetrics metrics(ui->label->font());
     switch (target) {
@@ -113,7 +113,7 @@ QAbstractAnimation *c_processElemView::switchMode(int target, bool, int) {
     return res;
 }
 
-QSize c_processElemView::getSize(int target) const {
+QSize c_processElemView::getSize(modes target) const {
     int marginLeft,marginRight;
     ui->widget->layout()->getContentsMargins(&marginLeft,nullptr,&marginRight,nullptr);
     switch (target) {

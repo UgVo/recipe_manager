@@ -86,7 +86,7 @@ bool c_image::isEmpty() const{
     return pathImage.isEmpty();
 }
 
-QAbstractAnimation *c_image::switchMode(int target, bool animated, int time) {
+QAbstractAnimation *c_image::switchMode(modes target, bool animated, int time) {
     QParallelAnimationGroup *res = new QParallelAnimationGroup;
     switch (target) {
     case modes::display:
@@ -230,7 +230,7 @@ void c_image::deleteButtonClicked() {
     emit resized();
 }
 
-QSize c_image::getSize(int target) const {
+QSize c_image::getSize(modes target) const {
     int width = 0;
     int count = 0;
     int availableWidth = 0;

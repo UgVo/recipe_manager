@@ -33,7 +33,7 @@ c_componentElemView::~c_componentElemView() {
     delete ui;
 }
 
-QAbstractAnimation *c_componentElemView::switchMode(int target, bool animated, int time) {
+QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated, int time) {
     QParallelAnimationGroup *res = new QParallelAnimationGroup();
     QFontMetrics metrics(ui->ingredientLineEdit->font());
     QPoint pos(0,0);
@@ -115,7 +115,7 @@ QAbstractAnimation *c_componentElemView::switchMode(int target, bool animated, i
     return res;
 }
 
-QSize c_componentElemView::getSize(int target) const {
+QSize c_componentElemView::getSize(modes target) const {
     QSize res;
     QFontMetrics metrics(ui->ingredientLineEdit->font());
     switch (target) {

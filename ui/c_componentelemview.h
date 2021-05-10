@@ -22,8 +22,8 @@ public:
     explicit c_componentElemView(c_component *component, QWidget *parent = nullptr);
     ~c_componentElemView();
 
-    QAbstractAnimation *switchMode(int mode = modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(int target) const;
+    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000);
+    QSize getSize(modes target) const;
     void save();
     void rollback();
 

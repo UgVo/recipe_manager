@@ -20,14 +20,14 @@ public:
     ~c_image();
 
     QPixmap getImage() const;
-    QSize getSize(int target = modes::display) const;
+    QSize getSize(modes target = modes::display) const;
     void setImage(const QPixmap &value);
 
     void save();
     void rollback();
 
     bool isEmpty() const;
-    QAbstractAnimation *switchMode(int target = modes::resume, bool animated = true, int time = 1000);
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);
 
     QString getPathImage() const;
 

@@ -20,13 +20,16 @@ public:
 
     virtual ~c_widget();
 
-    virtual QSize getSize(int target) const;
-    virtual int getWidth(int target) const;
-    virtual QAbstractAnimation *switchMode(int target = modes::resume, bool animated = true,int time = 1000);
-    virtual QAbstractAnimation *switchMode(int target = modes::resume, bool animated = true,int time = 1000, QAbstractAnimation *childAnims = nullptr);
+    virtual QSize getSize(modes target) const;
+    virtual int getWidth(modes target) const;
+    virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 1000);
+    virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 1000, QAbstractAnimation *childAnims = nullptr);
 
     virtual void save();
     virtual void rollback();
+
+    modes getMode() const;
+    void setMode(modes value);
 
 protected:
     QPropertyAnimation *fadeAnimation(QWidget *parent, bool up, int time = 1000, int delay = 0);
@@ -34,12 +37,12 @@ protected:
     QPropertyAnimation *targetPositionAnimation(QWidget* parent, QPoint targetPos, int time = 1000, int delay = 0);
     QPropertyAnimation *targetSizeAnimation(QWidget* parent, QSize targetSize, int time = 1000);
     QAnimationGroup *slideAndDeployAnimation(QWidget* parent, QPoint targetPos, int time = 1000,
-                                             std::function<void()> lambda = nullptr, int mode = modes::resume);
+                                             std::function<void()> lambda = nullptr, modes mode = modes::resume);
     QPropertyAnimation *deflateAnimation(QWidget *parent, int time);
     QPropertyAnimation *inflateAnimation(QWidget *parent, QSize endSize, int time);
 
-    int mode;
-    int state;
+    modes mode;
+    states state;
 
     static int insideBorder;
     static int labelHeight;

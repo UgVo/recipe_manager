@@ -11,19 +11,19 @@ c_widget::~c_widget() {
 
 }
 
-QSize c_widget::getSize(int) const {
+QSize c_widget::getSize(modes) const {
     return QSize();
 }
 
-int c_widget::getWidth(int) const {
+int c_widget::getWidth(modes) const {
     return 0;
 }
 
-QAbstractAnimation *c_widget::switchMode(int , bool, int) {
+QAbstractAnimation *c_widget::switchMode(modes , bool, int) {
     return nullptr;
 }
 
-QAbstractAnimation *c_widget::switchMode(int, bool, int, QAbstractAnimation*) {
+QAbstractAnimation *c_widget::switchMode(modes, bool, int, QAbstractAnimation*) {
     return nullptr;
 }
 
@@ -112,7 +112,7 @@ QPropertyAnimation *c_widget::targetSizeAnimation(QWidget *parent, QSize targetS
     return animation;
 }
 
-QAnimationGroup *c_widget::slideAndDeployAnimation(QWidget *parent, QPoint targetPos, int time, std::function<void()> lambda, int mode) {
+QAnimationGroup *c_widget::slideAndDeployAnimation(QWidget *parent, QPoint targetPos, int time, std::function<void()> lambda, modes mode) {
     QSequentialAnimationGroup *res = new QSequentialAnimationGroup();
     QRect rect;
     QPropertyAnimation *animation = new QPropertyAnimation(parent,"geometry");
@@ -183,4 +183,14 @@ QPropertyAnimation *c_widget::inflateAnimation(QWidget *parent, QSize endSize, i
     animation->setEasingCurve(QEasingCurve::InOutQuad);
 
     return animation;
+}
+
+c_widget::modes c_widget::getMode() const
+{
+    return mode;
+}
+
+void c_widget::setMode(modes value)
+{
+    mode = value;
 }

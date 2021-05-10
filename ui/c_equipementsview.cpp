@@ -46,7 +46,7 @@ c_equipementsView::~c_equipementsView() {
     delete ui;
 }
 
-QAbstractAnimation *c_equipementsView::switchMode(int target, bool animated, int time) {
+QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, int time) {
     QParallelAnimationGroup *res = new QParallelAnimationGroup;
     switch (target) {
         case modes::display:
@@ -107,7 +107,7 @@ QAbstractAnimation *c_equipementsView::switchMode(int target, bool animated, int
     return res;
 }
 
-QSize c_equipementsView::getSize(int target) const {
+QSize c_equipementsView::getSize(modes target) const {
     QSize res;
     switch (target) {
         case modes::display:

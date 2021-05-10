@@ -22,9 +22,9 @@ public:
     explicit c_processView(QList<c_process *> processes, QWidget *parent = nullptr);
     ~c_processView();
 
-    QAbstractAnimation *switchMode(int mode = modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(int target) const;
-    int getWidth(int target) const;
+    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000);
+    QSize getSize(modes target) const;
+    int getWidth(modes target) const;
 
     void save();
     void rollback();

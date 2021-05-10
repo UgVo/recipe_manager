@@ -35,10 +35,11 @@ public:
 
     void setRank(int rank);
 
-    QAnimationGroup *switchMode(int target = modes::resume, bool animated = true, int time = 600, QAbstractAnimation *childAnims = nullptr);
-    QAnimationGroup *switchState(int targetState = states::retracted, bool animated = true, int time = 500);
+    QAnimationGroup *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAbstractAnimation *childAnims = nullptr);
+    QAnimationGroup *switchState(states targetState = states::retracted, bool animated = true, int time = 500);
+    QSize getSize(modes target) const;
 
-    int getHeightWidget(int targetMode, int targetState = states::retracted);
+    int getHeightWidget(modes targetMode, states targetState = states::retracted) const;
     int getImageCount();
 
     c_step *getStep() const;
@@ -74,9 +75,9 @@ signals:
 
 private:
 
-    int getHeightText(int targetMode = modes::resume);
-    QList<QPoint> arrangeImages(int target = modes::display);
-    int getImagesMaxHeigth(int target = modes::display);
+    int getHeightText(modes targetMode = modes::resume) const;
+    QList<QPoint> arrangeImages(modes target = modes::display);
+    int getImagesMaxHeigth(modes target = modes::display) const;
 
     Ui::c_stepView *ui;
     c_step* step;
@@ -91,7 +92,7 @@ private:
     int countImages;
     int limit;
 
-    int defaultMode;
+    modes defaultMode;
 
 };
 

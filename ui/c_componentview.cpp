@@ -27,7 +27,7 @@ c_componentView::~c_componentView() {
     delete ui;
 }
 
-QAbstractAnimation *c_componentView::switchMode(int target, bool animated, int time) {
+QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int time) {
     QParallelAnimationGroup *res = new QParallelAnimationGroup();
     switch (target) {
         case modes::display:
@@ -92,7 +92,7 @@ QAbstractAnimation *c_componentView::switchMode(int target, bool animated, int t
     return res;
 }
 
-QSize c_componentView::getSize(int target) const {
+QSize c_componentView::getSize(modes target) const {
     QSize res;
     switch (target) {
         case modes::display:
@@ -133,7 +133,7 @@ QSize c_componentView::getSize(int target) const {
     return res;
 }
 
-int c_componentView::getWidth(int target) const {
+int c_componentView::getWidth(modes target) const {
     switch (target) {
         case modes::display:
         case modes::resume: {

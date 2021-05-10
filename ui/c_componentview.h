@@ -22,9 +22,9 @@ public:
     explicit c_componentView(QList<c_component*> components, QWidget *parent = nullptr);
     ~c_componentView();
 
-    QAbstractAnimation *switchMode(int target = modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(int target = modes::resume) const;
-    int getWidth(int target = modes::resume) const;
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);
+    QSize getSize(modes target = modes::resume) const;
+    int getWidth(modes target = modes::resume) const;
 
     void save();
     void rollback();

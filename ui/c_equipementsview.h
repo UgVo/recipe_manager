@@ -23,8 +23,8 @@ public:
     explicit c_equipementsView(QList<QString> equipmentList, QWidget *parent = nullptr);
     ~c_equipementsView();
 
-    QAbstractAnimation *switchMode(int target = modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(int mode) const;
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);
+    QSize getSize(modes mode) const;
 
     void save();
     void rollback();
