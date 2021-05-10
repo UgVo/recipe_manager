@@ -51,7 +51,6 @@ public:
     int getLimit() const;
     void updateLimit();
 
-    static int maxHeightImage;
     static QSize maxSizeImage;
     static int interImageSpace;
     static int borderMenuButton;
