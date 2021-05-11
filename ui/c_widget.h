@@ -6,6 +6,7 @@
 #include <QWidget>
 #include <QAnimationGroup>
 #include <QPropertyAnimation>
+#include <QParallelAnimationGroup>
 #include <QGraphicsOpacityEffect>
 #include <QSequentialAnimationGroup>
 #include <utils/utils.h>
@@ -15,6 +16,7 @@ class c_widget : public QWidget
 public:
     enum modes{resume,display,edition,minimal,setup,none};
     enum states{retracted,opened,transition,fixed};
+    static QMap<modes,QString> mapModeToString;
 
     c_widget(QWidget *parent = nullptr);
 
@@ -22,17 +24,19 @@ public:
 
     virtual QSize getSize(modes target) const;
     virtual int getWidth(modes target) const;
-    virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 1000);
-    virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 1000, QAbstractAnimation *childAnims = nullptr);
+    virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500);
+    virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500, QAbstractAnimation *childAnims = nullptr);
 
     virtual void save();
     virtual void rollback();
+
+    virtual void resizeEvent(QResizeEvent *event);
 
     modes getMode() const;
     void setMode(modes value);
 
 protected:
-    QPropertyAnimation *fadeAnimation(QWidget *parent, bool up, int time = 1000, int delay = 0);
+    QAbstractAnimation *fadeAnimation(QWidget *parent, bool up, int time = 1000, int delay = 0);
     QPropertyAnimation *targetGeometryAnimation(QWidget* parent, QSize targetSize, QPoint targetPos, int time = 1000);
     QPropertyAnimation *targetPositionAnimation(QWidget* parent, QPoint targetPos, int time = 1000, int delay = 0);
     QPropertyAnimation *targetSizeAnimation(QWidget* parent, QSize targetSize, int time = 1000);

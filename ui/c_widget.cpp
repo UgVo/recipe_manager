@@ -5,6 +5,14 @@ int c_widget::labelHeight = 20;
 int c_widget::stepWidth = 606;
 int c_widget::buttonHeight = 21;
 int c_widget::borderSize = 9;
+QMap<c_widget::modes,QString> c_widget::mapModeToString{
+    {modes::display,"Display"},
+    {modes::edition,"Edition"},
+    {modes::minimal,"Minimal"},
+    {modes::none,"None"},
+    {modes::resume,"Resume"},
+    {modes::setup,"Setup"}
+};
 
 c_widget::c_widget(QWidget *parent) : QWidget(parent) {
 
@@ -14,19 +22,19 @@ c_widget::~c_widget() {
 
 }
 
-QSize c_widget::getSize(modes) const {
+QSize c_widget::getSize(c_widget::modes) const {
     return QSize();
 }
 
-int c_widget::getWidth(modes) const {
+int c_widget::getWidth(c_widget::modes) const {
     return 0;
 }
 
-QAbstractAnimation *c_widget::switchMode(modes , bool, int) {
+QAbstractAnimation *c_widget::switchMode(c_widget::modes , bool, int) {
     return nullptr;
 }
 
-QAbstractAnimation *c_widget::switchMode(modes, bool, int, QAbstractAnimation*) {
+QAbstractAnimation *c_widget::switchMode(c_widget::modes, bool, int, QAbstractAnimation*) {
     return nullptr;
 }
 
@@ -38,13 +46,17 @@ void c_widget::rollback() {
 
 }
 
-QPropertyAnimation *c_widget::fadeAnimation(QWidget *parent, bool up, int time, int delay) {
-    QPropertyAnimation *animation = nullptr;
+void c_widget::resizeEvent(QResizeEvent *) {
+    update();
+}
+
+QAbstractAnimation *c_widget::fadeAnimation(QWidget *parent, bool up, int time, int delay) {
+    QParallelAnimationGroup *group = new QParallelAnimationGroup;
     if ((up && parent->isHidden()) || (!up && !parent->isHidden())) {
         parent->show();
         QGraphicsOpacityEffect *effect = new QGraphicsOpacityEffect(parent);
         parent->setGraphicsEffect(effect);
-        animation = new QPropertyAnimation(effect, "opacity");
+        QPropertyAnimation *animation = new QPropertyAnimation(effect, "opacity");
         animation->setDuration(time);
         animation->setKeyValueAt(0, up ? 0.0 : 1.0);
         animation->setKeyValueAt(double(delay)/double(time), up ? 0.0 : 1.0);
@@ -55,8 +67,9 @@ QPropertyAnimation *c_widget::fadeAnimation(QWidget *parent, bool up, int time, 
             animation->disconnect();
             parent->setHidden(!up);
         });
+        group->addAnimation(animation);
     }
-    return animation;
+    return group;
 }
 
 QPropertyAnimation *c_widget::targetGeometryAnimation(QWidget *parent, QSize targetSize, QPoint targetPos, int time) {
@@ -154,6 +167,7 @@ QPropertyAnimation *c_widget::deflateAnimation(QWidget *parent, int time) {
     QRect rect;
     QSize size;
     QPoint initPoint = parent->pos();
+    parent->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
     QPropertyAnimation *animation = new QPropertyAnimation(parent,"geometry");
     animation->setDuration(time);
     rect = parent->rect();
@@ -173,6 +187,7 @@ QPropertyAnimation *c_widget::inflateAnimation(QWidget *parent, QSize endSize, i
     QRect rect;
     QSize size;
     QPoint initPoint = parent->pos();
+    parent->setFixedSize(QSize(QWIDGETSIZE_MAX,QWIDGETSIZE_MAX));
     QPropertyAnimation *animation = new QPropertyAnimation(parent,"geometry");
     animation->setDuration(time);
     rect = parent->rect();
@@ -193,7 +208,7 @@ c_widget::modes c_widget::getMode() const
     return mode;
 }
 
-void c_widget::setMode(modes value)
+void c_widget::setMode(c_widget::modes value)
 {
     mode = value;
 }
