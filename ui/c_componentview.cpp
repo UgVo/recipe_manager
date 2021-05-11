@@ -8,11 +8,11 @@ c_componentView::c_componentView(QList<c_component *> _components, QWidget *pare
     ui->setupUi(this);
 
     for (int i = 0; i < _components.size(); ++i) {
-        componentsViews.push_back(new c_componentElemView(_components[i],this));
+        componentsViews.push_back(new c_componentElemView(_components[i],ui->widget));
         QObject::connect(componentsViews.last(),&c_componentElemView::deleteMe,this,&c_componentView::removeComponent);
     }
 
-    addComponentButton = new QPushButton("Nouvel Ingrédient",this);
+    addComponentButton = new QPushButton("Nouvel Ingrédient",ui->widget);
     addComponentButton->setFixedHeight(21);
 
     QObject::connect(addComponentButton,&QPushButton::clicked,this,&c_componentView::newComponent);
@@ -43,7 +43,7 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
                     componentsViews[i]->move(pos);
                 }
                 res->addAnimation(componentsViews[i]->switchMode(target,animated,time));
-                pos += QPoint(0,componentsViews[i]->getSize(target).height() + c_stepView::interImageSpace);
+                pos += QPoint(0,componentsViews[i]->getSize(target).height());
             }
             int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
             addComponentButton->setFixedWidth(max - 2*insideBorder);
@@ -78,7 +78,10 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
 
             if (animated) {
                 res->addAnimation(targetSizeAnimation(this,getSize(target),time));
-                res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time + time/3,time));
+                if (target != mode)
+                    res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time + time/3,time));
+                else
+                    res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time));
             } else {
                 this->setFixedSize(getSize(target));
                 addComponentButton->move(QPoint(insideBorder,getSize(target).height()-addComponentButton->height()));
@@ -105,6 +108,7 @@ QSize c_componentView::getSize(modes target) const {
             int widthMin = 0;
             int heightMin = 0;
             int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+            int min = static_cast<c_stepView *>(parent())->width()/3-c_stepView::borderSize - c_stepView::interImageSpace;
             QFontMetrics metric(ui->labelIngredient->font());
             for (int i = 0; i < componentsViews.size(); ++i) {
                 if (componentsViews[i]->width() > widthMin)
@@ -112,9 +116,10 @@ QSize c_componentView::getSize(modes target) const {
                 heightMin += componentsViews[i]->getSize(target).height();
             }
             widthMin = std::max(widthMin,metric.horizontalAdvance(ui->labelIngredient->text()));
-            widthMin = widthMin > max ? max : widthMin;
+            widthMin = std::min(widthMin,max);
+            widthMin = std::max(min,widthMin);
             res.setWidth(widthMin);
-            res.setHeight(heightMin + componentsViews.size()*c_stepView::interImageSpace + ui->labelIngredient->height());
+            res.setHeight(heightMin + c_stepView::interImageSpace + ui->labelIngredient->height());
         }
         break;
         case modes::edition: {
@@ -204,10 +209,11 @@ bool c_componentView::isEmpty() const {
 
 void c_componentView::newComponent() {
     c_step *step = static_cast<c_stepView *>(parent())->getStep();
-    componentsViews.push_back(new c_componentElemView(step->newComponent(),this));
+    componentsViews.push_back(new c_componentElemView(step->newComponent(),ui->widget));
     componentsViews.last()->show();
     componentsViews.last()->setFocus();
     componentsViews.last()->lower();
+    componentsViews.last()->switchMode(modes::edition,false);
     componentsViews.last()->move(insideBorder,-componentsViews.last()->getSize(modes::edition).height());
     QObject::connect(componentsViews.last(),&c_componentElemView::deleteMe,this,&c_componentView::removeComponent);
 
