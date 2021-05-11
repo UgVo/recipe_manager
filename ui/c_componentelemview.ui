@@ -7,105 +7,126 @@
     <x>0</x>
     <y>0</y>
     <width>519</width>
-    <height>23</height>
+    <height>184</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QCheckBox" name="checkBox">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>3</y>
-     <width>16</width>
-     <height>22</height>
-    </rect>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
    </property>
-   <property name="maximumSize">
-    <size>
-     <width>16777215</width>
-     <height>16777215</height>
-    </size>
+   <property name="leftMargin">
+    <number>0</number>
    </property>
-   <property name="text">
-    <string/>
+   <property name="topMargin">
+    <number>0</number>
    </property>
-  </widget>
-  <widget class="QLabel" name="quantityUnitLabel">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>0</y>
-     <width>47</width>
-     <height>16</height>
-    </rect>
+   <property name="rightMargin">
+    <number>0</number>
    </property>
-   <property name="text">
-    <string>TextLabel</string>
+   <property name="bottomMargin">
+    <number>0</number>
    </property>
-  </widget>
-  <widget class="QSpinBox" name="quantitySpinBox">
-   <property name="geometry">
-    <rect>
-     <x>73</x>
-     <y>0</y>
-     <width>51</width>
-     <height>23</height>
-    </rect>
-   </property>
-   <property name="maximum">
-    <number>9999</number>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="unitComboBox">
-   <property name="geometry">
-    <rect>
-     <x>130</x>
-     <y>0</y>
-     <width>72</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="sizeAdjustPolicy">
-    <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="ingredientLineEdit">
-   <property name="geometry">
-    <rect>
-     <x>208</x>
-     <y>0</y>
-     <width>108</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="deleteButton">
-   <property name="geometry">
-    <rect>
-     <x>497</x>
-     <y>0</y>
-     <width>22</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>22</width>
-     <height>22</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>22</width>
-     <height>22</height>
-    </size>
-   </property>
-   <property name="text">
-    <string>x</string>
-   </property>
-  </widget>
+   <item>
+    <widget class="QWidget" name="widget" native="true">
+     <widget class="QLabel" name="quantityUnitLabel">
+      <property name="geometry">
+       <rect>
+        <x>-60</x>
+        <y>40</y>
+        <width>47</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="ingredientLineEdit">
+      <property name="geometry">
+       <rect>
+        <x>128</x>
+        <y>40</y>
+        <width>108</width>
+        <height>22</height>
+       </rect>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="unitComboBox">
+      <property name="geometry">
+       <rect>
+        <x>50</x>
+        <y>40</y>
+        <width>72</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+      </property>
+     </widget>
+     <widget class="QCheckBox" name="checkBox">
+      <property name="geometry">
+       <rect>
+        <x>-80</x>
+        <y>43</y>
+        <width>16</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="deleteButton">
+      <property name="geometry">
+       <rect>
+        <x>417</x>
+        <y>40</y>
+        <width>22</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>22</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>22</width>
+        <height>22</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>x</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="quantitySpinBox">
+      <property name="geometry">
+       <rect>
+        <x>-7</x>
+        <y>40</y>
+        <width>51</width>
+        <height>23</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>9999</number>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

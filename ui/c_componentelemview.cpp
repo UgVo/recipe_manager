@@ -19,6 +19,7 @@ c_componentElemView::c_componentElemView(c_component *_component, QWidget *paren
     ui->quantitySpinBox->setValue(component->getQuantity());
     ui->quantitySpinBox->setFixedHeight(heigthWidget);
     ui->checkBox->setFixedHeight(heigthWidget);
+    ui->deleteButton->show();
 
     QObject::connect(ui->deleteButton,&QPushButton::clicked, [=] () {
         emit deleteMe();
@@ -59,9 +60,8 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
                 res->addAnimation(targetPositionAnimation(ui->unitComboBox,QPoint(ui->quantitySpinBox->width() + insideBorder,-ui->quantitySpinBox->height()),time/3));
                 pos += QPoint(ui->quantityUnitLabel->width() + insideBorder,0);
                 res->addAnimation(targetGeometryAnimation(ui->ingredientLineEdit,QSize(metrics.horizontalAdvance(ui->ingredientLineEdit->text())+10,heigthWidget),pos,time));
-                res->addAnimation(targetSizeAnimation(this,getSize(target)));
-                res->addAnimation(targetPositionAnimation(ui->deleteButton,QPoint(getSize(mode).width()+ui->deleteButton->width(),0),time/3));
-
+                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                res->addAnimation(targetPositionAnimation(ui->deleteButton,QPoint(getSize(modes::edition).width()+ui->deleteButton->width(),0),time/3));
             } else {
                 ui->checkBox->move(pos);
                 pos += QPoint(ui->checkBox->width() + insideBorder,0);
@@ -71,9 +71,8 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
                 pos += QPoint(ui->quantityUnitLabel->width() + insideBorder,0);
                 ui->ingredientLineEdit->move(pos);
                 ui->ingredientLineEdit->setFixedSize(QSize(metrics.horizontalAdvance(ui->ingredientLineEdit->text())+6,heigthWidget));
-
                 this->setFixedSize(getSize(target));
-                ui->deleteButton->move(QPoint(getSize(target).width()+ui->deleteButton->width(),0));
+                ui->deleteButton->move(QPoint(getSize(modes::edition).width()+ui->deleteButton->width(),0));
             }
 
             break;
@@ -93,9 +92,8 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
                 res->addAnimation(targetPositionAnimation(ui->unitComboBox,pos,time + time/3,time));
                 pos += QPoint(ui->unitComboBox->width() + insideBorder,0);
                 res->addAnimation(targetGeometryAnimation(ui->ingredientLineEdit,targetSizeLabel,pos,time));
-                res->addAnimation(targetSizeAnimation(this,getSize(target)));
+                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
                 res->addAnimation(targetPositionAnimation(ui->deleteButton,QPoint(getSize(target).width()-ui->deleteButton->width(),0),time + time/3,time));
-
             } else {
                 ui->checkBox->move(QPoint(0,ui->checkBox->height()));
                 ui->quantitySpinBox->move(pos);
@@ -130,7 +128,7 @@ QSize c_componentElemView::getSize(modes target) const {
             res.setHeight(heigthWidget);
             break;
         case modes::edition:
-            res.setWidth(static_cast<c_widget *>(parent())->getWidth(target) - 2*insideBorder);
+            res.setWidth(static_cast<c_widget *>(static_cast<QWidget *>(parent())->parent())->getWidth(target) - 2*insideBorder);
             res.setHeight(heigthWidget);
             break;
         default:

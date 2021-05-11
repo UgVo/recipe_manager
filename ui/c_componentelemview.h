@@ -2,6 +2,7 @@
 #define C_COMPONENTELEMVIEW_H
 
 #include <QWidget>
+#include <QObject>
 #include <QPropertyAnimation>
 #include <QParallelAnimationGroup>
 #include <QFontMetrics>
