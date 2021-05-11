@@ -24,6 +24,7 @@ SOURCES += \
     ui/c_componentview.cpp \
     ui/c_equipementsview.cpp \
     ui/c_image.cpp \
+    ui/c_milestoneview.cpp \
     ui/c_notesdialog.cpp \
     ui/c_noteview.cpp \
     ui/c_processelemview.cpp \
@@ -47,6 +48,7 @@ HEADERS += \
     ui/c_componentview.h \
     ui/c_equipementsview.h \
     ui/c_image.h \
+    ui/c_milestoneview.h \
     ui/c_notesdialog.h \
     ui/c_noteview.h \
     ui/c_processelemview.h \
@@ -70,6 +72,7 @@ FORMS += \
     ui/c_componentview.ui \
     ui/c_equipementsview.ui \
     ui/c_image.ui \
+    ui/c_milestoneview.ui \
     ui/c_notesdialog.ui \
     ui/c_noteview.ui \
     ui/c_processelemview.ui \
