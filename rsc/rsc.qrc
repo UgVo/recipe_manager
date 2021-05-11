@@ -6,6 +6,10 @@
         <file>temp.png</file>
         <file>speech-bubble.png</file>
         <file>left2.png</file>
+        <file>step_1-img.png</file>
+        <file>step_2-img.png</file>
+        <file>step_3-img.png</file>
+        <file>step_7-img.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
