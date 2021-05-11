@@ -41,6 +41,7 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
     switch (target) {
         case modes::display:
         case modes::resume:
+        case modes::minimal:
             ui->quantityUnitLabel->setFixedWidth(metrics.horizontalAdvance(ui->quantityUnitLabel->text())+4);
             ui->checkBox->show();
             ui->quantityUnitLabel->show();
@@ -121,6 +122,7 @@ QSize c_componentElemView::getSize(modes target) const {
     switch (target) {
         case modes::display:
         case modes::resume:
+        case modes::minimal:
             res.setWidth(ui->quantityUnitLabel->width()
                          + ui->checkBox->width()
                          + ui->ingredientLineEdit->width()

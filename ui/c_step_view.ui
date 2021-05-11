@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>606</width>
-    <height>221</height>
+    <height>434</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,247 +22,241 @@
   <property name="styleSheet">
    <string notr="true"/>
   </property>
-  <widget class="QWidget" name="widgetButton" native="true">
-   <property name="geometry">
-    <rect>
-     <x>9</x>
-     <y>200</y>
-     <width>16</width>
-     <height>16</height>
-    </rect>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>0</number>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_2">
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
-   </layout>
-  </widget>
-  <widget class="QPushButton" name="showButton">
-   <property name="geometry">
-    <rect>
-     <x>9</x>
-     <y>200</y>
-     <width>200</width>
-     <height>21</height>
-    </rect>
+   <property name="leftMargin">
+    <number>0</number>
    </property>
-   <property name="minimumSize">
-    <size>
-     <width>200</width>
-     <height>0</height>
-    </size>
+   <property name="topMargin">
+    <number>0</number>
    </property>
-   <property name="text">
-    <string>PushButton</string>
+   <property name="rightMargin">
+    <number>0</number>
    </property>
-  </widget>
-  <widget class="QTextEdit" name="label">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>10</y>
-     <width>471</width>
-     <height>41</height>
-    </rect>
+   <property name="bottomMargin">
+    <number>0</number>
    </property>
-   <property name="styleSheet">
-    <string notr="true">QTextEdit {
+   <item>
+    <widget class="QWidget" name="stepWidget" native="true">
+     <widget class="QPushButton" name="downButton">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>30</y>
+        <width>22</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::RightToLeft</enum>
+      </property>
+      <property name="text">
+       <string>↓</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="displayButton">
+      <property name="geometry">
+       <rect>
+        <x>-30</x>
+        <y>-10</y>
+        <width>30</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>+2</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="noteButton">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>-20</y>
+        <width>26</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../rsc/rsc.qrc">
+        <normaloff>:/images/speech-bubble.png</normaloff>:/images/speech-bubble.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QTextEdit" name="label">
+      <property name="geometry">
+       <rect>
+        <x>-290</x>
+        <y>-150</y>
+        <width>471</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QTextEdit {
 	border : 1px solid white;
 	background: transparent;
 }</string>
-   </property>
-   <property name="verticalScrollBarPolicy">
-    <enum>Qt::ScrollBarAlwaysOff</enum>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="rankButton">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>10</y>
-     <width>50</width>
-     <height>50</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>50</width>
-     <height>50</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>50</width>
-     <height>50</height>
-    </size>
-   </property>
-   <property name="text">
-    <string>1</string>
-   </property>
-  </widget>
-  <widget class="QToolButton" name="menuButton">
-   <property name="geometry">
-    <rect>
-     <x>310</x>
-     <y>200</y>
-     <width>26</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QToolButton::menu-indicator{image:none;}</string>
-   </property>
-   <property name="text">
-    <string>...</string>
-   </property>
-   <property name="popupMode">
-    <enum>QToolButton::InstantPopup</enum>
-   </property>
-   <property name="toolButtonStyle">
-    <enum>Qt::ToolButtonTextOnly</enum>
-   </property>
-   <property name="arrowType">
-    <enum>Qt::NoArrow</enum>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="saveButton">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>130</y>
-     <width>80</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>save</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="cancelButton">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>160</y>
-     <width>80</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>cancel</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="downButton">
-   <property name="geometry">
-    <rect>
-     <x>450</x>
-     <y>190</y>
-     <width>22</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="layoutDirection">
-    <enum>Qt::RightToLeft</enum>
-   </property>
-   <property name="text">
-    <string>↓</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="upButton">
-   <property name="geometry">
-    <rect>
-     <x>450</x>
-     <y>160</y>
-     <width>22</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>↑</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="noteButton">
-   <property name="geometry">
-    <rect>
-     <x>560</x>
-     <y>140</y>
-     <width>26</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="icon">
-    <iconset resource="../rsc/rsc.qrc">
-     <normaloff>:/images/speech-bubble.png</normaloff>:/images/speech-bubble.png</iconset>
-   </property>
-   <property name="iconSize">
-    <size>
-     <width>20</width>
-     <height>20</height>
-    </size>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="displayButton">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>150</y>
-     <width>30</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>+2</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="resumeButton">
-   <property name="geometry">
-    <rect>
-     <x>560</x>
-     <y>110</y>
-     <width>26</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="icon">
-    <iconset resource="../rsc/rsc.qrc">
-     <normaloff>:/images/left2.png</normaloff>:/images/left2.png</iconset>
-   </property>
-   <property name="iconSize">
-    <size>
-     <width>20</width>
-     <height>20</height>
-    </size>
-   </property>
-  </widget>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="saveButton">
+      <property name="geometry">
+       <rect>
+        <x>-340</x>
+        <y>-30</y>
+        <width>80</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>save</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="cancelButton">
+      <property name="geometry">
+       <rect>
+        <x>-340</x>
+        <y>0</y>
+        <width>80</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>cancel</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="upButton">
+      <property name="geometry">
+       <rect>
+        <x>60</x>
+        <y>0</y>
+        <width>22</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>↑</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="rankButton">
+      <property name="geometry">
+       <rect>
+        <x>-360</x>
+        <y>-150</y>
+        <width>50</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>50</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>1</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="showButton">
+      <property name="geometry">
+       <rect>
+        <x>-270</x>
+        <y>130</y>
+        <width>200</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>PushButton</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="resumeButton">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>-50</y>
+        <width>26</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../rsc/rsc.qrc">
+        <normaloff>:/images/left2.png</normaloff>:/images/left2.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
+     <widget class="QToolButton" name="menuButton">
+      <property name="geometry">
+       <rect>
+        <x>-80</x>
+        <y>40</y>
+        <width>26</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QToolButton::menu-indicator{image:none;}</string>
+      </property>
+      <property name="text">
+       <string>...</string>
+      </property>
+      <property name="popupMode">
+       <enum>QToolButton::InstantPopup</enum>
+      </property>
+      <property name="toolButtonStyle">
+       <enum>Qt::ToolButtonTextOnly</enum>
+      </property>
+      <property name="arrowType">
+       <enum>Qt::NoArrow</enum>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources>
   <include location="../rsc/rsc.qrc"/>

@@ -50,7 +50,8 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
     QParallelAnimationGroup *res = new QParallelAnimationGroup;
     switch (target) {
         case modes::display:
-        case modes::resume: {
+        case modes::resume:
+        case modes::minimal: {
             if (animated) {
                 res->addAnimation(targetSizeAnimation(this,getSize(target),time));
             } else {
@@ -61,6 +62,7 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
             int left,right;
             static_cast<QVBoxLayout *>(ui->widget->layout())->getContentsMargins(&left,nullptr,&right,nullptr);
             ui->textEdit->setFixedWidth(getSize(target).width() - left - right);
+            qDebug() << ui->textEdit->width() << getSize(target);
             ui->textEdit->document()->setTextWidth(ui->textEdit->width());
 
             ui->textEdit->setFixedHeight(ui->textEdit->document()->size().toSize().height()+3);
@@ -111,13 +113,15 @@ QSize c_equipementsView::getSize(modes target) const {
     QSize res;
     switch (target) {
         case modes::display:
-        case modes::resume: {
+        case modes::resume:
+        case modes::minimal: {
             if (isEmpty()) {
                 return QSize(0,0);
             }
             QFontMetrics metrics =  QFontMetrics(ui->textEdit->document()->firstBlock().charFormat().font());
             int width = static_cast<c_stepView*>(parent())->width() - static_cast<c_stepView*>(parent())->getLimit() - c_stepView::borderSize - c_stepView::interImageSpace;
             res.setWidth(width);
+            qDebug() << static_cast<c_stepView*>(parent())->width() << static_cast<c_stepView*>(parent())->getLimit();
             int top,bottom,left,right;
             ui->widget->layout()->getContentsMargins(&left,&top,&right,&bottom);
             ui->textEdit->setFixedWidth(width - left - right);

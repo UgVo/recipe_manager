@@ -36,10 +36,10 @@ public:
     void setRank(int rank);
 
     QAnimationGroup *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAbstractAnimation *childAnims = nullptr);
-    QAnimationGroup *switchState(states targetState = states::retracted, bool animated = true, int time = 500);
-    QSize getSize(modes target) const;
+    QSize getSize(modes target = modes::none) const;
 
-    int getHeightWidget(modes targetMode, states targetState = states::retracted) const;
+    void resizeEvent(QResizeEvent *event);
+
     int getImageCount();
 
     c_step *getStep() const;
@@ -69,6 +69,7 @@ signals:
     void downRank();
     void saved(c_step* step);
     void toDelete(c_stepView *widget);
+    void animationRequired(QAbstractAnimation* anim);
 
 private:
 

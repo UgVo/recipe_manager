@@ -20,7 +20,7 @@ c_componentView::c_componentView(QList<c_component *> _components, QWidget *pare
     ui->labelIngredient->setFixedHeight(labelHeight);
 
     enableResize = true;
-    switchMode(modes::resume,false);
+    switchMode(modes::minimal,false);
 }
 
 c_componentView::~c_componentView() {
@@ -31,7 +31,8 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
     QParallelAnimationGroup *res = new QParallelAnimationGroup();
     switch (target) {
         case modes::display:
-        case modes::resume: {
+        case modes::resume:
+        case modes::minimal: {
             QPoint pos(insideBorder,0);
             ui->labelIngredient->move(pos);
             pos += QPoint(0,ui->labelIngredient->height() + c_stepView::interImageSpace);
@@ -96,7 +97,8 @@ QSize c_componentView::getSize(modes target) const {
     QSize res;
     switch (target) {
         case modes::display:
-        case modes::resume: {
+        case modes::resume:
+        case modes::minimal: {
             if (isEmpty()) {
                 return QSize(0,0);
             }
@@ -136,7 +138,8 @@ QSize c_componentView::getSize(modes target) const {
 int c_componentView::getWidth(modes target) const {
     switch (target) {
         case modes::display:
-        case modes::resume: {
+        case modes::resume:
+        case modes::minimal: {
             int widthMin = 0;
             QFontMetrics metric(ui->labelIngredient->font());
             int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;

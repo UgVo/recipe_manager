@@ -42,7 +42,6 @@ c_processElemView::c_processElemView(c_process *_process, QWidget *parent) :
                               "}");
 
     mode = modes::resume;
-    state = states::fixed;
     switchMode(mode);
 
 }
@@ -80,6 +79,7 @@ QAbstractAnimation *c_processElemView::switchMode(modes target, bool, int) {
             break;
         case modes::display:
         case modes::resume:
+        case modes::minimal:
             ui->duration->setReadOnly(true);
             ui->temperature->setReadOnly(true);
             ui->processTypeLabel->setText(ui->processType->currentText());
@@ -119,6 +119,7 @@ QSize c_processElemView::getSize(modes target) const {
     switch (target) {
         case modes::resume:
         case modes::display:
+        case modes::minimal:
             if (isEmpty())
                 return QSize(0,0);
             return QSize(ui->durationLabel->width() + (ui->temperature->value()?ui->temperatureLabel->width():0)

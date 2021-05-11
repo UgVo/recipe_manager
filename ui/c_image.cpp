@@ -11,7 +11,6 @@ c_image::c_image(QString _pathImage, QWidget *_parent) :
     ui->deleteButton->hide();
 
     mode = modes::display;
-    state = states::fixed;
 
     QObject::connect(ui->addButton,&QPushButton::clicked,this,&c_image::addButtonClicked);
     QObject::connect(ui->deleteButton,&QPushButton::clicked,this,&c_image::deleteButtonClicked);
@@ -90,18 +89,15 @@ QAbstractAnimation *c_image::switchMode(modes target, bool animated, int time) {
     QParallelAnimationGroup *res = new QParallelAnimationGroup;
     switch (target) {
     case modes::display:
-    case modes::resume: {
+    case modes::resume:
+    case modes::minimal: {
         ui->imageLabel->move(0,0);
         ui->addButton->move(0,0);
         QSize targetSize = getSize(target);
         if (isEmpty()) {
             if (animated) {
-                QPropertyAnimation* anim = fadeAnimation(ui->addButton,true,1000);
-                if (anim != nullptr)
-                    res->addAnimation(anim);
-                anim = fadeAnimation(ui->imageLabel,false,1000);
-                if (anim != nullptr)
-                    res->addAnimation(anim);
+                res->addAnimation(fadeAnimation(ui->addButton,true,1000));
+                res->addAnimation(fadeAnimation(ui->imageLabel,false,1000));
                 res->addAnimation(targetSizeAnimation(ui->addButton,targetSize,time));
             } else {
                 ui->imageLabel->hide();
@@ -110,12 +106,8 @@ QAbstractAnimation *c_image::switchMode(modes target, bool animated, int time) {
             }
         } else {
             if (animated) {
-                QPropertyAnimation* anim = fadeAnimation(ui->addButton,false,1000);
-                if (anim != nullptr)
-                    res->addAnimation(anim);
-                anim = fadeAnimation(ui->imageLabel,true,1000);
-                if (anim != nullptr)
-                    res->addAnimation(anim);
+                res->addAnimation(fadeAnimation(ui->addButton,false,1000));
+                res->addAnimation(fadeAnimation(ui->imageLabel,true,1000));
                 res->addAnimation(targetSizeAnimation(ui->imageLabel,targetSize,time));
             } else {
                 ui->imageLabel->show();
@@ -125,7 +117,7 @@ QAbstractAnimation *c_image::switchMode(modes target, bool animated, int time) {
             }
         }
         if (animated) {
-            res->addAnimation(deflateAnimation(ui->deleteButton,time));
+            ui->deleteButton->hide();
             res->addAnimation(targetSizeAnimation(this,targetSize,time));
         } else {
             ui->deleteButton->hide();
@@ -156,23 +148,26 @@ QAbstractAnimation *c_image::switchMode(modes target, bool animated, int time) {
             ui->imageLabel->hide();
         } else {
             if (animated) {
-                QPropertyAnimation* anim = fadeAnimation(ui->addButton,false,1000);
-                if (anim != nullptr)
-                    res->addAnimation(anim);
-                anim = fadeAnimation(ui->imageLabel,true,1000);
-                if (anim != nullptr)
-                    res->addAnimation(anim);
+                res->addAnimation(fadeAnimation(ui->addButton,false,1000));
+                res->addAnimation(fadeAnimation(ui->imageLabel,true,1000));
                 res->addAnimation(targetSizeAnimation(ui->imageLabel,targetSize,time));
-                if (ui->deleteButton->isHidden() || ui->deleteButton->size() != deleteButtonSize) {
+                if (mode != modes::edition) {
+                    QObject::connect(res,&QAbstractAnimation::finished, [=] () {
+                        ui->deleteButton->show();
+                        ui->deleteButton->setFixedSize(deleteButtonSize);
+                    });
+                } else {
                     ui->deleteButton->show();
-                    res->addAnimation(inflateAnimation(ui->deleteButton,deleteButtonSize,time));
+                    ui->deleteButton->setFixedSize(deleteButtonSize);
                 }
-                ui->deleteButton->raise();
             } else {
                 ui->imageLabel->show();
                 ui->addButton->hide();
                 ui->imageLabel->setFixedSize(targetSize);
+                ui->deleteButton->show();
+                ui->deleteButton->setFixedSize(deleteButtonSize);
             }
+            ui->deleteButton->raise();
         }
         if (animated)
             res->addAnimation(targetSizeAnimation(this,targetSize,time));
@@ -212,7 +207,6 @@ void c_image::addButtonClicked() {
             ui->imageLabel->move(0,0);
             ui->imageLabel->setFixedSize(endSize);
 
-            state = states::fixed;
             emit newImage(new QPropertyAnimation(),QSize());
         }
     }
@@ -241,7 +235,8 @@ QSize c_image::getSize(modes target) const {
         count = static_cast<c_stepView *>(parent())->getImageCount();
     }
     switch (target) {
-    case modes::resume: {
+    case modes::resume:
+    case modes::minimal: {
         count = std::min(c_stepView::maxNumberImages/2,count);
         availableWidth =  (limit - c_stepView::borderSize  - (count-1)*c_stepView::interImageSpace)/(count);
         availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;

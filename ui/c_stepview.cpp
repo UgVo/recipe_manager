@@ -11,22 +11,31 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     ui(new Ui::c_stepView), step(_step) {
     ui->setupUi(this);
 
+    this->setFixedWidth(stepWidth);
+
     mode = modes::setup;
 
     QRect rect(2,2,46,46);
     QRegion region(rect, QRegion::Ellipse);
     ui->rankButton->setMask(region);
+
+    ui->showButton->setFixedWidth(stepWidth - 2*borderSize);
     QObject::connect(ui->showButton,&QPushButton::released,this,&c_stepView::triggerShowButton);
 
     ui->label->append(step->getDescription());
     ui->label->setAlignment(Qt::AlignJustify);
     QObject::connect(ui->label,&QTextEdit::textChanged, [=] () {
         if (getHeightText(mode) != ui->label->height()) {
-            switchMode(mode,true,500);
+            if (parent == nullptr) {
+                switchMode(mode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+            } else {
+                emit animationRequired(switchMode(mode,true,500));
+            }
         }
     });
 
     ui->rankButton->setText(QString("%1").arg(step->getRank()));
+    ui->rankButton->stackUnder(ui->label);
     rankEdit = step->getRank();
 
     ui->saveButton->setFixedWidth(ui->rankButton->width());
@@ -46,12 +55,20 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     ui->displayButton->hide();
     QObject::connect(ui->displayButton,&QPushButton::clicked,[=] () {
-        switchMode(modes::display);
+        if (parent == nullptr) {
+            switchMode(modes::display,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+        } else {
+            emit animationRequired(switchMode(modes::display,true,500));
+        }
     });
 
     ui->resumeButton->hide();
     QObject::connect(ui->resumeButton,&QPushButton::clicked,[=] () {
-        switchMode(modes::resume);
+        if (parent == nullptr) {
+            switchMode(modes::resume,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+        } else {
+            emit animationRequired(switchMode(modes::resume,true,500));
+        }
     });
 
     QList<QString> imageStringList = step->getImagesUrl();
@@ -63,7 +80,11 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     components = new c_componentView(step->getComponentsPtr(),this);
     QObject::connect(components,&c_componentView::resized, [=] () {
-        switchMode(mode,true,500);
+        if (parent == nullptr) {
+            switchMode(mode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+        } else {
+            emit animationRequired(switchMode(mode,true,500));
+        }
     });
 
     updateLimit();
@@ -77,7 +98,11 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     for (int i = 0; i < images.size(); ++i) {
         QObject::connect(images[i],&c_image::newImage,this,&c_stepView::imageAdded);
         QObject::connect(images[i],&c_image::resized, [=] () {
-            switchMode(mode,true,500);
+            if (parent == nullptr) {
+                switchMode(mode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+            } else {
+                emit animationRequired(switchMode(mode,true,500));
+            }
         });
     }
 
@@ -86,18 +111,13 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     processes->show();
 
     equipments = new c_equipementsView(step->getEquipments(),this);
-    equipments->lower();
 
     QMenu *menu = new QMenu();
-    menu->addAction("Edit",[this] () {
-        if (state == states::retracted) {
-            QAbstractAnimation *stateAnime = switchState(states::opened);
-            QObject::connect(stateAnime,&QAbstractAnimation::finished, [=] () {
-                switchMode(modes::edition);
-            });
-            stateAnime->start(QAbstractAnimation::DeleteWhenStopped);
+    menu->addAction("Edit",[=] () {
+        if (parent == nullptr) {
+            switchMode(modes::edition)->start(QAbstractAnimation::DeleteWhenStopped);
         } else {
-            switchMode(modes::edition);
+            emit animationRequired(switchMode(modes::edition));
         }
     });
     menu->addAction("Delete", [this] () {
@@ -112,11 +132,17 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     noteDialog->hide();
     QObject::connect(ui->noteButton,&QPushButton::released,this,&c_stepView::slotShowNotes);
 
-    state = states::retracted;
     defaultMode = (components->isEmpty() && equipments->isEmpty()) ? modes::display : modes::resume;
     mode = defaultMode;
+    switchMode(modes::minimal,false);
 
-    switchMode(mode,false);
+
+    this->setStyleSheet("QWidget#stepWidget,QWidget#widget {"
+                        "   background-color : white;"
+                        "}"
+                        "QWidget#stepWidget {"
+                        "   border : 1px solid black;"
+                        "}");
 }
 
 c_stepView::~c_stepView() {
@@ -131,21 +157,16 @@ void c_stepView::setRank(int rank) {
 
 void c_stepView::triggerShowButton() {
     ui->showButton->raise();
-    switch (state) {
-        case states::retracted: {
-            QParallelAnimationGroup *group = new QParallelAnimationGroup;
-            group->addAnimation(switchState(states::opened));
-            group->start(QAbstractAnimation::DeleteWhenStopped);
-        }
-        break;
-        case states::opened: {
-            QParallelAnimationGroup *group = new QParallelAnimationGroup;
-            group->addAnimation(switchState(states::retracted));
-            group->start(QAbstractAnimation::DeleteWhenStopped);
-        }
-        break;
-        default:
-            break;
+    if (mode == modes::minimal) {
+        if (parent() == nullptr)
+            switchMode(defaultMode)->start(QAbstractAnimation::DeleteWhenStopped);
+        else
+            emit animationRequired(switchMode(defaultMode));
+    } else {
+        if (parent() == nullptr)
+            switchMode(modes::minimal)->start(QAbstractAnimation::DeleteWhenStopped);
+        else
+            emit animationRequired(switchMode(modes::minimal));
     }
 }
 
@@ -177,7 +198,11 @@ void c_stepView::editSaved() {
     updateLimit();
 
     defaultMode = (components->isEmpty() && equipments->isEmpty()) ? modes::display : modes::resume;
-    switchMode(defaultMode);
+
+    if (parent() == nullptr)
+        switchMode(defaultMode)->start(QAbstractAnimation::DeleteWhenStopped);
+    else
+        emit animationRequired(switchMode(defaultMode));
 
     emit saved(step);
 }
@@ -201,7 +226,11 @@ void c_stepView::editCanceled() {
     updateLimit();
 
     defaultMode = (components->isEmpty() && equipments->isEmpty()) ? modes::display : modes::resume;
-    switchMode(defaultMode);
+
+    if (parent() == nullptr)
+        switchMode(defaultMode)->start(QAbstractAnimation::DeleteWhenStopped);
+    else
+        emit animationRequired(switchMode(defaultMode));
 }
 
 void c_stepView::slotAddNote() {
@@ -224,7 +253,10 @@ int c_stepView::getImageCount(){
 }
 
 void c_stepView::imageAdded(QAbstractAnimation * animations) {
-    switchMode(mode,true,500,animations);
+    if (parent() == nullptr)
+        switchMode(mode,true,500,animations);
+    else
+        emit animationRequired(switchMode(mode,true,500,animations));
     checkCount();
 }
 
@@ -255,7 +287,7 @@ int c_stepView::getHeightText(modes targetMode) const {
     }
     // offset to compensate difference in height between text and QEditText
     res += 8;
-    if (targetMode == modes::display || targetMode == modes::resume) {
+    if (targetMode == modes::display || targetMode == modes::resume || targetMode == modes::minimal) {
         return res + 8;
     } else if (targetMode == modes::edition){
         QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
@@ -269,6 +301,7 @@ int c_stepView::getHeightText(modes targetMode) const {
 }
 
 QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, QAbstractAnimation *childAnims) {
+    qDebug() << mapModeToString[mode] << ">>" << mapModeToString[target];
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
     if (childAnims) {
         group->addAnimation(childAnims);
@@ -317,16 +350,13 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             QList<QPoint> posList = arrangeImages(target);
             for (int i = 0; i < images.size(); ++i) {
                 if (animated) {
+                    group->addAnimation(fadeAnimation(images[i],true,time));
                     group->addAnimation(targetPositionAnimation(images[i],posList[i],time));
                 } else {
                     images[i]->move(posList[i]);
                 }
                 group->addAnimation(images[i]->switchMode(target,animated,time));
-                if (state == states::retracted) {
-                    images[i]->hide();
-                } else {
-                    images[i]->show();
-                }
+                images[i]->show();
             }
 
             // Display button
@@ -337,18 +367,13 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 ui->displayButton->move(QPoint((limit-borderSize-interImageSpace)/2+borderSize - ui->displayButton->width()/2,y));
                 ui->displayButton->setText(QString("+%1").arg(countImages-maxNumberImages/2));
                 if (animated) {
-                    QPropertyAnimation* anim = fadeAnimation(ui->displayButton,true,time);
-                    if (anim != nullptr)
-                        group->addAnimation(anim);
+                    group->addAnimation(fadeAnimation(ui->displayButton,true,time));
                 } else {
                     ui->displayButton->show();
                 }
-                ui->displayButton->lower();
             } else {
                 if (animated) {
-                    QPropertyAnimation* anim = fadeAnimation(ui->displayButton,false,time);
-                    if (anim != nullptr)
-                        group->addAnimation(anim);
+                    group->addAnimation(fadeAnimation(ui->displayButton,false,time));
                 } else {
                     ui->displayButton->hide();
                 }
@@ -359,9 +384,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             targetSize = ui->menuButton->size();
             if (animated) {
                 group->addAnimation(targetGeometryAnimation(ui->resumeButton,targetSize,targetPos,time));
-                QPropertyAnimation* anim = fadeAnimation(ui->resumeButton,false,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(ui->resumeButton,false,time));
             } else {
                 ui->resumeButton->move(targetPos);
                 ui->resumeButton->setFixedSize(targetSize);
@@ -373,9 +396,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                                + processes->getSize(target).height() + (processes->isEmpty()?borderSize:2*interImageSpace));
             if (animated) {
                 group->addAnimation(targetPositionAnimation(components,targetPos,time));
-                QPropertyAnimation* anim = fadeAnimation(components,true,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(components,true,time));
             } else {
                 components->move(targetPos);
                 components->show();
@@ -391,9 +412,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 for (int i = 0; i < anims.size(); ++i) {
                     group->addAnimation(anims[i]);
                 }
-                QPropertyAnimation* anim = fadeAnimation(equipments,true,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(equipments,true,time));
             } else {
                 equipments->move(targetPos);
                 equipments->show();
@@ -409,9 +428,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize);
             if (animated) {
                 group->addAnimation(targetPositionAnimation(ui->menuButton,targetPos,time));
-                QPropertyAnimation* anim = fadeAnimation(ui->menuButton,true,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(ui->menuButton,true,time));
             } else {
                 ui->menuButton->move(targetPos);
             }
@@ -442,8 +459,17 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 ui->downButton->move(QPoint(this->width(),0));
             }
 
-            ui->widgetButton->raise();
-            mode = target;
+            QPoint targetPos = QPoint(borderSize, getSize(target).height()-ui->showButton->height());
+            QSize targetSize = getSize(target);
+            qDebug() << "resume mode :" << targetPos << targetSize;
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(ui->showButton,targetPos,time));
+                group->addAnimation(targetSizeAnimation(this,targetSize,time));
+            } else {
+                ui->showButton->move(targetPos);
+                this->setFixedSize(targetSize);
+            }
+            ui->showButton->raise();
         }
         break;
         case modes::display: {
@@ -493,19 +519,13 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                     images[i]->move(posList[i]);
                 }
                 group->addAnimation(images[i]->switchMode(target,animated,time));
-                if (state == states::retracted) {
-                    images[i]->hide();
-                } else {
-                    images[i]->show();
-                }
+                images[i]->show();
             }
 
             // Display button
             checkCount();
             if (animated) {
-                QPropertyAnimation* anim = fadeAnimation(ui->displayButton,false,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(ui->displayButton,false,time));
             } else {
                 ui->displayButton->hide();
             }
@@ -513,13 +533,10 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             // Resume button
             if (defaultMode != display) {
                 targetPos = QPoint(interImageSpace,ui->rankButton->height() + interImageSpace + borderSize);
-                qDebug() << processes->getSize(target).height();
                 targetSize = ui->menuButton->size();
                 if (animated) {
                     group->addAnimation(targetGeometryAnimation(ui->resumeButton,targetSize,targetPos,time));
-                    QPropertyAnimation* anim = fadeAnimation(ui->resumeButton,true,time);
-                    if (anim != nullptr)
-                        group->addAnimation(anim);
+                    group->addAnimation(fadeAnimation(ui->resumeButton,true,time));
                 } else {
                     ui->resumeButton->move(targetPos);
                     ui->resumeButton->setFixedSize(targetSize);
@@ -532,23 +549,17 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
 
             // Ingredients
             if (animated) {
-                QPropertyAnimation* anim = fadeAnimation(components,false,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(components,false,time));
             } else {
                 components->hide();
             }
-            components->lower();
 
             // Equipments
             if (animated) {
-                QPropertyAnimation* anim = fadeAnimation(equipments,false,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(equipments,false,time));
             } else {
                 equipments->hide();
             }
-            equipments->lower();
 
             // Show button
             targetSize = QSize(this->width()-2*borderSize,buttonHeight);
@@ -559,9 +570,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize);
             if (animated) {
                 group->addAnimation(targetPositionAnimation(ui->menuButton,targetPos,time));
-                QPropertyAnimation* anim = fadeAnimation(ui->menuButton,true,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(ui->menuButton,true,time));
             } else {
                 ui->menuButton->move(targetPos);
             }
@@ -592,8 +601,16 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 ui->downButton->move(QPoint(this->width(),0));
             }
 
-            ui->widgetButton->raise();
-            mode = target;
+            QPoint targetPos = QPoint(borderSize, getSize(target).height()-ui->showButton->height());
+            QSize targetSize = getSize(target);
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(ui->showButton,targetPos,time));
+                group->addAnimation(targetSizeAnimation(this,targetSize,time));
+            } else {
+                ui->showButton->move(targetPos);
+                this->setFixedSize(targetSize);
+            }
+            ui->showButton->raise();
         }
         break;
         case modes::edition: {
@@ -603,7 +620,6 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
             ui->label->setReadOnly(false);
             ui->label->setStyleSheet("");
-            ui->label->raise();
 
             targetSize = QSize(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton,getHeightText(target));
             targetPos = QPoint(ui->rankButton->width()+borderSize*2,borderSize);
@@ -623,15 +639,12 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
 
             // Process Views
             targetPos = QPoint(borderSize,borderSize + getHeightText(target) + interImageSpace);
-            processes->lower();
             if (animated) {
                 group->addAnimation(targetPositionAnimation(processes,targetPos,time));
                 for (int i = 0; i < anims.size(); ++i) {
                     group->addAnimation(anims[i]);
                 }
-                QPropertyAnimation* anim = fadeAnimation(processes,true,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(processes,true,time));
             } else {
                 processes->move(targetPos);
                 processes->show();
@@ -642,24 +655,20 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             QList<QPoint> posList = arrangeImages(target);
             for (int i = 0; i < images.size(); ++i) {
                 if (animated) {
+                    group->addAnimation(fadeAnimation(images[i],true,time));
                     group->addAnimation(targetPositionAnimation(images[i],posList[i],time));
                 } else {
                     images[i]->move(posList[i]);
-                }
-                group->addAnimation(images[i]->switchMode(target,animated,time));
-                if (state == states::retracted) {
-                    images[i]->hide();
-                } else {
                     images[i]->show();
                 }
+                group->addAnimation(images[i]->switchMode(target,animated,time));
+                images[i]->show();
             }
 
             // Display button
             checkCount();
             if (animated) {
-                QPropertyAnimation* anim = fadeAnimation(ui->displayButton,false,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(ui->displayButton,false,time));
             } else {
                 ui->displayButton->hide();
             }
@@ -669,9 +678,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             targetSize = ui->menuButton->size();
             if (animated) {
                 group->addAnimation(targetGeometryAnimation(ui->resumeButton,targetSize,targetPos,time));
-                QPropertyAnimation* anim = fadeAnimation(ui->resumeButton,false,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(ui->resumeButton,false,time));
             } else {
                 ui->resumeButton->move(targetPos);
                 ui->resumeButton->setFixedSize(targetSize);
@@ -682,9 +689,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             targetPos = QPoint(this->width()/2 + interImageSpace,borderSize + getHeightText(target) + interImageSpace);
             if (animated) {
                 group->addAnimation(targetPositionAnimation(components,targetPos,time));
-                QPropertyAnimation* anim = fadeAnimation(components,true,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(components,true,time));
             } else {
                 components->move(targetPos);
                 components->show();
@@ -698,9 +703,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 for (int i = 0; i < anims.size(); ++i) {
                     group->addAnimation(anims[i]);
                 }
-                QPropertyAnimation* anim = fadeAnimation(equipments,true,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(equipments,true,time));
             } else {
                 equipments->show();
                 equipments->move(targetPos);
@@ -710,15 +713,12 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             // Show button
             targetSize = QSize(this->width()-2*borderSize,buttonHeight);
             ui->showButton->setFixedSize(targetSize);
-            ui->showButton->raise();
 
             // Menu button
             targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize);
             if (animated) {
                 group->addAnimation(targetPositionAnimation(ui->menuButton,targetPos,time));
-                QPropertyAnimation* anim = fadeAnimation(ui->menuButton,false,time);
-                if (anim != nullptr)
-                    group->addAnimation(anim);
+                group->addAnimation(fadeAnimation(ui->menuButton,false,time));
             } else {
                 ui->menuButton->move(targetPos);
             }
@@ -753,144 +753,197 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 ui->downButton->move(QPoint(this->width() - (this->width() - ui->label->x() - ui->label->width() - ui->downButton->width())/2 - ui->downButton->width(),borderSize+2*interButton+ui->upButton->height()));
             }
 
-            ui->widgetButton->raise();
-            mode = target;
+            QPoint targetPos = QPoint(borderSize, getSize(target).height());
+            QSize targetSize = getSize(target);
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(ui->showButton,targetPos,time));
+                group->addAnimation(targetSizeAnimation(this,targetSize,time));
+            } else {
+                ui->showButton->move(targetPos);
+                this->setFixedSize(targetSize);
+            }
+
         }
         break;
+        case modes::minimal: {
+            // label
+            QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
+            ui->label->setReadOnly(true);
+            ui->label->setStyleSheet("QTextEdit {"
+                                     "  border : 1px solid white;"
+                                     "  background: transparent;"
+                                     "}");
+            targetSize = QSize(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton,getHeightText(modes::resume));
+            targetPos = QPoint(ui->rankButton->width()+borderSize*2,borderSize);
+            if (animated) {
+                group->addAnimation(targetGeometryAnimation(ui->label,targetSize,targetPos,time));
+            } else {
+                ui->label->setFixedSize(targetSize);
+                ui->label->move(targetPos);
+            }
+
+            // rank button
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(ui->rankButton,QPoint(borderSize,borderSize),time));
+            } else {
+                ui->rankButton->move(borderSize,borderSize);
+            }
+
+            // Process Views
+            targetPos = QPoint((this->width() - 2*borderSize - processes->getSize(target).width())/2,borderSize + interImageSpace + std::max(ui->rankButton->height(),getHeightText(target)));
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(processes,targetPos,time));
+            } else {
+                processes->move(targetPos);
+            }
+            if (mode == modes::edition || !animated)
+                group->addAnimation(processes->switchMode(target,animated,time));
+
+            // Images
+            QList<QPoint> posList = arrangeImages(target);
+            for (int i = 0; i < images.size(); ++i) {
+                if (animated) {
+                    group->addAnimation(fadeAnimation(images[i],false,time));
+                    group->addAnimation(targetPositionAnimation(images[i],posList[i],time));
+                } else {
+                    images[i]->hide();
+                    images[i]->move(posList[i]);
+                }
+                group->addAnimation(images[i]->switchMode(target,animated,time));
+            }
+
+            // Menu Button
+            targetPos = QPoint(this->width()-borderMenuButton-ui->menuButton->width(),borderSize);
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(ui->menuButton,targetPos,time));
+                group->addAnimation(fadeAnimation(ui->menuButton,true,time));
+            } else {
+                ui->menuButton->move(targetPos);
+                ui->menuButton->show();
+            }
+
+            // Hide
+            if (animated) {
+                group->addAnimation(fadeAnimation(ui->displayButton,false,time));
+                group->addAnimation(fadeAnimation(ui->resumeButton,false,time));
+                group->addAnimation(fadeAnimation(components,false,time));
+                group->addAnimation(fadeAnimation(equipments,false,time));
+                group->addAnimation(fadeAnimation(ui->noteButton,!step->getNotes().isEmpty(),time));
+
+            } else {
+                ui->displayButton->hide();
+                ui->resumeButton->hide();
+                components->hide();
+                equipments->hide();
+                ui->noteButton->setHidden(step->getNotes().isEmpty());
+            }
+
+            // Resume Button
+            targetPos = QPoint(interImageSpace,ui->rankButton->height() + interImageSpace);
+            ui->resumeButton->move(targetPos);
+
+            // Components
+            targetPos = QPoint(limit + interImageSpace,borderSize+std::max(ui->rankButton->height(),getHeightText(target))
+                               + processes->getSize(target).height() + (processes->isEmpty()?borderSize:2*interImageSpace));
+            components->move(targetPos);
+            group->addAnimation(components->switchMode(target,animated,time));
+
+            //Equipments
+            targetPos = QPoint(limit + interImageSpace, borderSize+std::max(ui->rankButton->height(),getHeightText(target))
+                               + processes->getSize(target).height() + (processes->isEmpty()?borderSize:2*interImageSpace)
+                               + components->getSize(target).height() + (components->isEmpty()?0:interImageSpace));
+            equipments->move(targetPos);
+
+
+            // Edition Buttons
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(ui->saveButton,QPoint(-ui->saveButton->width(),0),time));
+                group->addAnimation(targetPositionAnimation(ui->cancelButton,QPoint(-ui->cancelButton->width(),0),time));
+                group->addAnimation(targetPositionAnimation(ui->upButton,QPoint(this->width(),0),time));
+                group->addAnimation(targetPositionAnimation(ui->downButton,QPoint(this->width(),0),time));
+            } else  {
+                ui->saveButton->move(QPoint(-ui->saveButton->width(),0));
+                ui->cancelButton->move(QPoint(-ui->cancelButton->width(),0));
+                ui->upButton->move(QPoint(this->width(),0));
+                ui->downButton->move(QPoint(this->width(),0));
+            }
+            QPoint targetPos = QPoint(borderSize, getSize(target).height()-ui->showButton->height());
+            QSize targetSize = getSize(target);
+            qDebug() << targetPos << targetSize;
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(ui->showButton,targetPos,time));
+                group->addAnimation(targetSizeAnimation(this,targetSize,time));
+            } else {
+                ui->showButton->move(targetPos);
+                this->setFixedSize(targetSize);
+            }
+
+            break;
+        }
         default:
             break;
     }
 
-    group->addAnimation(switchState(state,animated,time));
-    group->start(QAbstractAnimation::DeleteWhenStopped);
-    mode = target;
-
-    qDebug() << countImages << limit << components->width();
-
-    return group;
-}
-
-QAnimationGroup *c_stepView::switchState(states targetState, bool animated, int time) {
-    QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    QPropertyAnimation *anim = nullptr;
-    switch (targetState) {
-        case states::retracted: {
-            for (int i = 0; i < images.size(); ++i) {
-                if (!images[i]->isEmpty()) {
-                    if (animated) {
-                        anim = fadeAnimation(images[i],false,time);
-                        if (anim != nullptr)
-                            group->addAnimation(anim);
-                        QObject::connect(anim,&QPropertyAnimation::finished, [this,i] () {images[i]->hide();});
-                        images[i]->show();
-                    } else {
-                        images[i]->hide();
-                    }
-                }
-            }
-        }
-        break;
-        case states::opened: {
-            for (int i = 0; i < images.size(); ++i) {
-                if (!images[i]->isEmpty()) {
-                    if (animated) {
-                        anim = fadeAnimation(images[i],true,time);
-                        if (anim != nullptr)
-                            group->addAnimation(anim);
-                    }
-                    images[i]->show();
-                }
-            }
-        }
-        break;
-    default:
-        break;
-    }
-
-    QPoint targetPos = QPoint(borderSize, getHeightWidget(mode,targetState)-ui->showButton->height());
-    QSize targetSize = QSize(this->width(), getHeightWidget(mode,targetState));
-    if (animated) {
-        group->addAnimation(targetPositionAnimation(ui->showButton,targetPos,time));
-        group->addAnimation(targetSizeAnimation(this,targetSize,time));
-    } else {
-        ui->showButton->move(targetPos);
-        this->setFixedSize(targetSize);
-    }
+    ui->showButton->show();
     ui->showButton->raise();
-    state = targetState;
+
+    mode = target;
     return group;
 }
 
 QSize c_stepView::getSize(modes target) const {
-    return QSize(stepWidth,getHeightWidget(target,state));
-}
-
-int c_stepView::getHeightWidget(modes targetMode, states targetState) const {
+    QSize res(stepWidth,0);
     int rightSide, leftSide;
-    switch (targetMode) {
+    if (target == modes::none)
+        target = mode;
+    switch (target) {
         case modes::resume: {
-            switch (targetState) {
-                case states::retracted:
-                    return std::max(ui->rankButton->height(),getHeightText(targetMode)) + borderSize + ui->showButton->height()
-                            + processes->getSize(targetMode).height() + (processes->isEmpty()?borderSize:2*interImageSpace);
-                case states::opened:
-                    qDebug() << components->getSize(targetMode).height() + (components->isEmpty()?0:interImageSpace)
-                             << equipments->getSize(targetMode).height() + (equipments->isEmpty()?0:interImageSpace)
-                             << (!components->isEmpty() || !equipments->isEmpty()?interImageSpace:0);
-                    rightSide = components->getSize(targetMode).height() + (components->isEmpty()?0:interImageSpace)
-                            + equipments->getSize(targetMode).height() + (equipments->isEmpty()?0:interImageSpace)
-                            + (!components->isEmpty() || !equipments->isEmpty()?interImageSpace:0);
-                    leftSide = getImagesMaxHeigth(targetMode) + (countImages>maxNumberImages/2 ? ui->displayButton->height() + interImageSpace : 0) + interImageSpace;
-                    return borderSize + std::max(ui->rankButton->height(),getHeightText(targetMode))
-                            + processes->getSize(targetMode).height() + (processes->isEmpty()?borderSize:2*interImageSpace)
+            rightSide = components->getSize(target).height() + (components->isEmpty()?0:interImageSpace)
+                        + equipments->getSize(target).height() + (equipments->isEmpty()?0:interImageSpace)
+                        + (!components->isEmpty() || !equipments->isEmpty()?interImageSpace:0);
+            leftSide = getImagesMaxHeigth(target) + (countImages>maxNumberImages/2 ? ui->displayButton->height() + interImageSpace : 0) + interImageSpace;
+            res.setHeight(borderSize + std::max(ui->rankButton->height(),getHeightText(target))
+                            + processes->getSize(target).height() + (processes->isEmpty()?borderSize:2*interImageSpace)
                             + std::max(leftSide,rightSide)
-                            + ui->showButton->height();
-                default:
-                    break;
-            }
+                            + ui->showButton->height());
         }
         break;
         case modes::display: {
-            switch (targetState) {
-                case states::retracted:
-                    return std::max(ui->rankButton->height(),getHeightText(targetMode)) + borderSize + ui->showButton->height()
-                            + processes->getSize(targetMode).height() + (processes->isEmpty()?borderSize:2*interImageSpace);
-                case states::opened:
-                    return std::max(ui->rankButton->height(),getHeightText(targetMode)) + borderSize + ui->showButton->height()
-                            + processes->getSize(targetMode).height() + (processes->isEmpty()?borderSize:2*interImageSpace)
-                            + getImagesMaxHeigth(targetMode) + borderSize;
-                default:
-                    break;
-            }
+            res.setHeight(std::max(ui->rankButton->height(),getHeightText(target)) + borderSize + ui->showButton->height()
+                            + processes->getSize(target).height() + (processes->isEmpty()?borderSize:2*interImageSpace)
+                            + getImagesMaxHeigth(target) + borderSize);
         }
         break;
         case modes::edition: {
-            switch (targetState) {
-                case states::retracted:
-                    return getHeightText(modes::edition) + 2*borderSize + ui->showButton->height();
-                case states::opened:
-                    return  borderSize + getHeightText(targetMode) + 4*interImageSpace
-                            + ui->showButton->height()
-                            + std::max(components->getSize(targetMode).height(),processes->getSize(targetMode).height())
-                            + equipments->getSize(targetMode).height()
-                            + getImagesMaxHeigth(targetMode);
-                default:
-                    break;
-            }
+            res.setHeight(borderSize + getHeightText(target) + 4*interImageSpace
+                            + std::max(components->getSize(target).height(),processes->getSize(target).height())
+                            + equipments->getSize(target).height()
+                            + getImagesMaxHeigth(target));
         }
+        break;
+        case modes::minimal:
+            res.setHeight(std::max(ui->rankButton->height(),getHeightText(target)) + borderSize + ui->showButton->height()
+                            + processes->getSize(target).height() + (processes->isEmpty()?borderSize:2*interImageSpace));
         break;
     default:
         break;
     }
-    return 0;
+    qDebug() << res;
+    return res;
+}
+
+void c_stepView::resizeEvent(QResizeEvent *) {
+    repaint();
 }
 
 QList<QPoint> c_stepView::arrangeImages(modes target) {
     QList<QPoint> res;
     int totalWidth = 0;
     int countImage, resumeImagesCount;
-
     QPoint point;
+    if (target == modes::minimal) {
+        target = defaultMode;
+    }
     switch (target) {
         case modes::display:
                 countImage = 0;
@@ -950,6 +1003,9 @@ QList<QPoint> c_stepView::arrangeImages(modes target) {
 
 int c_stepView::getImagesMaxHeigth(modes target) const {
     int max = 0;
+    if (target ==  modes::minimal) {
+        target = defaultMode;
+    }
     switch (target) {
         case modes::display:
             for (int i = 0; i < images.size(); ++i) {

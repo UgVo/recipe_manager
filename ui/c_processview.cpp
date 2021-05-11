@@ -27,7 +27,6 @@ c_processView::c_processView(QList<c_process *> _processes, QWidget *parent) :
     ui->label->setFixedHeight(labelHeight);
 
     mode = modes::resume;
-    state = states::fixed;
 }
 
 c_processView::~c_processView() {
@@ -38,7 +37,8 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
     QParallelAnimationGroup *res =  new QParallelAnimationGroup();
     switch (target) {
     case modes::resume:
-    case modes::display: {
+    case modes::display:
+    case modes::minimal:{
         QPoint pos = QPoint(0,0);
         for (int i = 0; i < processElems.size(); ++i) {
             if (animated && mode != target) {
@@ -55,9 +55,7 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
         }
         if (animated) {
             res->addAnimation(targetSizeAnimation(this,getSize(target),time));
-            QPropertyAnimation* anim = fadeAnimation(ui->label,false,time/2);
-            if (anim != nullptr)
-                res->addAnimation(anim);
+            res->addAnimation(fadeAnimation(ui->label,false,time/2));
         } else {
             this->setFixedSize(getSize(target));
             ui->label->hide();
@@ -83,9 +81,7 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
         }
         if (animated) {
             res->addAnimation(targetSizeAnimation(this,getSize(target),time));
-            QPropertyAnimation* anim = fadeAnimation(ui->label,true,time,time/2);
-            if (anim != nullptr)
-                res->addAnimation(anim);
+            res->addAnimation(fadeAnimation(ui->label,true,time,time/2));
         } else {
             this->setFixedSize(getSize(target));
             ui->label->show();
@@ -106,6 +102,7 @@ QSize c_processView::getSize(modes target) const {
     switch (target) {
         case modes::display:
         case modes::resume:
+        case modes::minimal:
             if (isEmpty()) {
                 return QSize(0,0);
             }
@@ -137,6 +134,7 @@ int c_processView::getWidth(modes target) const {
     switch (target) {
         case modes::display:
         case modes::resume:
+        case modes::minimal:
             for (int i = 0; i < processElems.size(); ++i) {
                 totalWidth += processElems[i]->getSize(target).width();
             }

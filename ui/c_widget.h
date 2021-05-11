@@ -13,7 +13,7 @@
 class c_widget : public QWidget
 {
 public:
-    enum modes{resume,display,edition,setup};
+    enum modes{resume,display,edition,minimal,setup,none};
     enum states{retracted,opened,transition,fixed};
 
     c_widget(QWidget *parent = nullptr);
@@ -42,7 +42,6 @@ protected:
     QPropertyAnimation *inflateAnimation(QWidget *parent, QSize endSize, int time);
 
     modes mode;
-    states state;
 
     static int insideBorder;
     static int labelHeight;
