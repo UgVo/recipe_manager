@@ -15,7 +15,6 @@ class c_widget : public QWidget
 {
 public:
     enum modes{resume,display,edition,minimal,setup,none};
-    enum states{retracted,opened,transition,fixed};
     static QMap<modes,QString> mapModeToString;
 
     c_widget(QWidget *parent = nullptr);
