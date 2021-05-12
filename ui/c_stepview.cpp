@@ -40,7 +40,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
         ui->rankButton->setText(QString("%1").arg(step->getRank()));
     });
 
-    ui->saveButton->setFixedWidth(ui->rankButton->width());
+    ui->saveButton->setFixedWidth((width()/2 - 2*borderSize));
     ui->saveButton->setFixedSize(ui->saveButton->size());
     QObject::connect(ui->saveButton,&QPushButton::clicked,this,&c_stepView::editSaved);
     ui->cancelButton->setFixedSize(ui->saveButton->size());
@@ -434,14 +434,15 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             }
 
             // Edition Buttons
+            int posSaveCancelX = (width()/2-2*borderSize-ui->saveButton->width())/2 + borderSize;
             if (animated) {
-                group->addAnimation(targetPositionAnimation(ui->saveButton,QPoint(-ui->saveButton->width(),0),time));
-                group->addAnimation(targetPositionAnimation(ui->cancelButton,QPoint(-ui->cancelButton->width(),0),time));
+                group->addAnimation(targetPositionAnimation(ui->saveButton,QPoint(posSaveCancelX,getSize(modes::edition).height()),time));
+                group->addAnimation(targetPositionAnimation(ui->cancelButton,QPoint(width()/2 + posSaveCancelX,getSize(modes::edition).height()),time));
                 group->addAnimation(targetPositionAnimation(ui->upButton,QPoint(this->width(),0),time));
                 group->addAnimation(targetPositionAnimation(ui->downButton,QPoint(this->width(),0),time));
             } else  {
-                ui->saveButton->move(QPoint(-ui->saveButton->width(),0));
-                ui->cancelButton->move(QPoint(-ui->cancelButton->width(),0));
+                ui->saveButton->move(QPoint(posSaveCancelX,getSize(modes::edition).height()));
+                ui->cancelButton->move(QPoint(width()/2 + posSaveCancelX,getSize(modes::edition).height()));
                 ui->upButton->move(QPoint(this->width(),0));
                 ui->downButton->move(QPoint(this->width(),0));
             }
@@ -576,14 +577,15 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             }
 
             // Edition Buttons
+            int posSaveCancelX = (width()/2-2*borderSize-ui->saveButton->width())/2 + borderSize;
             if (animated) {
-                group->addAnimation(targetPositionAnimation(ui->saveButton,QPoint(-ui->saveButton->width(),0),time));
-                group->addAnimation(targetPositionAnimation(ui->cancelButton,QPoint(-ui->cancelButton->width(),0),time));
+                group->addAnimation(targetPositionAnimation(ui->saveButton,QPoint(posSaveCancelX,getSize(modes::edition).height()),time));
+                group->addAnimation(targetPositionAnimation(ui->cancelButton,QPoint(width()/2 + posSaveCancelX,getSize(modes::edition).height()),time));
                 group->addAnimation(targetPositionAnimation(ui->upButton,QPoint(this->width(),0),time));
                 group->addAnimation(targetPositionAnimation(ui->downButton,QPoint(this->width(),0),time));
             } else  {
-                ui->saveButton->move(QPoint(-ui->saveButton->width(),0));
-                ui->cancelButton->move(QPoint(-ui->cancelButton->width(),0));
+                ui->saveButton->move(QPoint(posSaveCancelX,getSize(modes::edition).height()));
+                ui->cancelButton->move(QPoint(width()/2 + posSaveCancelX,getSize(modes::edition).height()));
                 ui->upButton->move(QPoint(this->width(),0));
                 ui->downButton->move(QPoint(this->width(),0));
             }
@@ -619,9 +621,9 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
 
             // rank button
             if (animated) {
-                group->addAnimation(targetPositionAnimation(ui->rankButton,QPoint(ui->label->x(),borderSize),time));
+                group->addAnimation(targetPositionAnimation(ui->rankButton,QPoint(borderSize,borderSize),time));
             } else {
-                ui->rankButton->move(ui->label->x(),borderSize);
+                ui->rankButton->move(QPoint(borderSize,borderSize));
             }
 
             // Process Views
@@ -724,17 +726,17 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             }
 
             // Edition Buttons
+            int posSaveCancelX = (width()/2-2*borderSize-ui->saveButton->width())/2 + borderSize;
             if (animated) {
-                int interButton = (getHeightText(modes::edition) - ui->saveButton->height() - ui->cancelButton->height())/3;
-                group->addAnimation(targetPositionAnimation(ui->saveButton,QPoint(borderSize,borderSize+interButton),time));
-                group->addAnimation(targetPositionAnimation(ui->cancelButton,QPoint(borderSize,borderSize+2*interButton + ui->saveButton->height()),time));
-                interButton = (getHeightText(modes::edition) - ui->upButton->height() - ui->downButton->height())/3;
+                group->addAnimation(targetPositionAnimation(ui->saveButton,QPoint(posSaveCancelX,getSize(target).height()-ui->saveButton->height()-interImageSpace),time));
+                group->addAnimation(targetPositionAnimation(ui->cancelButton,QPoint(width()/2+posSaveCancelX,getSize(target).height()-ui->cancelButton->height()-interImageSpace),time));
+                int interButton = (getHeightText(modes::edition) - ui->upButton->height() - ui->downButton->height())/3;
                 group->addAnimation(targetPositionAnimation(ui->upButton,QPoint(this->width() - (this->width() - ui->label->x() - ui->label->width() - ui->upButton->width())/2 - ui->upButton->width(),borderSize+interButton),time));
                 group->addAnimation(targetPositionAnimation(ui->downButton,QPoint(this->width() - (this->width() - ui->label->x() - ui->label->width() - ui->downButton->width())/2 - ui->downButton->width(),borderSize+2*interButton+ui->upButton->height()),time));
             } else  {
                 int interButton = (getHeightText(modes::edition) - ui->saveButton->height() - ui->cancelButton->height())/3;
-                ui->saveButton->move(QPoint(borderSize,borderSize+interButton));
-                ui->cancelButton->move(QPoint(borderSize,borderSize+2*interButton + ui->saveButton->height()));
+                ui->saveButton->move(QPoint(posSaveCancelX,getSize(target).height()-ui->saveButton->height()-interImageSpace));
+                ui->cancelButton->move(QPoint(width()/2+posSaveCancelX,getSize(target).height()-ui->cancelButton->height()-interImageSpace));
                 interButton = (getHeightText(modes::edition) - ui->upButton->height() - ui->downButton->height())/3;
                 ui->upButton->move(QPoint(this->width() - (this->width() - ui->label->x() - ui->label->width() - ui->upButton->width())/2 - ui->upButton->width(),borderSize+interButton));
                 ui->downButton->move(QPoint(this->width() - (this->width() - ui->label->x() - ui->label->width() - ui->downButton->width())/2 - ui->downButton->width(),borderSize+2*interButton+ui->upButton->height()));
@@ -843,14 +845,15 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
 
 
             // Edition Buttons
+            int posSaveCancelX = (width()/2-2*borderSize-ui->saveButton->width())/2 + borderSize;
             if (animated) {
-                group->addAnimation(targetPositionAnimation(ui->saveButton,QPoint(-ui->saveButton->width(),0),time));
-                group->addAnimation(targetPositionAnimation(ui->cancelButton,QPoint(-ui->cancelButton->width(),0),time));
+                group->addAnimation(targetPositionAnimation(ui->saveButton,QPoint(posSaveCancelX,getSize(modes::edition).height()),time));
+                group->addAnimation(targetPositionAnimation(ui->cancelButton,QPoint(width()/2 + posSaveCancelX,getSize(modes::edition).height()),time));
                 group->addAnimation(targetPositionAnimation(ui->upButton,QPoint(this->width(),0),time));
                 group->addAnimation(targetPositionAnimation(ui->downButton,QPoint(this->width(),0),time));
             } else  {
-                ui->saveButton->move(QPoint(-ui->saveButton->width(),0));
-                ui->cancelButton->move(QPoint(-ui->cancelButton->width(),0));
+                ui->saveButton->move(QPoint(posSaveCancelX,getSize(modes::edition).height()));
+                ui->cancelButton->move(QPoint(width()/2 + posSaveCancelX,getSize(modes::edition).height()));
                 ui->upButton->move(QPoint(this->width(),0));
                 ui->downButton->move(QPoint(this->width(),0));
             }
@@ -904,6 +907,7 @@ QSize c_stepView::getSize(modes target) const {
         case modes::edition: {
             res.setHeight(borderSize + getHeightText(target) + 4*interImageSpace
                             + std::max(components->getSize(target).height(),processes->getSize(target).height())
+                            + std::max(ui->saveButton->height(),ui->cancelButton->height()) + interImageSpace
                             + equipments->getSize(target).height()
                             + getImagesMaxHeigth(target));
         }
