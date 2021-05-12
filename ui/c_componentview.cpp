@@ -78,7 +78,7 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
 
             if (animated) {
                 res->addAnimation(targetSizeAnimation(this,getSize(target),time));
-                if (target != mode)
+                if (target != mode && !componentsViews.isEmpty())
                     res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time + time/3,time));
                 else
                     res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time));
