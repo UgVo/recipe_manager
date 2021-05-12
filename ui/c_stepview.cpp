@@ -36,7 +36,9 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     ui->rankButton->setText(QString("%1").arg(step->getRank()));
     ui->rankButton->stackUnder(ui->label);
-    rankEdit = step->getRank();
+    QObject::connect(step,&c_step::rankChanged, [=] () {
+        ui->rankButton->setText(QString("%1").arg(step->getRank()));
+    });
 
     ui->saveButton->setFixedWidth(ui->rankButton->width());
     ui->saveButton->setFixedSize(ui->saveButton->size());
@@ -148,11 +150,6 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 c_stepView::~c_stepView() {
     delete ui;
     delete noteDialog;
-}
-
-void c_stepView::setRank(int rank) {
-    rankEdit = rank;
-    step->setRank(rank);
 }
 
 void c_stepView::triggerShowButton() {

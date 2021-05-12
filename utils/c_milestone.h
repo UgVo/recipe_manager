@@ -6,11 +6,15 @@
 #include <QList>
 #include <QString>
 #include <QRegExp>
+#include <QObject>
 
-class c_milestone
+class c_milestone : public QObject
 {
+    Q_OBJECT
+
 public:
     c_milestone(int rank = 0, QList<c_step> steps = QList<c_step>(), QString name = "", int id = -1);
+    c_milestone(const c_milestone &other);
 
     int getId() const;
     void setId(int value);
@@ -27,6 +31,7 @@ public:
     void setRank(int value);
 
     bool operator==(const c_milestone& other) const;
+    c_milestone &operator=(const c_milestone& other);
     bool operator<(const c_milestone& other) const;
 
     bool isComplete() const;
@@ -34,6 +39,9 @@ public:
 
     QString getName() const;
     void setName(const QString &value);
+
+signals:
+    void rankChanged();
 
 private:
     int id;

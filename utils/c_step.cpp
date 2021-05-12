@@ -38,6 +38,7 @@ int c_step::getRank() const {
 
 void c_step::setRank(int value) {
     rank = value;
+    emit rankChanged();
 }
 
 QList<c_component> c_step::getComponents() const {

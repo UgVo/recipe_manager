@@ -7,8 +7,9 @@
 #include "utils/c_note.h"
 #include "utils/c_process.h"
 
-class c_step
+class c_step : public QObject
 {
+    Q_OBJECT
 
 public:
     c_step(int rank = 0, QString description = QString(), QList<QString> imagesUrl = QList<QString>(),
@@ -61,8 +62,11 @@ public:
     void setComplete(bool value);
 
     void completeStep();
-private:
 
+signals:
+    void rankChanged();
+
+private:
     void completeComponents();
     void completeNotes();
     void completeEquipements();

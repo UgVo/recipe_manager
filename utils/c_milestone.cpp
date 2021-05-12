@@ -5,6 +5,14 @@ c_milestone::c_milestone(int _rank, QList<c_step> _steps, QString _name, int id)
     normalizeStepOrder();
 }
 
+c_milestone::c_milestone(const c_milestone &other) {
+    id = other.getId();
+    rank = other.getRank();
+    name = other.getName();
+    complete = other.isComplete();
+    steps = other.getSteps();
+}
+
 int c_milestone::getId() const {
     return id;
 }
@@ -60,11 +68,22 @@ int c_milestone::getRank() const {
 
 void c_milestone::setRank(int value) {
     rank = value;
+    emit rankChanged();
 }
 
 bool c_milestone::operator==(const c_milestone &other) const {
     return rank == other.getRank()
             && steps == other.getSteps();
+}
+
+c_milestone &c_milestone::operator=(const c_milestone &other) {
+    id = other.getId();
+    rank = other.getRank();
+    name = other.getName();
+    complete = other.isComplete();
+    steps = other.getSteps();
+
+    return *this;
 }
 
 bool c_milestone::operator<(const c_milestone &other) const {

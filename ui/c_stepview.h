@@ -33,8 +33,6 @@ public:
     explicit c_stepView(c_step *step, QWidget *parent = nullptr);
     ~c_stepView();
 
-    void setRank(int rank);
-
     QAnimationGroup *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAbstractAnimation *childAnims = nullptr);
     QSize getSize(modes target = modes::none) const;
 
@@ -86,7 +84,6 @@ private:
     c_processView* processes;
     c_notesDialog *noteDialog;
 
-    int rankEdit;
     int countImages;
     int limit;
 
