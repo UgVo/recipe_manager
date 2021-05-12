@@ -42,8 +42,6 @@ public:
 
     c_step *getStep() const;
 
-    c_note* addNoteToStep(c_note *newNote);
-    void deleteNote(c_note *note);
 
     void checkCount();
     int getLimit() const;

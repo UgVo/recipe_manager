@@ -257,16 +257,6 @@ void c_stepView::imageAdded(QAbstractAnimation * animations) {
     checkCount();
 }
 
-c_note *c_stepView::addNoteToStep(c_note* newNote) {
-    c_note *note = step->newNote();
-    *note = *newNote;
-    return note;
-}
-
-void c_stepView::deleteNote(c_note *note) {
-    step->deleteNote(note);
-}
-
 void c_stepView::checkCount() {
     countImages = 0;
     for (int i = 0; i < images.size(); ++i) {

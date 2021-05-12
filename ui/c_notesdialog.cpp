@@ -172,7 +172,7 @@ void c_notesDialog::slotNewNote() {
 void c_notesDialog::slotDeleteNote() {
     c_noteView *sender = static_cast<c_noteView *>(QObject::sender());
     if (static_cast<c_stepView*>(parent())) {
-        static_cast<c_stepView*>(parent())->deleteNote(sender->getNote());
+        static_cast<c_stepView*>(parent())->getStep()->deleteNote(sender->getNote());
     }
     sender->hide();
     static_cast<QHBoxLayout*>(ui->scrollAreaContents->layout())->removeWidget(sender);
