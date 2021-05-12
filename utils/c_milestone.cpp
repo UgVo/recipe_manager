@@ -53,6 +53,45 @@ QList<int> c_milestone::getStepsIds() const {
     return res;
 }
 
+bool c_milestone::swapSteps(c_step *step, recipe::swap direction) {
+    int index = -1;
+    for (int i = 0; i < steps.size(); ++i) {
+        if (&steps[i] == step) {
+            index = i;
+            break;
+        }
+    }
+    if (index != -1) {
+        if (direction == recipe::swapAbove) {
+            if (index > 0) {
+                steps.swapItemsAt(index,index-1);
+                steps[index].setRank(index+1);
+                steps[index-1].setRank(index);
+                return true;
+            }
+        } else if (direction == recipe::swapBelow) {
+            if (index < steps.size()-1) {
+                steps.swapItemsAt(index,index+1);
+                steps[index].setRank(index+1);
+                steps[index+1].setRank(index+2);
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool c_milestone::removeStep(c_step *step) {
+    for (int i = 0; i < steps.size(); ++i) {
+        if (&steps[i] == step) {
+            steps.removeAt(i);
+            normalizeStepOrder();
+            return true;
+        }
+    }
+    return false;
+}
+
 void c_milestone::completeMilestone() {
     steps = c_dbManager::getSteps(id);
     normalizeStepOrder();

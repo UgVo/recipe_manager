@@ -25,6 +25,9 @@ public:
     void setSteps(const QList<c_step> &value);
     QList<int> getStepsIds() const;
 
+    bool swapSteps(c_step *step, recipe::swap direction);
+    bool removeStep(c_step *step);
+
     void completeMilestone();
 
     int getRank() const;

@@ -61,10 +61,9 @@ public slots:
     void imageAdded(QAbstractAnimation *animations);
 
 signals:
-    void upRank();
-    void downRank();
+    void swapRank(recipe::swap direction);
     void saved(c_step* step);
-    void toDelete(c_stepView *widget);
+    void toDelete();
     void animationRequired(QAbstractAnimation* anim);
 
 private:

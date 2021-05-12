@@ -23,6 +23,8 @@ public:
 
 public slots:
     void slotHandleResizeStep(QAbstractAnimation *animation);
+    void slotSwapSteps(recipe::swap direction);
+    void slotDeleteSteps();
 
 private:
     Ui::c_milestoneView *ui;

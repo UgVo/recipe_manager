@@ -41,6 +41,8 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, QWidget *parent) :
     for (int i = 0; i < steps.size(); ++i) {
         stepList.push_back(new c_stepView(steps[i],this));
         QObject::connect(stepList.last(),&c_stepView::animationRequired,this,&c_milestoneView::slotHandleResizeStep);
+        QObject::connect(stepList.last(),&c_stepView::swapRank,this,&c_milestoneView::slotSwapSteps);
+        QObject::connect(stepList.last(),&c_stepView::toDelete,this,&c_milestoneView::slotDeleteSteps);
     }
 
     mode = modes::minimal;
@@ -124,4 +126,28 @@ void c_milestoneView::slotHandleResizeStep(QAbstractAnimation *animation) {
     group->addAnimation(targetSizeAnimation(this,getSize(mode),animation->duration()));
     group->addAnimation(animation);
     group->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void c_milestoneView::slotSwapSteps(recipe::swap direction) {
+    c_stepView *sender = static_cast<c_stepView *>(QObject::sender());
+    if (milestone->swapSteps(sender->getStep(),direction)) {
+        int index = stepList.indexOf(sender);
+        if (direction == recipe::swapAbove) {
+            stepList.swapItemsAt(index,index-1);
+        } else if (direction == recipe::swapBelow) {
+            stepList.swapItemsAt(index,index+1);
+        }
+    }
+    switchMode(mode)->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void c_milestoneView::slotDeleteSteps() {
+    c_stepView *sender = static_cast<c_stepView *>(QObject::sender());
+    if (milestone->removeStep(sender->getStep())) {
+        stepList.removeOne(sender);
+        sender->hide();
+        sender->deleteLater();
+
+        switchMode(mode)->start(QAbstractAnimation::DeleteWhenStopped);
+    }
 }

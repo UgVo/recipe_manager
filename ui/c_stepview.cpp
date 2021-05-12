@@ -48,11 +48,11 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     ui->upButton->setFixedSize(ui->upButton->size());
     QObject::connect(ui->upButton,&QPushButton::clicked, [this] () {
-        emit upRank();
+        emit swapRank(recipe::swapAbove);
     });
     ui->downButton->setFixedSize(ui->downButton->size());
     QObject::connect(ui->downButton,&QPushButton::clicked, [this] () {
-        emit downRank();
+        emit swapRank(recipe::swapBelow);
     });
 
     ui->displayButton->hide();
@@ -123,7 +123,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
         }
     });
     menu->addAction("Delete", [this] () {
-        emit toDelete(this);
+        emit toDelete();
     });
     menu->addAction("Add note",this,&c_stepView::slotAddNote);
 
