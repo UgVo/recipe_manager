@@ -494,7 +494,6 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             } else {
                 processes->move(targetPos);
             }
-//            if (mode != modes::edition)
             if (mode != defaultMode)
                 group->addAnimation(processes->switchMode(target,false,time));
 

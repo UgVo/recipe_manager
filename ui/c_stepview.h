@@ -35,14 +35,9 @@ public:
 
     QAnimationGroup *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAbstractAnimation *childAnims = nullptr);
     QSize getSize(modes target = modes::none) const;
-
     void resizeEvent(QResizeEvent *event);
-
     int getImageCount();
-
     c_step *getStep() const;
-
-
     void checkCount();
     int getLimit() const;
     void updateLimit();
@@ -67,7 +62,6 @@ signals:
     void animationRequired(QAbstractAnimation* anim);
 
 private:
-
     int getHeightText(modes targetMode = modes::resume) const;
     QList<QPoint> arrangeImages(modes target = modes::display);
     int getImagesMaxHeigth(modes target = modes::display) const;
@@ -85,7 +79,6 @@ private:
     int limit;
 
     modes defaultMode;
-
 };
 
 #endif // C_STEP_VIEW_H
