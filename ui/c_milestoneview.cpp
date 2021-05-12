@@ -6,11 +6,21 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, QWidget *parent) :
     ui(new Ui::c_milestoneView), milestone(_milestone) {
     ui->setupUi(this);
 
+    if (milestone->getName().isEmpty()) {
+        ui->milestoneButton->setText(QString("Jalon %1").arg(milestone->getRank()));
+    } else {
+        ui->milestoneButton->setText(milestone->getName());
+    }
     QList<c_step *> steps = milestone->getStepsPtr();
 
-    ui->milestoneButton->setFixedHeight(buttonHeight);
+    ui->milestoneButton->setFixedHeight(int(double(buttonHeight)*1.5));
     ui->milestoneButton->setFixedWidth(stepWidth);
     ui->milestoneButton->move(borderSize,borderSize);
+    ui->milestoneButton->setStyleSheet("QPushButton#milestoneButton { "
+                                       "text-align: left;"
+                                       "font-size: 16px;"
+                                       "padding-left: 10px;"
+                                       "}");
 
     QObject::connect(ui->milestoneButton,&QPushButton::clicked, [=] () {
         switch (mode) {
