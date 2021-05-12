@@ -64,7 +64,6 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
         break;
     case modes::edition: {
         QPoint pos = QPoint(0,0);
-        ui->label->move(pos);
         processSave = processes;
         pos += QPoint(0,ui->label->height() + c_stepView::interImageSpace);
         for (int i = 0; i < processElems.size(); ++i) {
@@ -80,9 +79,11 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
             pos += QPoint(0,processElems[i]->getSize(target).height() + c_stepView::interImageSpace);
         }
         if (animated) {
+            res->addAnimation(targetPositionAnimation(ui->label,QPoint(0,0),time));
             res->addAnimation(targetSizeAnimation(this,getSize(target),time));
             res->addAnimation(fadeAnimation(ui->label,true,time,time/2));
         } else {
+            ui->label->move(QPoint(0,0));
             this->setFixedSize(getSize(target));
             ui->label->show();
         }
