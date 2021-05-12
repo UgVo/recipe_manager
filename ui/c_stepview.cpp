@@ -344,6 +344,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 }
                 group->addAnimation(images[i]->switchMode(target,animated,time));
                 images[i]->show();
+                images[i]->raise();
             }
 
             // Display button
@@ -508,6 +509,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 }
                 group->addAnimation(images[i]->switchMode(target,animated,time));
                 images[i]->show();
+                images[i]->raise();
             }
 
             // Display button
@@ -652,6 +654,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 }
                 group->addAnimation(images[i]->switchMode(target,animated,time));
                 images[i]->show();
+                images[i]->raise();
             }
 
             // Display button
