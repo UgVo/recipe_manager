@@ -43,6 +43,7 @@ CREATE INDEX fkstep_id_processes ON processes (step_id);
 CREATE TABLE milestones (
 	id SERIAL UNIQUE, 
 	rank integer, 
+	name text,
 	recipe_id integer, 
 	CONSTRAINT PK_milestones PRIMARY KEY(id), 
 	CONSTRAINT FK_recipe FOREIGN KEY(recipe_id) REFERENCES recipes(id) ON DELETE CASCADE

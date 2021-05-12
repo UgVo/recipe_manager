@@ -10,11 +10,12 @@
 class c_milestone
 {
 public:
-    c_milestone(int rank = 0, QList<c_step> steps = QList<c_step>(), int id = -1);
+    c_milestone(int rank = 0, QList<c_step> steps = QList<c_step>(), QString name = "", int id = -1);
 
     int getId() const;
     void setId(int value);
 
+    void normalizeStepOrder();
     QList<c_step> getSteps() const;
     QList<c_step *> getStepsPtr();
     void setSteps(const QList<c_step> &value);
@@ -31,9 +32,13 @@ public:
     bool isComplete() const;
     void setComplete(bool value);
 
+    QString getName() const;
+    void setName(const QString &value);
+
 private:
     int id;
     int rank;
+    QString name;
     bool complete;
     QList<c_step> steps;
 };

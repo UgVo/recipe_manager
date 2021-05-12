@@ -8,7 +8,7 @@ QMap<QString,int> c_dbManager::tables {
     {"equipments",1},
     {"ingredients",4},
     {"processes",6},
-    {"milestones",3},
+    {"milestones",4},
     {"recipes",4},
     {"steps",5},
     {"components",5},
@@ -57,6 +57,7 @@ QMap<QString,QString> c_dbManager::tablesCreate {
         "CREATE TABLE milestones ("
         "   id SERIAL UNIQUE,"
         "   rank integer,"
+        "   name text,"
         "   recipe_id integer,"
         "   CONSTRAINT PK_milestones PRIMARY KEY(id),"
         "   CONSTRAINT FK_recipe FOREIGN KEY(recipe_id) REFERENCES recipes(id) ON DELETE CASCADE"
@@ -761,10 +762,11 @@ int c_dbManager::addMilestone(c_milestone &milestone, int idRecipe) {
         }
     }
     QSqlQuery query(m_db);
-    query.prepare("INSERT INTO milestones (rank,recipe_id) "
-                  "VALUES (:rank,:recipe_id)");
+    query.prepare("INSERT INTO milestones (rank,recipe_id,name) "
+                  "VALUES (:rank,:recipe_id,:name)");
     query.bindValue(":rank",milestone.getRank());
     query.bindValue(":recipe_id",idRecipe);
+    query.bindValue(":name",milestone.getName());
     if (query.exec()) {
         milestone.setId(getLastInsertId("milestones",query));
         QList<c_step> steps = milestone.getSteps();
@@ -785,10 +787,11 @@ int c_dbManager::updateMilestone(c_milestone &milestone) {
     }
     QSqlQuery query(m_db);
     query.prepare("UPDATE milestones "
-                  "SET rank = :rank "
+                  "SET rank = :rank, name = :name "
                   "WHERE id = :id");
     query.bindValue(":rank",milestone.getRank());
     query.bindValue(":id",milestone.getId());
+    query.bindValue(":name",milestone.getName());
     if (query.exec()) {
         QList<int> stepsIds = milestone.getStepsIds();
         QString queryStr = "DELETE FROM steps WHERE milestone_id = :id AND ";
@@ -823,9 +826,11 @@ QList<c_milestone> c_dbManager::getMilestones(int id) {
     if (query.exec()) {
         int idRank = query.record().indexOf("rank");
         int id = query.record().indexOf("id");
+        int idName = query.record().indexOf("name");
         while (query.next()) {
             res.push_back(c_milestone(query.value(idRank).toInt(),
                                       QList<c_step>(),
+                                      query.value(idName).toString(),
                                       query.value(id).toInt()));
             res.last().setComplete(false);
         }

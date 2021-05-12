@@ -1,7 +1,9 @@
 #include "c_milestone.h"
 #include "c_dbmanager.h"
 
-c_milestone::c_milestone(int _rank, QList<c_step> _steps, int id) : id (id), rank(_rank), complete(true), steps(_steps) { }
+c_milestone::c_milestone(int _rank, QList<c_step> _steps, QString _name, int id) : id (id), rank(_rank), name(_name), complete(true), steps(_steps) {
+    normalizeStepOrder();
+}
 
 int c_milestone::getId() const {
     return id;
@@ -9,6 +11,13 @@ int c_milestone::getId() const {
 
 void c_milestone::setId(int value) {
     id = value;
+}
+
+void c_milestone::normalizeStepOrder() {
+    std::sort(steps.begin(),steps.end());
+    for (int i = 0; i < steps.size(); ++i) {
+        steps[i].setRank(i+1);
+    }
 }
 
 QList<c_step> c_milestone::getSteps() const {
@@ -25,7 +34,7 @@ QList<c_step *> c_milestone::getStepsPtr() {
 
 void c_milestone::setSteps(const QList<c_step> &value) {
     steps = value;
-    std::sort(steps.begin(),steps.end());
+    normalizeStepOrder();
 }
 
 QList<int> c_milestone::getStepsIds() const {
@@ -38,7 +47,7 @@ QList<int> c_milestone::getStepsIds() const {
 
 void c_milestone::completeMilestone() {
     steps = c_dbManager::getSteps(id);
-    std::sort(steps.begin(),steps.end());
+    normalizeStepOrder();
     for (QList<c_step>::iterator it = steps.begin(); it != steps.end(); ++it ) {
         it->completeStep();
     }
@@ -68,4 +77,14 @@ bool c_milestone::isComplete() const {
 
 void c_milestone::setComplete(bool value) {
     complete = value;
+}
+
+QString c_milestone::getName() const
+{
+    return name;
+}
+
+void c_milestone::setName(const QString &value)
+{
+    name = value;
 }
