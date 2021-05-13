@@ -658,8 +658,8 @@ int c_dbManager::addProcess(c_process &process, int idRecipe, int idStep) {
     query.bindValue(":type",process.getType().toLower());
     query.bindValue(":duration",process.getDuration());
     query.bindValue(":temperature",process.getTemperature());
-    query.bindValue(":recipe_id",idRecipe?idRecipe:QVariant(QVariant::Int));
-    query.bindValue(":step_id",idStep?idStep:QVariant(QVariant::Int));
+    query.bindValue(":recipe_id",idRecipe?idRecipe:QMetaType::Int);
+    query.bindValue(":step_id",idStep?idStep:QMetaType::Int);
     if (query.exec()) {
         process.setId(getLastInsertId("processes",query));
         return process.getId();
@@ -881,8 +881,8 @@ int c_dbManager::addNote(c_note &note, int idRecipe, int idStep) {
                   "VALUES (:text,:date,:recipe_id,:step_id)");
     query.bindValue(":text",note.getText());
     query.bindValue(":date",note.getDate());
-    query.bindValue(":recipe_id",idRecipe?idRecipe:QVariant(QVariant::Int));
-    query.bindValue(":step_id",idStep?idStep:QVariant(QVariant::Int));
+    query.bindValue(":recipe_id",idRecipe?idRecipe:QMetaType::Int);
+    query.bindValue(":step_id",idStep?idStep:QMetaType::Int);
     if (query.exec()) {
         note.setId(getLastInsertId("notes",query));
         return note.getId();
