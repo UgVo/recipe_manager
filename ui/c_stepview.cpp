@@ -187,7 +187,7 @@ void c_stepView::editSaved() {
         res.append(ui->label->document()->findBlockByNumber(i).text());
         res.append("\n");
     }
-    res.remove(QRegExp("\n$"));
+    res.remove(QRegularExpression("\n$"));
     step->setDescription(res);
 
     QObject::disconnect(ui->saveButton,&QPushButton::released,this,&c_stepView::editSaved);

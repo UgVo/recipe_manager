@@ -97,7 +97,7 @@ QString c_step::getImagesUrlsStr() const {
         res.append(url);
         res.append(",");
     }
-    res.remove(QRegExp(",$"));
+    res.remove(QRegularExpression(",$"));
     return res;
 }
 

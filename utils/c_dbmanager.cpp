@@ -573,7 +573,7 @@ int c_dbManager::updateRecipe(c_recipe &recipe) {
         for (int i = 0; i < milestonesIds.size(); ++i) {
             queryStr.append(QString(" id != %1 AND").arg(milestonesIds[i]));
         }
-        queryStr.remove(QRegExp("AND$"));
+        queryStr.remove(QRegularExpression("AND$"));
         query.prepare(queryStr);
         query.bindValue(":id",recipe.getId());
         if (query.exec()) {
@@ -798,7 +798,7 @@ int c_dbManager::updateMilestone(c_milestone &milestone) {
         for (int i = 0; i < stepsIds.size(); ++i) {
             queryStr.append(QString(" id != %1 AND").arg(stepsIds[i]));
         }
-        queryStr.remove(QRegExp("AND$"));
+        queryStr.remove(QRegularExpression("AND$"));
         query.prepare(queryStr);
         query.bindValue(":id",milestone.getId());
         if (query.exec()) {

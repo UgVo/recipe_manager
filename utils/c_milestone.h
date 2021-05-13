@@ -5,7 +5,7 @@
 #include "utils/utils.h"
 #include <QList>
 #include <QString>
-#include <QRegExp>
+#include <QRegularExpression>
 #include <QObject>
 
 class c_milestone : public QObject
