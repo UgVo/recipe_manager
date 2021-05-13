@@ -15,7 +15,8 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     mode = modes::setup;
 
-    QRect rect(2,2,46,46);
+    ui->rankButton->setFixedSize(40,40);
+    QRect rect(2,2,ui->rankButton->width()-4,ui->rankButton->height()-4);
     QRegion region(rect, QRegion::Ellipse);
     ui->rankButton->setMask(region);
 
