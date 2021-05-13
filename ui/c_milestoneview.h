@@ -14,7 +14,7 @@ class c_milestoneView : public c_widget
     Q_OBJECT
 
 public:
-    explicit c_milestoneView(c_milestone *milestone, QWidget *parent = nullptr);
+    explicit c_milestoneView(c_milestone *milestone, c_widget *widget = nullptr, QWidget *parent = nullptr);
     ~c_milestoneView();
 
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500, QAbstractAnimation *childAnims = nullptr);

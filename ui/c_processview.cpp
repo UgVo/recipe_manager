@@ -4,8 +4,8 @@
 
 int c_processView::maxNumberProcess = 3;
 
-c_processView::c_processView(QList<c_process *> _processes, QWidget *parent) :
-    c_widget(parent),
+c_processView::c_processView(QList<c_process *> _processes, c_widget *widget, QWidget *parent) :
+    c_widget(parent,widget),
     ui(new Ui::c_processView), processes(_processes) {
     ui->setupUi(this);
     while (processes.size() > maxNumberProcess) {
@@ -20,7 +20,7 @@ c_processView::c_processView(QList<c_process *> _processes, QWidget *parent) :
 
     for (int i = 0; i < processElems.size(); ++i) {
         QObject::connect(processElems[i],&c_processElemView::removeProcess, [=] (const c_process *process) {
-            static_cast<c_stepView *>(this->parent())->getStep()->removeProcessing(process);
+            static_cast<c_stepView *>(m_parent)->getStep()->removeProcessing(process);
         });
     }
 
@@ -120,7 +120,7 @@ QSize c_processView::getSize(modes target) const {
                 totalHeight += processElems[i]->getSize(target).height();
             }
             totalHeight += maxNumberProcess*c_stepView::interImageSpace + ui->label->height();
-            totalWidth = static_cast<c_stepView *>(parent())->width()/2 - c_stepView::borderSize - c_stepView::interImageSpace;
+            totalWidth = static_cast<c_stepView *>(m_parent)->width()/2 - c_stepView::borderSize - c_stepView::interImageSpace;
             break;
     default:
         break;
@@ -142,7 +142,7 @@ int c_processView::getWidth(modes target) const {
             totalWidth += (processElems.size()-1)*c_stepView::interImageSpace;
             break;
         case modes::edition:
-            totalWidth = static_cast<c_stepView *>(parent())->width()/2 - c_stepView::borderSize - c_stepView::interImageSpace;
+            totalWidth = static_cast<c_stepView *>(m_parent)->width()/2 - c_stepView::borderSize - c_stepView::interImageSpace;
             break;
     default:
         break;
@@ -169,7 +169,7 @@ void c_processView::rollback() {
 }
 
 c_process *c_processView::newProcessing() {
-    return static_cast<c_stepView *>(parent())->getStep()->newProcessing();
+    return static_cast<c_stepView *>(m_parent)->getStep()->newProcessing();
 }
 
 bool c_processView::isEmpty() const {

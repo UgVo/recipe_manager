@@ -14,8 +14,9 @@ QMap<c_widget::modes,QString> c_widget::mapModeToString{
     {modes::setup,"Setup"}
 };
 
-c_widget::c_widget(QWidget *parent) : QWidget(parent) {
-
+c_widget::c_widget(QWidget *parent, c_widget *_parent) : QWidget(parent) {
+    m_parent = _parent;
+    mode = modes::none;
 }
 
 c_widget::~c_widget() {

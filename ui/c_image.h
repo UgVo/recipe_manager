@@ -16,7 +16,7 @@ class c_image : public c_widget
 
 public:
 
-    explicit c_image(QString pathImage = QString(), QWidget *parent = nullptr);
+    explicit c_image(QString pathImage = QString(), c_widget *widget = nullptr, QWidget *parent = nullptr);
     ~c_image();
 
     QPixmap getImage() const;

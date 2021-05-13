@@ -20,7 +20,7 @@ class c_equipementsView : public c_widget
     Q_OBJECT
 
 public:
-    explicit c_equipementsView(QList<QString> equipmentList, QWidget *parent = nullptr);
+    explicit c_equipementsView(QList<QString> equipmentList, c_widget *widget, QWidget *parent = nullptr);
     ~c_equipementsView();
 
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);

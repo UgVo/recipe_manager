@@ -19,7 +19,7 @@ class c_processView : public c_widget
     Q_OBJECT
 
 public:
-    explicit c_processView(QList<c_process *> processes, QWidget *parent = nullptr);
+    explicit c_processView(QList<c_process *> processes, c_widget *widget, QWidget *parent = nullptr);
     ~c_processView();
 
     QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000);

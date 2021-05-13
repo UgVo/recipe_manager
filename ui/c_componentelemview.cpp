@@ -4,8 +4,8 @@
 
 int c_componentElemView::heigthWidget = 23;
 
-c_componentElemView::c_componentElemView(c_component *_component, QWidget *parent) :
-    c_widget(parent),
+c_componentElemView::c_componentElemView(c_component *_component, c_widget *widget, QWidget *parent) :
+    c_widget(parent,widget),
     ui(new Ui::c_componentElemView), component(_component) {
     ui->setupUi(this);
     ui->unitComboBox->insertItems(0,recipe::unitToString.values());
@@ -128,7 +128,7 @@ QSize c_componentElemView::getSize(modes target) const {
             res.setHeight(heigthWidget);
             break;
         case modes::edition:
-            res.setWidth(static_cast<c_widget *>(static_cast<QWidget *>(parent())->parent())->getWidth(target) - 2*insideBorder);
+            res.setWidth(m_parent->getWidth(target) - 2*insideBorder);
             res.setHeight(heigthWidget);
             break;
         default:

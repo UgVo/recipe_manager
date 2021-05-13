@@ -17,7 +17,7 @@ public:
     enum modes{resume,display,edition,minimal,setup,none};
     static QMap<modes,QString> mapModeToString;
 
-    c_widget(QWidget *parent = nullptr);
+    c_widget(QWidget *parent = nullptr, c_widget *m_parent = nullptr);
 
     virtual ~c_widget();
 
@@ -45,6 +45,7 @@ protected:
     QPropertyAnimation *inflateAnimation(QWidget *parent, QSize endSize, int time);
 
     modes mode;
+    c_widget* m_parent;
 
     static int insideBorder;
     static int labelHeight;

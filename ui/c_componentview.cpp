@@ -2,13 +2,13 @@
 #include "ui_c_componentview.h"
 #include "c_stepview.h"
 
-c_componentView::c_componentView(QList<c_component *> _components, QWidget *parent) :
-    c_widget(parent),
+c_componentView::c_componentView(QList<c_component *> _components, c_widget *widget, QWidget *parent) :
+    c_widget(parent,widget),
     ui(new Ui::c_componentView) {
     ui->setupUi(this);
 
     for (int i = 0; i < _components.size(); ++i) {
-        componentsViews.push_back(new c_componentElemView(_components[i],ui->widget));
+        componentsViews.push_back(new c_componentElemView(_components[i],this,ui->widget));
         QObject::connect(componentsViews.last(),&c_componentElemView::deleteMe,this,&c_componentView::removeComponent);
     }
 
@@ -45,7 +45,7 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
                 res->addAnimation(componentsViews[i]->switchMode(target,animated,time));
                 pos += QPoint(0,componentsViews[i]->getSize(target).height());
             }
-            int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+            int max = static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
             addComponentButton->setFixedWidth(max - 2*insideBorder);
             if (animated) {
                 res->addAnimation(targetSizeAnimation(this,getSize(target),time));
@@ -73,7 +73,7 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
                 res->addAnimation(componentsViews[i]->switchMode(target,animated,time));
                 pos += QPoint(0,componentsViews[i]->getSize(target).height() + c_stepView::interImageSpace);
             }
-            int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+            int max = static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
             addComponentButton->setFixedWidth(max - 2*insideBorder);
 
             if (animated) {
@@ -107,8 +107,8 @@ QSize c_componentView::getSize(modes target) const {
             }
             int widthMin = 0;
             int heightMin = 0;
-            int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
-            int min = static_cast<c_stepView *>(parent())->width()/3-c_stepView::borderSize - c_stepView::interImageSpace;
+            int max = static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+            int min = static_cast<c_stepView *>(m_parent)->width()/3-c_stepView::borderSize - c_stepView::interImageSpace;
             QFontMetrics metric(ui->labelIngredient->font());
             for (int i = 0; i < componentsViews.size(); ++i) {
                 if (componentsViews[i]->width() > widthMin)
@@ -124,7 +124,7 @@ QSize c_componentView::getSize(modes target) const {
         break;
         case modes::edition: {
             int heightMin = 0;
-            int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+            int max = static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
             QFontMetrics metric(ui->labelIngredient->font());
             for (int i = 0; i < componentsViews.size(); ++i) {
                 heightMin += componentsViews[i]->getSize(target).height();
@@ -147,7 +147,7 @@ int c_componentView::getWidth(modes target) const {
         case modes::minimal: {
             int widthMin = 0;
             QFontMetrics metric(ui->labelIngredient->font());
-            int max = static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+            int max = static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
             for (int i = 0; i < componentsViews.size(); ++i) {
                 if (componentsViews[i]->width() > widthMin)
                     widthMin = componentsViews[i]->getSize(target).width();
@@ -157,7 +157,7 @@ int c_componentView::getWidth(modes target) const {
             return widthMin;
         }
         case modes::edition:
-            return static_cast<c_stepView *>(parent())->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
+            return static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
     default:
         break;
     }
@@ -165,7 +165,7 @@ int c_componentView::getWidth(modes target) const {
 }
 
 void c_componentView::save() {
-    c_step *step = static_cast<c_stepView *>(parent())->getStep();
+    c_step *step = static_cast<c_stepView *>(m_parent)->getStep();
     QList<c_componentElemView *> componentViewCopy = componentsViews;
     for (int i = 0; i < componentViewCopy.size(); ++i) {
         componentViewCopy[i]->save();
@@ -180,7 +180,7 @@ void c_componentView::save() {
 }
 
 void c_componentView::rollback() {
-    c_step *step = static_cast<c_stepView *>(parent())->getStep();
+    c_step *step = static_cast<c_stepView *>(m_parent)->getStep();
     for (int i = 0; i < addedComponents.size(); ++i) {
         if (toDeleteComponents.contains(addedComponents[i])) {
             toDeleteComponents.removeOne(addedComponents[i]);
@@ -208,8 +208,8 @@ bool c_componentView::isEmpty() const {
 }
 
 void c_componentView::newComponent() {
-    c_step *step = static_cast<c_stepView *>(parent())->getStep();
-    componentsViews.push_back(new c_componentElemView(step->newComponent(),ui->widget));
+    c_step *step = static_cast<c_stepView *>(m_parent)->getStep();
+    componentsViews.push_back(new c_componentElemView(step->newComponent(),this,ui->widget));
     componentsViews.last()->show();
     componentsViews.last()->setFocus();
     componentsViews.last()->lower();

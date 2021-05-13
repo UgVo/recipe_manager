@@ -5,8 +5,8 @@
 
 int c_equipementsView::numberMaxEquipement = 5;
 
-c_equipementsView::c_equipementsView(QList<QString> _equipmentList, QWidget *parent) :
-    c_widget(parent),
+c_equipementsView::c_equipementsView(QList<QString> _equipmentList, c_widget *widget, QWidget *parent) :
+    c_widget(parent,widget),
     ui(new Ui::c_equipementsView), equipmentList(_equipmentList) {
     ui->setupUi(this);
     ui->textEdit->setText(equipmentList.join(", "));
@@ -119,7 +119,7 @@ QSize c_equipementsView::getSize(modes target) const {
                 return QSize(0,0);
             }
             QFontMetrics metrics =  QFontMetrics(ui->textEdit->document()->firstBlock().charFormat().font());
-            int width = static_cast<c_stepView*>(parent())->width() - static_cast<c_stepView*>(parent())->getLimit() - c_stepView::borderSize - c_stepView::interImageSpace;
+            int width = m_parent->width() - static_cast<c_stepView *>(m_parent)->getLimit() - c_stepView::borderSize - c_stepView::interImageSpace;
             res.setWidth(width);
             qDebug() << static_cast<c_stepView*>(parent())->width() << static_cast<c_stepView*>(parent())->getLimit();
             int top,bottom,left,right;
@@ -131,7 +131,7 @@ QSize c_equipementsView::getSize(modes target) const {
         }
         break;
         case modes::edition: {
-            res.setWidth(static_cast<c_stepView*>(parent())->width() - 2*c_stepView::borderSize);
+            res.setWidth(m_parent->width() - 2*c_stepView::borderSize);
             int top,bottom;
             ui->widget->layout()->getContentsMargins(nullptr,&top,nullptr,&bottom);
             res.setHeight(ui->widgetEdit->height() + top + bottom + ui->label->height() + ui->widget->layout()->spacing());

@@ -80,7 +80,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     countImages = imageStringList.size();
 
-    components = new c_componentView(step->getComponentsPtr(),this);
+    components = new c_componentView(step->getComponentsPtr(),this,ui->widget);
     QObject::connect(components,&c_componentView::resized, [=] () {
         if (parent == nullptr) {
             switchMode(mode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
@@ -92,10 +92,10 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     updateLimit();
 
     for (int i = 0; i < imageStringList.size(); ++i) {
-        images.push_back(new c_image(imageStringList[i],this));
+        images.push_back(new c_image(imageStringList[i],this,ui->widget));
     }
     for (int i = imageStringList.size(); i < maxNumberImages; ++i) {
-        images.push_back(new c_image("",this));       
+        images.push_back(new c_image("",this,ui->widget));
     }
     for (int i = 0; i < images.size(); ++i) {
         QObject::connect(images[i],&c_image::newImage,this,&c_stepView::imageAdded);
@@ -109,10 +109,10 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     }
 
     QList<c_process* > processList = step->getProcessingsPtr();
-    processes = new c_processView(processList,this);
+    processes = new c_processView(processList,this,ui->widget);
     processes->show();
 
-    equipments = new c_equipementsView(step->getEquipments(),this);
+    equipments = new c_equipementsView(step->getEquipments(),this,ui->widget);
 
     QMenu *menu = new QMenu();
     menu->addAction("Edit",[=] () {
@@ -323,6 +323,16 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 ui->rankButton->move(borderSize,borderSize);
             }
 
+            // Central Widget
+            targetPos = QPoint(1,1);
+            targetSize = QSize(width()-2,getSize(target).height()-ui->showButton->height() - insideBorder);
+            if (animated) {
+                group->addAnimation(targetGeometryAnimation(ui->widget,targetSize,targetPos,time));
+            } else {
+                ui->widget->move(targetPos);
+                ui->widget->setFixedSize(targetSize);
+            }
+
             // Process Views
             targetPos = QPoint((this->width() - 2*borderSize - processes->getSize(target).width())/2,borderSize + interImageSpace + std::max(ui->rankButton->height(),getHeightText(target)));
             if (animated) {
@@ -487,6 +497,16 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 ui->rankButton->move(borderSize,borderSize);
             }
 
+            // Central Widget
+            targetPos = QPoint(1,1);
+            targetSize = QSize(width()-2,getSize(target).height()-ui->showButton->height() - insideBorder);
+            if (animated) {
+                group->addAnimation(targetGeometryAnimation(ui->widget,targetSize,targetPos,time));
+            } else {
+                ui->widget->move(targetPos);
+                ui->widget->setFixedSize(targetSize);
+            }
+
             // Process Views
             targetPos = QPoint((this->width() - 2*borderSize - processes->getSize(target).width())/2,borderSize + interImageSpace + std::max(ui->rankButton->height(),getHeightText(target)));
             if (animated) {
@@ -626,6 +646,17 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             } else {
                 ui->rankButton->move(QPoint(borderSize,borderSize));
             }
+
+            // Central Widget
+            targetPos = QPoint(1,1);
+            targetSize = QSize(width()-2,getSize(target).height()-ui->showButton->height() - insideBorder);
+            if (animated) {
+                group->addAnimation(targetGeometryAnimation(ui->widget,targetSize,targetPos,time));
+            } else {
+                ui->widget->move(targetPos);
+                ui->widget->setFixedSize(targetSize);
+            }
+
 
             // Process Views
             targetPos = QPoint(borderSize,borderSize + getHeightText(target) + interImageSpace);
@@ -779,6 +810,17 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             } else {
                 ui->rankButton->move(borderSize,borderSize);
             }
+
+            // Central Widget
+            targetPos = QPoint(1,1);
+            targetSize = QSize(width()-2,getSize(target).height()-ui->showButton->height() - insideBorder);
+            if (animated) {
+                group->addAnimation(targetGeometryAnimation(ui->widget,targetSize,targetPos,time));
+            } else {
+                ui->widget->move(targetPos);
+                ui->widget->setFixedSize(targetSize);
+            }
+
 
             // Process Views
             targetPos = QPoint((this->width() - 2*borderSize - processes->getSize(target).width())/2,borderSize + interImageSpace + std::max(ui->rankButton->height(),getHeightText(target)));

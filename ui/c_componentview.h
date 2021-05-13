@@ -19,7 +19,7 @@ class c_componentView : public c_widget
     Q_OBJECT
 
 public:
-    explicit c_componentView(QList<c_component*> components, QWidget *parent = nullptr);
+    explicit c_componentView(QList<c_component*> components, c_widget *widget, QWidget *parent = nullptr);
     ~c_componentView();
 
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);

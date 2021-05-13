@@ -20,7 +20,7 @@ class c_componentElemView : public c_widget
     Q_OBJECT
 
 public:
-    explicit c_componentElemView(c_component *component, QWidget *parent = nullptr);
+    explicit c_componentElemView(c_component *component, c_widget *_widget, QWidget *parent = nullptr);
     ~c_componentElemView();
 
     QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000);

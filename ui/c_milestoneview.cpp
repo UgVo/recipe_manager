@@ -1,8 +1,8 @@
 #include "c_milestoneview.h"
 #include "ui_c_milestoneview.h"
 
-c_milestoneView::c_milestoneView(c_milestone *_milestone, QWidget *parent) :
-    c_widget(parent),
+c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWidget *parent) :
+    c_widget(parent,widget),
     ui(new Ui::c_milestoneView), milestone(_milestone) {
     ui->setupUi(this);
 

@@ -2,8 +2,8 @@
 #include "ui_c_image.h"
 #include "c_stepview.h"
 
-c_image::c_image(QString _pathImage, QWidget *_parent) :
-    c_widget(_parent),
+c_image::c_image(QString _pathImage, c_widget *widget, QWidget *parent) :
+    c_widget(parent,widget),
     ui(new Ui::c_image) {
     ui->setupUi(this);
     pathImage = _pathImage;
@@ -15,7 +15,7 @@ c_image::c_image(QString _pathImage, QWidget *_parent) :
     QObject::connect(ui->addButton,&QPushButton::clicked,this,&c_image::addButtonClicked);
     QObject::connect(ui->deleteButton,&QPushButton::clicked,this,&c_image::deleteButtonClicked);
 
-    if (static_cast<c_stepView*>(parent())) {
+    if (static_cast<c_stepView*>(m_parent)) {
 
         QSize targetSize = getSize(modes::display);
         ui->addButton->setFixedSize(targetSize);
@@ -229,10 +229,10 @@ QSize c_image::getSize(modes target) const {
     int count = 0;
     int limit = 0;
     int availableWidth = 0;
-    if (static_cast<c_stepView *>(parent())) {
-        width = static_cast<c_stepView *>(parent())->width();
-        limit = static_cast<c_stepView *>(parent())->getLimit();
-        count = static_cast<c_stepView *>(parent())->getImageCount();
+    if (static_cast<c_stepView *>(m_parent)) {
+        width = static_cast<c_stepView *>(m_parent)->width();
+        limit = static_cast<c_stepView *>(m_parent)->getLimit();
+        count = static_cast<c_stepView *>(m_parent)->getImageCount();
     }
     switch (target) {
     case modes::resume:
