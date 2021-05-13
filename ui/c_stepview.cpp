@@ -648,7 +648,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
 
             // Central Widget
             targetPos = QPoint(1,1);
-            targetSize = QSize(width()-2,getSize(target).height()-ui->showButton->height() - insideBorder);
+            targetSize = QSize(width()-2,getSize(target).height()-std::max(ui->cancelButton->height(),ui->saveButton->height()) - 2*insideBorder);
             if (animated) {
                 group->addAnimation(targetGeometryAnimation(ui->widget,targetSize,targetPos,time));
             } else {
