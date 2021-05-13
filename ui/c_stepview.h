@@ -63,8 +63,9 @@ signals:
 
 private:
     int getHeightText(modes targetMode = modes::resume) const;
-    QList<QPoint> arrangeImages(modes target = modes::display);
     int getImagesMaxHeigth(modes target = modes::display) const;
+
+    QList<QPoint> arrangeImages(modes target = modes::display);
 
     Ui::c_stepView *ui;
     c_step* step;

@@ -288,7 +288,6 @@ int c_stepView::getHeightText(modes targetMode) const {
 }
 
 QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, QAbstractAnimation *childAnims) {
-    qDebug() << mapModeToString[mode] << ">>" << mapModeToString[target];
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
     if (childAnims) {
         group->addAnimation(childAnims);
@@ -460,7 +459,6 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
 
             QPoint targetPos = QPoint(borderSize, getSize(target).height()-ui->showButton->height());
             QSize targetSize = getSize(target);
-            qDebug() << "resume mode :" << targetPos << targetSize;
             if (animated) {
                 group->addAnimation(targetPositionAnimation(ui->showButton,targetPos,time));
                 group->addAnimation(targetSizeAnimation(this,targetSize,time));
@@ -903,7 +901,6 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             }
             QPoint targetPos = QPoint(borderSize, getSize(target).height()-ui->showButton->height());
             QSize targetSize = getSize(target);
-            qDebug() << targetPos << targetSize;
             if (animated) {
                 group->addAnimation(targetPositionAnimation(ui->showButton,targetPos,time));
                 group->addAnimation(targetSizeAnimation(this,targetSize,time));
@@ -963,7 +960,6 @@ QSize c_stepView::getSize(modes target) const {
     default:
         break;
     }
-    qDebug() << res;
     return res;
 }
 
