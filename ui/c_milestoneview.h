@@ -30,6 +30,9 @@ private:
     Ui::c_milestoneView *ui;
     c_milestone *milestone;
     QList<c_stepView *> stepList;
+    QLabel *arrow;
+    QPixmap arrowPixmapUp;
+    QPixmap arrowPixmapDown;
 };
 
 #endif // C_MILESTONEVIEW_H

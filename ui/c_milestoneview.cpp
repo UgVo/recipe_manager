@@ -22,6 +22,14 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
                                        "padding-left: 10px;"
                                        "}");
 
+    arrow = new QLabel("test",ui->milestoneButton);
+    arrowPixmapUp = QPixmap(":/images/collapse-arrow.png");
+    arrowPixmapDown = QPixmap(":/images/open-arrow.png");
+
+    arrow->setFixedSize(ui->milestoneButton->height(),ui->milestoneButton->height());
+    arrow->setPixmap(arrowPixmapUp);
+    arrow->setScaledContents(true);
+
     QObject::connect(ui->milestoneButton,&QPushButton::clicked, [=] () {
         switch (mode) {
         case modes::display:
@@ -58,8 +66,29 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
     if (childAnims != nullptr)
         group->addAnimation(childAnims);
     switch (target) {
-    case modes::minimal:
+    case modes::minimal: {
+        arrow->move(ui->milestoneButton->width() - arrow->width()-insideBorder,0);
+        arrow->setPixmap(arrowPixmapUp);
+        if (animated) {
+            group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+        } else {
+            this->setFixedSize(getSize(target));
+        }
+
+        QPoint pos(borderSize,borderSize + ui->milestoneButton->height() + insideBorder);
+        for (int i = 0; i < stepList.size(); ++i) {
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(stepList[i],pos,time));
+            } else {
+                stepList[i]->move(pos);
+            }
+            pos += QPoint(0,stepList[i]->getSize().height() + insideBorder);
+        }
+        break;
+    }
     case modes::display: {
+        arrow->move(ui->milestoneButton->width() - arrow->width()-insideBorder,0);
+        arrow->setPixmap(arrowPixmapDown);
         if (animated) {
             group->addAnimation(targetSizeAnimation(this,getSize(target),time));
         } else {

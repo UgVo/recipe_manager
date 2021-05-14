@@ -10,6 +10,8 @@
         <file>step_2-img.png</file>
         <file>step_3-img.png</file>
         <file>step_7-img.png</file>
+        <file>collapse-arrow.png</file>
+        <file>open-arrow.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>
