@@ -306,6 +306,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                                      "  border : 1px solid white;"
                                      "  background: transparent;"
                                      "}");
+            ui->label->setFixedWidth(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton);
             targetSize = QSize(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton,getHeightText(modes::resume));
             targetPos = QPoint(ui->rankButton->width()+borderSize*2,borderSize);
             if (animated) {
@@ -478,6 +479,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                                      "  border : 1px solid white;"
                                      "  background: transparent;"
                                      "}");
+            ui->label->setFixedWidth(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton);
             targetSize = QSize(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton,getHeightText(modes::display));
             targetPos = QPoint(ui->rankButton->width()+borderSize*2,borderSize);
             if (animated) {
@@ -627,6 +629,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             ui->label->setReadOnly(false);
             ui->label->setStyleSheet("");
 
+            ui->label->setFixedWidth(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton);
             targetSize = QSize(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton,getHeightText(target));
             targetPos = QPoint(ui->rankButton->width()+borderSize*2,borderSize);
             if (animated) {
@@ -789,6 +792,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                                      "  border : 1px solid white;"
                                      "  background: transparent;"
                                      "}");
+            ui->label->setFixedWidth(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton);
             targetSize = QSize(this->width() - ui->rankButton->width() - 2*borderSize - ui->menuButton->width()-2*borderMenuButton,getHeightText(modes::resume));
             targetPos = QPoint(ui->rankButton->width()+borderSize*2,borderSize);
             if (animated) {
