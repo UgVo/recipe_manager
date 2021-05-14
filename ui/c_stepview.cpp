@@ -301,7 +301,6 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             this->setFixedWidth(this->size().width());
 
             // label
-            QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
             ui->label->setReadOnly(true);
             ui->label->setStyleSheet("QTextEdit {"
                                      "  border : 1px solid white;"
@@ -474,7 +473,6 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             this->setFixedWidth(this->size().width());
 
             // label
-            QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
             ui->label->setReadOnly(true);
             ui->label->setStyleSheet("QTextEdit {"
                                      "  border : 1px solid white;"
@@ -626,7 +624,6 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             this->setFixedWidth(this->size().width());
 
             // label
-            QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
             ui->label->setReadOnly(false);
             ui->label->setStyleSheet("");
 
@@ -766,10 +763,9 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 group->addAnimation(targetPositionAnimation(ui->upButton,QPoint(this->width() - (this->width() - ui->label->x() - ui->label->width() - ui->upButton->width())/2 - ui->upButton->width(),borderSize+interButton),time));
                 group->addAnimation(targetPositionAnimation(ui->downButton,QPoint(this->width() - (this->width() - ui->label->x() - ui->label->width() - ui->downButton->width())/2 - ui->downButton->width(),borderSize+2*interButton+ui->upButton->height()),time));
             } else  {
-                int interButton = (getHeightText(modes::edition) - ui->saveButton->height() - ui->cancelButton->height())/3;
                 ui->saveButton->move(QPoint(posSaveCancelX,getSize(target).height()-ui->saveButton->height()-interImageSpace));
                 ui->cancelButton->move(QPoint(width()/2+posSaveCancelX,getSize(target).height()-ui->cancelButton->height()-interImageSpace));
-                interButton = (getHeightText(modes::edition) - ui->upButton->height() - ui->downButton->height())/3;
+                int interButton = (getHeightText(modes::edition) - ui->upButton->height() - ui->downButton->height())/3;
                 ui->upButton->move(QPoint(this->width() - (this->width() - ui->label->x() - ui->label->width() - ui->upButton->width())/2 - ui->upButton->width(),borderSize+interButton));
                 ui->downButton->move(QPoint(this->width() - (this->width() - ui->label->x() - ui->label->width() - ui->downButton->width())/2 - ui->downButton->width(),borderSize+2*interButton+ui->upButton->height()));
             }
@@ -788,7 +784,6 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
         break;
         case modes::minimal: {
             // label
-            QFontMetrics metrics(ui->label->document()->firstBlock().charFormat().font());
             ui->label->setReadOnly(true);
             ui->label->setStyleSheet("QTextEdit {"
                                      "  border : 1px solid white;"
