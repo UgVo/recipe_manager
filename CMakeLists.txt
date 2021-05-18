@@ -39,6 +39,7 @@ set(PROJECT_SOURCES
         ui/c_noteview.cpp
         ui/c_processelemview.cpp
         ui/c_processview.cpp
+        ui/c_recipeview.cpp
         ui/c_stepview.cpp
         ui/c_widget.cpp
         utils/c_component.cpp
@@ -64,6 +65,7 @@ set(PROJECT_HEADERS
     ui/c_noteview.h
     ui/c_processelemview.h
     ui/c_processview.h
+    ui/c_recipeview.h
     ui/c_stepview.h
     ui/c_widget.h
     utils/c_component.h
@@ -89,6 +91,7 @@ set(PROJECT_FORM
     ui/c_noteview.ui
     ui/c_processelemview.ui
     ui/c_processview.ui
+    ui/c_recipeview.ui
     ui/c_stepview.ui
 )
 
