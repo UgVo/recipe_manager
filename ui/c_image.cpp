@@ -225,13 +225,14 @@ void c_image::deleteButtonClicked() {
 
 QSize c_image::getSize(modes target) const {
     int width = 0;
-    int count = 0;
+    int count = 1;
     int limit = 0;
     int availableWidth = 0;
     if (static_cast<c_stepView *>(m_parent)) {
         width = static_cast<c_stepView *>(m_parent)->width();
         limit = static_cast<c_stepView *>(m_parent)->getLimit();
         count = static_cast<c_stepView *>(m_parent)->getImageCount();
+        count = std::max(count,1);
     }
     switch (target) {
     case modes::resume:
