@@ -386,7 +386,7 @@ QSet<QString> c_dbManager::getEquipments() {
 
 //************* Ingredients *************
 int c_dbManager::addIngredient(c_ingredient &ingredient) {
-    if (ingredients.values().contains(ingredient)) {
+    if (ingredients.key(ingredient,-1) != -1) {
         return  ingredients.key(ingredient);
     }
     if (!ingredients.contains(ingredient.getId()) || ingredient.getId() == -1) {
