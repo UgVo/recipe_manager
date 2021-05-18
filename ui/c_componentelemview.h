@@ -21,12 +21,12 @@ class c_componentElemView : public c_widget
 
 public:
     explicit c_componentElemView(c_component *component, c_widget *_widget, QWidget *parent = nullptr);
-    ~c_componentElemView();
+    ~c_componentElemView() override;
 
-    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(modes target) const;
-    void save();
-    void rollback();
+    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000) override;
+    QSize getSize(modes target) const override;
+    void save() override;
+    void rollback() override;
 
     c_component *getComponent();
     void setFocus();

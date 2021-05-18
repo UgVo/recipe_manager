@@ -79,7 +79,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
         imageStringList.removeLast();
     }
 
-    countImages = imageStringList.size();
+    countImages = int(imageStringList.size());
 
     components = new c_componentView(step->getComponentsPtr(),this,ui->widget);
     QObject::connect(components,&c_componentView::resized, [=] () {
@@ -95,7 +95,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     for (int i = 0; i < imageStringList.size(); ++i) {
         images.push_back(new c_image(imageStringList[i],this,ui->widget));
     }
-    for (int i = imageStringList.size(); i < maxNumberImages; ++i) {
+    for (int i = int(imageStringList.size()); i < maxNumberImages; ++i) {
         images.push_back(new c_image("",this,ui->widget));
     }
     for (int i = 0; i < images.size(); ++i) {
@@ -116,14 +116,14 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     equipments = new c_equipementsView(step->getEquipments(),this,ui->widget);
 
     QMenu *menu = new QMenu();
-    menu->addAction("Edit",[=] () {
+    menu->addAction("Edit", this, [=] () {
         if (parent == nullptr) {
             switchMode(modes::edition)->start(QAbstractAnimation::DeleteWhenStopped);
         } else {
             emit animationRequired(switchMode(modes::edition));
         }
     });
-    menu->addAction("Delete", [this] () {
+    menu->addAction("Delete", this, [this] () {
         emit toDelete();
     });
     menu->addAction("Add note",this,&c_stepView::slotAddNote);
@@ -137,8 +137,6 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
 
     defaultMode = (components->isEmpty() && equipments->isEmpty()) ? modes::display : modes::resume;
     mode = defaultMode;
-    switchMode(modes::minimal,false);
-
 
     this->setStyleSheet("QWidget#stepWidget,QWidget#widget {"
                         "   background-color : white;"
@@ -146,6 +144,8 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
                         "QWidget#stepWidget {"
                         "   border : 1px solid black;"
                         "}");
+
+    delete c_stepView::switchMode(modes::minimal,false);
 }
 
 c_stepView::~c_stepView() {

@@ -20,14 +20,14 @@ class c_processView : public c_widget
 
 public:
     explicit c_processView(QList<c_process *> processes, c_widget *widget, QWidget *parent = nullptr);
-    ~c_processView();
+    ~c_processView() override;
 
-    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(modes target) const;
-    int getWidth(modes target) const;
+    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000) override;
+    QSize getSize(modes target) const override;
+    int getWidth(modes target) const override;
 
-    void save();
-    void rollback();
+    void save() override;
+    void rollback() override;
 
     c_process *newProcessing();
 

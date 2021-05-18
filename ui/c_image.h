@@ -17,14 +17,14 @@ class c_image : public c_widget
 public:
 
     explicit c_image(QString pathImage = QString(), c_widget *widget = nullptr, QWidget *parent = nullptr);
-    ~c_image();
+    ~c_image() override;
 
     QPixmap getImage() const;
-    QSize getSize(modes target = modes::display) const;
+    QSize getSize(modes target = modes::display) const override;
     void setImage(const QPixmap &value);
 
-    void save();
-    void rollback();
+    void save() override;
+    void rollback() override;
 
     bool isEmpty() const;
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);

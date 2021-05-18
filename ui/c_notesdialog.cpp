@@ -147,7 +147,7 @@ void c_notesDialog::scrollTo() {
     c_noteView* sender = static_cast<c_noteView*>(QObject::sender());
     QScrollBar* bar = ui->scrollArea->verticalScrollBar();
     int slide = -bar->value() - heightSliders - spaceSliders;
-    for (int i = noteList.size()-1; i >= 0; --i) {
+    for (qsizetype i = noteList.size()-1; i >= 0; --i) {
         if (sender != noteList[i]) {
             slide += noteList[i]->height() + ui->scrollAreaContents->layout()->spacing();
         } else {

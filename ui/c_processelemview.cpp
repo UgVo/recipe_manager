@@ -42,7 +42,7 @@ c_processElemView::c_processElemView(c_process *_process, QWidget *parent) :
                               "}");
 
     mode = modes::resume;
-    switchMode(mode);
+    delete c_processElemView::switchMode(mode,false);
 
 }
 

@@ -14,7 +14,7 @@ c_processView::c_processView(QList<c_process *> _processes, c_widget *widget, QW
     for (int i = 0; i < processes.size(); ++i) {
         processElems.push_back(new c_processElemView(processes[i],this));
     }
-    for (int i = processes.size(); i < maxNumberProcess; ++i) {
+    for (qsizetype i = processes.size(); i < maxNumberProcess; ++i) {
         processElems.push_back(new c_processElemView(nullptr,this));
     }
 
@@ -43,11 +43,11 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
         for (int i = 0; i < processElems.size(); ++i) {
             if (animated && mode != target) {
                 res->addAnimation(slideAndDeployAnimation(processElems[i],pos,time,[=] () {
-                    processElems[i]->switchMode(target);
+                    delete processElems[i]->switchMode(target,animated,time);
                     processElems[i]->show();
                 },mode));
             } else {
-                processElems[i]->switchMode(target);
+                delete processElems[i]->switchMode(target,animated,time);
                 processElems[i]->move(pos);
             }
             pos += QPoint(processElems[i]->getSize(target).width() + c_stepView::interImageSpace,0);
@@ -69,11 +69,11 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
         for (int i = 0; i < processElems.size(); ++i) {
             if (animated && mode != target) {
                 res->addAnimation(slideAndDeployAnimation(processElems[i],pos,time,[=] () {
-                    processElems[i]->switchMode(target);
+                    delete processElems[i]->switchMode(target,animated,time);
                     processElems[i]->show();
                 },target));
             } else {
-                processElems[i]->switchMode(target);
+                delete processElems[i]->switchMode(target,animated,time);
                 processElems[i]->move(pos);
             }
             pos += QPoint(0,processElems[i]->getSize(target).height() + c_stepView::interImageSpace);
@@ -163,7 +163,7 @@ void c_processView::rollback() {
     for (int i = 0; i < processes.size(); ++i) {
         processElems[i]->setProcess(processes[i]);
     }
-    for (int i = processes.size(); i < maxNumberProcess; ++i) {
+    for (qsizetype i = processes.size(); i < maxNumberProcess; ++i) {
         processElems[i]->setProcess(nullptr);
     }
 }

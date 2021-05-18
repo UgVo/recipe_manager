@@ -21,12 +21,12 @@ class c_processElemView : public c_widget
 
 public:
     explicit c_processElemView(c_process* process = nullptr, QWidget *parent = nullptr);
-    ~c_processElemView();
+    ~c_processElemView() override;
 
-    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(modes target) const;
-    void save();
-    void rollback();
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000) override;
+    QSize getSize(modes target) const override;
+    void save() override;
+    void rollback() override;
 
     bool isEmpty() const;
 

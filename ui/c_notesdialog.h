@@ -21,9 +21,9 @@ class c_notesDialog : public QDialog
 
 public:
     explicit c_notesDialog(QList<c_note*> notes, QWidget *parent = nullptr);
-    ~c_notesDialog();
+    ~c_notesDialog() override;
 
-    void resizeEvent(QResizeEvent *);
+    void resizeEvent(QResizeEvent *) override;
 
 public slots:
     void slotScrollValueChanged();

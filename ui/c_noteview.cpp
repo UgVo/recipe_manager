@@ -21,7 +21,7 @@ c_noteView::c_noteView(c_note* _note, QWidget *parent) :
 
     QMenu *menu = new QMenu();
     menu->addAction("Edit",this,&c_noteView::modify);
-    menu->addAction("Delete",[this] () {emit deleteMe();});
+    menu->addAction("Delete",this,[this] () {emit deleteMe();});
 
     ui->toolButton->setMenu(menu);
     ui->toolButton->setStyleSheet("QToolButton::menu-indicator{image:none;}");
@@ -44,7 +44,6 @@ c_noteView::~c_noteView() {
 }
 
 void c_noteView::resizeEvent(QResizeEvent *) {
-    QFontMetrics metrics(ui->textEdit->document()->firstBlock().charFormat().font());
     ui->textEdit->setFixedHeight(getHeightText());
 }
 

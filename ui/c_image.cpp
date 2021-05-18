@@ -16,8 +16,7 @@ c_image::c_image(QString _pathImage, c_widget *widget, QWidget *parent) :
     QObject::connect(ui->deleteButton,&QPushButton::clicked,this,&c_image::deleteButtonClicked);
 
     if (static_cast<c_stepView*>(m_parent)) {
-
-        QSize targetSize = getSize(modes::display);
+        QSize targetSize = c_image::getSize(modes::display);
         ui->addButton->setFixedSize(targetSize);
         this->setFixedSize(targetSize);
         ui->deleteButton->move(QPoint(targetSize.width()-ui->deleteButton->width(),0));

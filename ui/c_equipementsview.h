@@ -21,13 +21,13 @@ class c_equipementsView : public c_widget
 
 public:
     explicit c_equipementsView(QList<QString> equipmentList, c_widget *widget, QWidget *parent = nullptr);
-    ~c_equipementsView();
+    ~c_equipementsView() override;
 
-    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(modes mode) const;
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000) override;
+    QSize getSize(modes mode) const override;
 
-    void save();
-    void rollback();
+    void save() override;
+    void rollback() override;
 
     bool isEmpty() const;
 

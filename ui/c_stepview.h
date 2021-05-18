@@ -31,11 +31,11 @@ class c_stepView : public c_widget
 
 public:
     explicit c_stepView(c_step *step, QWidget *parent = nullptr);
-    ~c_stepView();
+    ~c_stepView() override;
 
-    QAnimationGroup *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAbstractAnimation *childAnims = nullptr);
-    QSize getSize(modes target = modes::none) const;
-    void resizeEvent(QResizeEvent *event);
+    QAnimationGroup *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAbstractAnimation *childAnims = nullptr) override;
+    QSize getSize(modes target = modes::none) const override;
+    void resizeEvent(QResizeEvent *event) override;
     int getImageCount();
     c_step *getStep() const;
     void checkCount();

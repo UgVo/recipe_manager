@@ -19,7 +19,7 @@ public:
 
     c_widget(QWidget *parent = nullptr, c_widget *m_parent = nullptr);
 
-    virtual ~c_widget();
+    virtual ~c_widget() override;
 
     virtual QSize getSize(modes target) const;
     virtual int getWidth(modes target) const;
@@ -29,7 +29,7 @@ public:
     virtual void save();
     virtual void rollback();
 
-    virtual void resizeEvent(QResizeEvent *event);
+    virtual void resizeEvent(QResizeEvent *event) override;
 
     modes getMode() const;
     void setMode(modes value);

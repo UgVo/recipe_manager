@@ -17,11 +17,11 @@ class c_noteView : public QWidget
 
 public:
     explicit c_noteView(c_note* note, QWidget *parent = nullptr);
-    ~c_noteView();
+    ~c_noteView() override;
 
-    void resizeEvent(QResizeEvent *);
-    void focusOutEvent(QFocusEvent *);
-    bool eventFilter(QObject *obj, QEvent *event);
+    void resizeEvent(QResizeEvent *) override;
+    void focusOutEvent(QFocusEvent *) override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
     int getHeightText();
 

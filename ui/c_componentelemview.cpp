@@ -27,7 +27,7 @@ c_componentElemView::c_componentElemView(c_component *_component, c_widget *widg
 
     this->setFixedHeight(heigthWidget);
 
-    switchMode();
+    delete c_componentElemView::switchMode(modes::resume,false);
 }
 
 c_componentElemView::~c_componentElemView() {
@@ -71,8 +71,8 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
                 pos += QPoint(ui->quantityUnitLabel->width() + insideBorder,0);
                 ui->ingredientLineEdit->move(pos);
                 ui->ingredientLineEdit->setFixedSize(QSize(metrics.horizontalAdvance(ui->ingredientLineEdit->text())+6,heigthWidget));
-                this->setFixedSize(getSize(target));
-                ui->deleteButton->move(QPoint(getSize(modes::edition).width()+ui->deleteButton->width(),0));
+                this->setFixedSize(c_componentElemView::getSize(target));
+                ui->deleteButton->move(QPoint(c_componentElemView::getSize(modes::edition).width()+ui->deleteButton->width(),0));
             }
 
             break;
@@ -116,7 +116,6 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
 
 QSize c_componentElemView::getSize(modes target) const {
     QSize res;
-    QFontMetrics metrics(ui->ingredientLineEdit->font());
     switch (target) {
         case modes::display:
         case modes::resume:
@@ -165,7 +164,7 @@ void c_componentElemView::save() {
 
         ui->ingredientLineEdit->setText(component->getIngredient().getName());
         if (recipe::unitToString[component->getUnit()].size() > 2) {
-            ui->quantityUnitLabel->setText(QString("%1 %2%3").arg(component->getQuantity()).arg(recipe::unitToString[component->getUnit()]).arg(component->getQuantity()>1?"s":""));
+            ui->quantityUnitLabel->setText(QString("%1 %2%3").arg(component->getQuantity()).arg(recipe::unitToString[component->getUnit()],component->getQuantity()>1?"s":""));
         } else {
             ui->quantityUnitLabel->setText(QString("%1%2").arg(component->getQuantity()).arg(recipe::unitToString[component->getUnit()]));
         }

@@ -20,11 +20,11 @@ class c_componentView : public c_widget
 
 public:
     explicit c_componentView(QList<c_component*> components, c_widget *widget, QWidget *parent = nullptr);
-    ~c_componentView();
+    ~c_componentView() override;
 
-    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);
-    QSize getSize(modes target = modes::resume) const;
-    int getWidth(modes target = modes::resume) const;
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000) override;
+    QSize getSize(modes target = modes::resume) const override;
+    int getWidth(modes target = modes::resume) const override;
 
     void save();
     void rollback();

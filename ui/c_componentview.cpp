@@ -20,7 +20,8 @@ c_componentView::c_componentView(QList<c_component *> _components, c_widget *wid
     ui->labelIngredient->setFixedHeight(labelHeight);
 
     enableResize = true;
-    switchMode(modes::minimal,false);
+
+    delete c_componentView::switchMode(modes::minimal,false);
 }
 
 c_componentView::~c_componentView() {
@@ -51,7 +52,7 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
                 res->addAnimation(targetSizeAnimation(this,getSize(target),time));
                 res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(mode).height()),time/3));
             } else {
-                this->setFixedSize(getSize(target));
+                this->setFixedSize(c_componentView::getSize(target));
                 addComponentButton->hide();
             }
         }
@@ -125,12 +126,11 @@ QSize c_componentView::getSize(modes target) const {
         case modes::edition: {
             int heightMin = 0;
             int max = static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
-            QFontMetrics metric(ui->labelIngredient->font());
             for (int i = 0; i < componentsViews.size(); ++i) {
                 heightMin += componentsViews[i]->getSize(target).height();
             }
             res.setWidth(max);
-            res.setHeight(heightMin + (componentsViews.size()+1)*c_stepView::interImageSpace + ui->labelIngredient->height()
+            res.setHeight(heightMin + (int(componentsViews.size())+1)*c_stepView::interImageSpace + ui->labelIngredient->height()
                           + addComponentButton->height());
         }
         break;

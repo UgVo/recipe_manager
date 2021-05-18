@@ -22,7 +22,6 @@ c_equipementsView::c_equipementsView(QList<QString> _equipmentList, c_widget *wi
         buttonList.last()->setFixedWidth(metrics.horizontalAdvance(equipmentList[i]) + 10);
         QObject::connect(buttonList.last(),&QPushButton::clicked,this,&c_equipementsView::removeEquipment);
     }
-    switchMode(modes::resume,false);
     ui->newEquipment->installEventFilter(this);
 
     model = new QStringListModel(equipementsListModel);
@@ -34,12 +33,14 @@ c_equipementsView::c_equipementsView(QList<QString> _equipmentList, c_widget *wi
 
     QObject::connect(completer, QOverload<const QString &>::of(&QCompleter::activated),[=](const QString &text){
         addEquipment(text);
-        QTimer::singleShot(0, [=] () {ui->newEquipment->clear();});}
+        QTimer::singleShot(0, this, [=] () {ui->newEquipment->clear();});}
     );
 
     ui->label->setFixedHeight(labelHeight);
 
     write = false;
+
+    delete c_equipementsView::switchMode(modes::resume,false);
 }
 
 c_equipementsView::~c_equipementsView() {
@@ -55,13 +56,12 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
             if (animated) {
                 res->addAnimation(targetSizeAnimation(this,getSize(target),time));
             } else {
-                this->setFixedSize(getSize(target));
+                this->setFixedSize(c_equipementsView::getSize(target));
             }
 
-            QFontMetrics metrics =  QFontMetrics(ui->textEdit->document()->firstBlock().charFormat().font());
             int left,right;
             static_cast<QVBoxLayout *>(ui->widget->layout())->getContentsMargins(&left,nullptr,&right,nullptr);
-            ui->textEdit->setFixedWidth(getSize(target).width() - left - right);
+            ui->textEdit->setFixedWidth(c_equipementsView::getSize(target).width() - left - right);
             ui->textEdit->document()->setTextWidth(ui->textEdit->width());
 
             ui->textEdit->setFixedHeight(ui->textEdit->document()->size().toSize().height()+3);
@@ -117,7 +117,6 @@ QSize c_equipementsView::getSize(modes target) const {
             if (isEmpty()) {
                 return QSize(0,0);
             }
-            QFontMetrics metrics =  QFontMetrics(ui->textEdit->document()->firstBlock().charFormat().font());
             int width = m_parent->width() - static_cast<c_stepView *>(m_parent)->getLimit() - c_stepView::borderSize - c_stepView::interImageSpace;
             res.setWidth(width);
             int top,bottom,left,right;
@@ -196,7 +195,7 @@ void c_equipementsView::addEquipment(QString newEquipment) {
         equipmentList.push_back(recipe::toCapitalised(newEquipment));
         addedEquipment.push_back(equipmentList.last());
         buttonList.append(new QPushButton(equipmentList.last()));
-        static_cast<QHBoxLayout*>(ui->widgetEdit->layout())->insertWidget(buttonList.size()-1,buttonList.last());
+        static_cast<QHBoxLayout*>(ui->widgetEdit->layout())->insertWidget(int(buttonList.size())-1,buttonList.last());
         QFontMetrics metrics =  QFontMetrics(buttonList.last()->font());
         buttonList.last()->setFixedWidth(metrics.horizontalAdvance(ui->newEquipment->text()) + 10);
         QObject::connect(buttonList.last(),&QPushButton::clicked,this,&c_equipementsView::removeEquipment);
