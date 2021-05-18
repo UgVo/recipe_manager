@@ -73,6 +73,8 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
     processResume = new c_processView(getProcessesPtr(),this,ui->milestoneButton);
     delete processResume->switchMode(modes::resume,false);
 
+    this->setStyleSheet("outline : 0;");
+
     mode = modes::minimal;
     defaultMode = modes::display;
     delete c_milestoneView::switchMode(mode,false);
