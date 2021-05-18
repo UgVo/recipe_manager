@@ -68,6 +68,11 @@ void c_step::setRank(int value) {
     emit rankChanged();
 }
 
+void c_step::setRank(qsizetype value) {
+    rank = int(value);
+    emit rankChanged();
+}
+
 QList<c_component> c_step::getComponents() const {
     QList<c_component> res;
     for (int i = 0; i < components.size(); ++i) {

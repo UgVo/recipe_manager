@@ -23,6 +23,7 @@ public:
 
     int getRank() const;
     void setRank(int value);
+    void setRank(qsizetype value);
 
     QList<c_component> getComponents() const;
     QList<c_component *> getComponentsPtr();
