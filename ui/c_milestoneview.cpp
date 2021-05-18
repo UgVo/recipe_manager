@@ -13,14 +13,25 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
     }
     QList<c_step *> steps = milestone->getStepsPtr();
 
+    ui->newStepButton->setFixedHeight(buttonHeight);
+    ui->newStepButton->setFixedWidth(stepWidth);
+
     ui->milestoneButton->setFixedHeight(int(double(buttonHeight)*1.5));
-    ui->milestoneButton->setFixedWidth(stepWidth);
-    ui->milestoneButton->move(borderSize,borderSize);
-    ui->milestoneButton->setStyleSheet("QPushButton#milestoneButton { "
+    ui->milestoneButton->setFixedWidth(stepWidth + 2*(borderSize-insideBorder));
+    ui->milestoneButton->move(insideBorder,insideBorder);
+    ui->milestoneButton->setStyleSheet(QString("QPushButton#milestoneButton { "
                                        "text-align: left;"
                                        "font-size: 16px;"
-                                       "padding-left: 10px;"
-                                       "}");
+                                       "padding-left: %1px;"
+                                       "}").arg(borderSize));
+    ui->milestoneButton->style()->unpolish(ui->milestoneButton);
+    ui->milestoneButton->style()->polish(ui->milestoneButton);
+    ui->milestoneButton->update();
+
+    ui->milestoneNameEdit->setText(ui->milestoneButton->text());
+    ui->milestoneNameEdit->setFixedHeight(ui->milestoneButton->height()-4);
+    ui->milestoneNameEdit->setFont(ui->milestoneButton->font());
+    QObject::connect(ui->milestoneNameEdit,&QLineEdit::textChanged,this,&c_milestoneView::slotUpdateCurrentCharCount);
 
     arrow = new QLabel("test",ui->milestoneButton);
     arrowPixmapUp = QPixmap(":/images/collapse-arrow.png");
@@ -36,7 +47,7 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
             switchMode(modes::minimal,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
             break;
         case modes::minimal:
-            switchMode(modes::display,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+            switchMode(defaultMode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
             break;
         default:
             switchMode(modes::minimal,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
@@ -51,10 +62,19 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
         QObject::connect(stepList.last(),&c_stepView::animationRequired,this,&c_milestoneView::slotHandleResizeStep);
         QObject::connect(stepList.last(),&c_stepView::swapRank,this,&c_milestoneView::slotSwapSteps);
         QObject::connect(stepList.last(),&c_stepView::toDelete,this,&c_milestoneView::slotDeleteSteps);
+        QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateProcesses);
     }
 
+    processResume = nullptr;
+
+    slotUpdateProcesses();
+
+    processResume = new c_processView(getProcessesPtr(),this,ui->milestoneButton);
+    delete processResume->switchMode(modes::resume,false);
+
     mode = modes::minimal;
-    switchMode(mode,false);
+    defaultMode = modes::display;
+    delete c_milestoneView::switchMode(mode,false);
 }
 
 c_milestoneView::~c_milestoneView() {
@@ -75,7 +95,7 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
             this->setFixedSize(getSize(target));
         }
 
-        QPoint pos(borderSize,borderSize + ui->milestoneButton->height() + insideBorder);
+        QPoint pos(borderSize,insideBorder + ui->milestoneButton->height() + insideBorder);
         for (int i = 0; i < stepList.size(); ++i) {
             if (animated) {
                 group->addAnimation(targetPositionAnimation(stepList[i],pos,time));
@@ -84,6 +104,24 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
             }
             pos += QPoint(0,stepList[i]->getSize().height() + insideBorder);
         }
+
+        pos = QPoint( ui->milestoneButton->width() - arrow->width() - borderSize - processResume->getSize(modes::resume).width(),insideBorder);
+        if (animated) {
+            group->addAnimation(targetPositionAnimation(processResume,pos,time));
+        } else {
+            processResume->move(pos);
+        }
+
+        pos = QPoint(borderSize,getSize(modes::edition).height());
+        if (animated) {
+            group->addAnimation(targetPositionAnimation(ui->newStepButton,pos,time));
+        } else {
+            ui->newStepButton->move(pos);
+        }
+
+        ui->milestoneButton->setText(ui->milestoneNameEdit->text());
+        ui->milestoneNameEdit->hide();
+        ui->charCount->hide();
         break;
     }
     case modes::display: {
@@ -95,7 +133,7 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
             this->setFixedSize(getSize(target));
         }
 
-        QPoint pos(borderSize,borderSize + ui->milestoneButton->height() + insideBorder);
+        QPoint pos(borderSize,insideBorder + ui->milestoneButton->height() + insideBorder);
         for (int i = 0; i < stepList.size(); ++i) {
             if (animated) {
                 group->addAnimation(targetPositionAnimation(stepList[i],pos,time));
@@ -104,6 +142,73 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
             }
             pos += QPoint(0,stepList[i]->getSize().height() + insideBorder);
         }
+
+        pos = QPoint( ui->milestoneButton->width() - arrow->width() - borderSize - processResume->getSize(modes::resume).width(),ui->milestoneButton->height());
+        if (animated) {
+            group->addAnimation(targetPositionAnimation(processResume,pos,time));
+        } else {
+            processResume->move(pos);
+        }
+
+        pos = QPoint(borderSize,getSize(modes::edition).height());
+        if (animated) {
+            group->addAnimation(targetPositionAnimation(ui->newStepButton,pos,time));
+        } else {
+            ui->newStepButton->move(pos);
+        }
+
+        ui->milestoneNameEdit->hide();
+        ui->charCount->hide();
+        break;
+    }
+    case modes::edition: {
+        arrow->move(ui->milestoneButton->width() - arrow->width()-insideBorder,0);
+        arrow->setPixmap(arrowPixmapDown);
+        if (animated) {
+            group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+        } else {
+            this->setFixedSize(getSize(target));
+        }
+
+        QPoint pos(borderSize,insideBorder + ui->milestoneButton->height() + insideBorder);
+        for (int i = 0; i < stepList.size(); ++i) {
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(stepList[i],pos,time));
+            } else {
+                stepList[i]->move(pos);
+            }
+            pos += QPoint(0,stepList[i]->getSize().height() + insideBorder);
+        }
+        pos = QPoint( ui->milestoneButton->width() - arrow->width() - borderSize - processResume->getSize(modes::resume).width(),ui->milestoneButton->height());
+        if (animated) {
+            group->addAnimation(targetPositionAnimation(processResume,pos,time));
+        } else {
+            processResume->move(pos);
+        }
+
+        pos = QPoint(borderSize,getSize(modes::edition).height()-insideBorder - ui->newStepButton->height());
+        if (animated) {
+            group->addAnimation(targetPositionAnimation(ui->newStepButton,pos,time));
+        } else {
+            ui->newStepButton->move(pos);
+        }
+
+        ui->milestoneNameEdit->show();
+        ui->milestoneNameEdit->setText(ui->milestoneButton->text());
+        pos = QPoint(insideBorder + borderSize - 2,insideBorder + (ui->milestoneButton->height() - ui->milestoneNameEdit->height())/2);
+        QSize targetSize(int(double(ui->milestoneButton->width()*0.6)),ui->milestoneNameEdit->height());
+        ui->milestoneNameEdit->move(pos);
+        ui->milestoneNameEdit->setFixedWidth(QFontMetrics(ui->milestoneButton->font()).horizontalAdvance(ui->milestoneButton->text()) + 8);
+        if (animated) {
+            group->addAnimation(targetSizeAnimation(ui->milestoneNameEdit,targetSize,time));
+        } else {
+            ui->milestoneNameEdit->setFixedSize(targetSize);
+        }
+        QObject::connect(group,&QAbstractAnimation::finished,group,[=] () {
+            slotUpdateCurrentCharCount();
+            ui->charCount->move(QPoint(targetSize.width() + borderSize + insideBorder - 2 - ui->charCount->width(),insideBorder + (ui->milestoneButton->height() - ui->charCount->height())/2));
+            ui->charCount->show();
+        });
         break;
     }
     default:
@@ -119,12 +224,18 @@ QSize c_milestoneView::getSize(modes target) const {
     QSize res;
     switch (target) {
     case modes::minimal:
-        res.setHeight(borderSize + ui->milestoneButton->height() + insideBorder);
+        res.setHeight(insideBorder + ui->milestoneButton->height() + insideBorder);
         res.setWidth(borderSize + getStepDisplaySize().width() + borderSize);
         break;
     case modes::display: {
         QSize stepDisplaySize = getStepDisplaySize();
-        res.setHeight(borderSize + ui->milestoneButton->height() + insideBorder + stepDisplaySize.height() + borderSize);
+        res.setHeight(insideBorder + ui->milestoneButton->height() + insideBorder + stepDisplaySize.height() + insideBorder);
+        res.setWidth(borderSize + stepDisplaySize.width() + borderSize);
+        break;
+    }
+    case modes::edition: {
+        QSize stepDisplaySize = getStepDisplaySize();
+        res.setHeight(insideBorder + ui->milestoneButton->height() + insideBorder + stepDisplaySize.height() + insideBorder + ui->newStepButton->height() + insideBorder);
         res.setWidth(borderSize + stepDisplaySize.width() + borderSize);
         break;
     }
@@ -143,14 +254,30 @@ QSize c_milestoneView::getStepDisplaySize() const {
     return QSize(stepWidth,heightSteps);
 }
 
+QList<c_process *> c_milestoneView::getProcessesPtr() {
+    QList<c_process *> res;
+    foreach (QString key, processMap.keys()) {
+        res.push_back(&processMap[key]);
+        qDebug() << processMap[key].getTemperature();
+    }
+    return res;
+}
+
+void c_milestoneView::setDefaultMode(modes _defaultMode) {
+    defaultMode = _defaultMode;
+}
+
 void c_milestoneView::slotHandleResizeStep(QAbstractAnimation *animation) {
     c_stepView *sender = static_cast<c_stepView *>(QObject::sender());
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    int indexStep = stepList.indexOf(sender);
+    qsizetype indexStep = stepList.indexOf(sender);
     QPoint pos = stepList[indexStep]->pos() + QPoint(0,insideBorder + stepList[indexStep]->getSize().height());
-    for (int i = indexStep+1; i < stepList.size(); ++i) {
+    for (qsizetype i = indexStep+1; i < stepList.size(); ++i) {
         group->addAnimation(targetPositionAnimation(stepList[i],pos,animation->duration()));
         pos += QPoint(0,stepList[i]->getSize().height() + insideBorder);
+    }
+    if (mode == modes::edition) {
+        group->addAnimation(targetPositionAnimation(ui->newStepButton,QPoint(borderSize,getSize(modes::edition).height()-insideBorder - ui->newStepButton->height()),animation->duration()));
     }
     group->addAnimation(targetSizeAnimation(this,getSize(mode),animation->duration()));
     group->addAnimation(animation);
@@ -160,7 +287,7 @@ void c_milestoneView::slotHandleResizeStep(QAbstractAnimation *animation) {
 void c_milestoneView::slotSwapSteps(recipe::swap direction) {
     c_stepView *sender = static_cast<c_stepView *>(QObject::sender());
     if (milestone->swapSteps(sender->getStep(),direction)) {
-        int index = stepList.indexOf(sender);
+        qsizetype index = stepList.indexOf(sender);
         if (direction == recipe::swapAbove) {
             stepList.swapItemsAt(index,index-1);
         } else if (direction == recipe::swapBelow) {
@@ -177,6 +304,38 @@ void c_milestoneView::slotDeleteSteps() {
         sender->hide();
         sender->deleteLater();
 
+        slotUpdateProcesses();
         switchMode(mode)->start(QAbstractAnimation::DeleteWhenStopped);
     }
+}
+
+void c_milestoneView::slotUpdateProcesses() {
+    processMap.clear();
+    QSet<QString> processTypesSet = c_dbManager::getProcessTypes();
+    QList<QString> processTypeList = QList<QString>(processTypesSet.begin(),processTypesSet.end());
+    for (int i = 0; i < processTypeList.size(); ++i) {
+        processMap[processTypeList[i]] = c_process(processTypeList[i]);
+    }
+    for (int i = 0; i < stepList.size(); ++i) {
+        c_step * step = stepList[i]->getStep();
+        qDebug() << step;
+        QList<c_process *> processings = step->getProcessingsPtr();
+        for (int j = 0; j < processings.size(); ++j) {
+            processMap[processings[j]->getType()] = *processings[j];
+            qDebug() << processings[j] << processMap[processings[j]->getType()].getTemperature() << processings[j]->getType();
+        }
+    }
+    if (processResume != nullptr) {
+        processResume->setProcessings(getProcessesPtr());
+    }
+}
+
+void c_milestoneView::slotAddStep() {
+
+}
+
+void c_milestoneView::slotUpdateCurrentCharCount() {
+    int max = (int(double(ui->milestoneButton->width())*0.6))/QFontMetrics(ui->milestoneNameEdit->font()).averageCharWidth();
+    ui->charCount->setText(QString("%1/%2").arg(ui->milestoneNameEdit->text().size()).arg(max));
+    ui->milestoneNameEdit->setMaxLength(max);
 }
