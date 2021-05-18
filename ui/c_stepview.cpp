@@ -300,6 +300,8 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
         case modes::resume: {
             this->setFixedWidth(this->size().width());
 
+            ui->showButton->setIcon(QIcon(":/images/open-arrow.png"));
+
             // label
             ui->label->setReadOnly(true);
             ui->label->setStyleSheet("QTextEdit {"
@@ -473,6 +475,8 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
         case modes::display: {
             this->setFixedWidth(this->size().width());
 
+            ui->showButton->setIcon(QIcon(":/images/open-arrow.png"));
+
             // label
             ui->label->setReadOnly(true);
             ui->label->setStyleSheet("QTextEdit {"
@@ -624,6 +628,8 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
         break;
         case modes::edition: {
             this->setFixedWidth(this->size().width());
+
+            ui->showButton->setIcon(QIcon(":/images/open-arrow.png"));
 
             // label
             ui->label->setReadOnly(false);
@@ -786,6 +792,9 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
         }
         break;
         case modes::minimal: {
+
+            ui->showButton->setIcon(QIcon(":/images/collapse-arrow.png"));
+
             // label
             ui->label->setReadOnly(true);
             ui->label->setStyleSheet("QTextEdit {"
