@@ -26,6 +26,7 @@ public:
     QList<c_step *> getStepsPtr();
     void setSteps(const QList<c_step> &value);
     QList<int> getStepsIds() const;
+    c_step *newStep();
 
     bool swapSteps(c_step *step, recipe::swap direction);
     bool removeStep(c_step *step);

@@ -87,8 +87,14 @@ QList<int> c_milestone::getStepsIds() const {
     return res;
 }
 
+c_step *c_milestone::newStep() {
+    steps.push_back(new c_step);
+    steps.last()->setRank(steps.size());
+    return steps.last();
+}
+
 bool c_milestone::swapSteps(c_step *step, recipe::swap direction) {
-    qsizetype index = steps.indexOf(step,-1);
+    qsizetype index = steps.indexOf(step);
     if (index != -1) {
         if (direction == recipe::swapAbove) {
             if (index > 0) {

@@ -15,6 +15,7 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
 
     ui->newStepButton->setFixedHeight(buttonHeight);
     ui->newStepButton->setFixedWidth(stepWidth);
+    QObject::connect(ui->newStepButton,&QPushButton::clicked,this,&c_milestoneView::slotAddStep);
 
     ui->milestoneButton->setFixedHeight(int(double(buttonHeight)*1.5));
     ui->milestoneButton->setFixedWidth(stepWidth + 2*(borderSize-insideBorder));
@@ -186,13 +187,6 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
             processResume->move(pos);
         }
 
-        pos = QPoint(borderSize,getSize(modes::edition).height()-insideBorder - ui->newStepButton->height());
-        if (animated) {
-            group->addAnimation(targetPositionAnimation(ui->newStepButton,pos,time));
-        } else {
-            ui->newStepButton->move(pos);
-        }
-
         ui->milestoneNameEdit->show();
         ui->milestoneNameEdit->setText(ui->milestoneButton->text());
         pos = QPoint(insideBorder + borderSize - 2,insideBorder + (ui->milestoneButton->height() - ui->milestoneNameEdit->height())/2);
@@ -209,6 +203,13 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
             ui->charCount->move(QPoint(targetSize.width() + borderSize + insideBorder - 2 - ui->charCount->width(),insideBorder + (ui->milestoneButton->height() - ui->charCount->height())/2));
             ui->charCount->show();
         });
+
+        pos = QPoint(borderSize,getSize(modes::edition).height()-insideBorder - ui->newStepButton->height());
+        if (animated) {
+            group->addAnimation(targetPositionAnimation(ui->newStepButton,pos,time));
+        } else {
+            ui->newStepButton->move(pos);
+        }
         break;
     }
     default:
@@ -331,7 +332,18 @@ void c_milestoneView::slotUpdateProcesses() {
 }
 
 void c_milestoneView::slotAddStep() {
+    stepList.push_back(new c_stepView(milestone->newStep(),this));
+    stepList.last()->move(borderSize,-stepList.last()->getSize().height());
+    stepList.last()->show();
+    delete stepList.last()->switchMode(modes::edition,false);
+    stepList.last()->lower();
 
+    QObject::connect(stepList.last(),&c_stepView::animationRequired,this,&c_milestoneView::slotHandleResizeStep);
+    QObject::connect(stepList.last(),&c_stepView::swapRank,this,&c_milestoneView::slotSwapSteps);
+    QObject::connect(stepList.last(),&c_stepView::toDelete,this,&c_milestoneView::slotDeleteSteps);
+    QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateProcesses);
+
+    switchMode(mode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void c_milestoneView::slotUpdateCurrentCharCount() {
