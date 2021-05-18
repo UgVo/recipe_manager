@@ -114,9 +114,9 @@ QSize c_processView::getSize(modes target) const {
                 totalWidth += processElems[i]->getSize(target).width();
             }
             totalWidth += (processElems.size()-1)*c_stepView::interImageSpace;
-            if (!isEmpty()) {
-                totalHeight = processElems[0]->getSize(target).height();
-            }
+            totalHeight = (*std::max_element(processElems.begin(),processElems.end(),[=] (c_processElemView *a, c_processElemView *b) {
+                return a->getSize(target).height() < b->getSize(target).height();
+            }))->getSize(target).height();
             break;
         case modes::edition:
             for (int i = 0; i < processElems.size(); ++i) {
@@ -186,7 +186,7 @@ c_process *c_processView::newProcessing() {
 
 bool c_processView::isEmpty() const {
     for (int i = 0; i < processElems.size(); ++i) {
-        if(!processElems.isEmpty())
+        if(!processElems[i]->isEmpty())
             return false;
     }
     return true;

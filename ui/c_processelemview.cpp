@@ -145,7 +145,7 @@ void c_processElemView::rollback() {
 }
 
 bool c_processElemView::isEmpty() const {
-    return process == nullptr;
+    return (process == nullptr || (process->getDuration() == 0 && process->getTemperature() == 0));
 }
 
 void c_processElemView::setProcess(c_process *value) {
