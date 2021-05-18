@@ -57,9 +57,10 @@ public slots:
 
 signals:
     void swapRank(recipe::swap direction);
-    void saved(c_step* step);
+    void saved();
     void toDelete();
     void animationRequired(QAbstractAnimation* anim);
+    void resized();
 
 private:
     int getHeightText(modes targetMode = modes::resume) const;

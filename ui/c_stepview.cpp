@@ -202,7 +202,7 @@ void c_stepView::editSaved() {
     else
         emit animationRequired(switchMode(defaultMode));
 
-    emit saved(step);
+    emit saved();
 }
 
 void c_stepView::editCanceled() {
@@ -964,7 +964,7 @@ QSize c_stepView::getSize(modes target) const {
 }
 
 void c_stepView::resizeEvent(QResizeEvent *) {
-    repaint();
+    emit resized();
 }
 
 QList<QPoint> c_stepView::arrangeImages(modes target) {
