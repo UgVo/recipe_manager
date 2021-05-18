@@ -6,6 +6,8 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
     ui(new Ui::c_milestoneView), milestone(_milestone) {
     ui->setupUi(this);
 
+    defaultMode = modes::display;
+
     if (milestone->getName().isEmpty()) {
         ui->milestoneButton->setText(QString("Jalon %1").arg(milestone->getRank()));
     } else {
@@ -76,7 +78,6 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
     this->setStyleSheet("outline : 0;");
 
     mode = modes::minimal;
-    defaultMode = modes::display;
     delete c_milestoneView::switchMode(mode,false);
 }
 
@@ -108,6 +109,10 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
             pos += QPoint(0,stepList[i]->getSize().height() + insideBorder);
         }
 
+        if (mode != target) {
+            pos = QPoint( ui->milestoneButton->width() - arrow->width() - borderSize - processResume->getSize(modes::resume).width(),ui->milestoneButton->height());
+            processResume->move(pos);
+        }
         pos = QPoint( ui->milestoneButton->width() - arrow->width() - borderSize - processResume->getSize(modes::resume).width(),insideBorder);
         if (animated) {
             group->addAnimation(targetPositionAnimation(processResume,pos,time));
@@ -191,10 +196,12 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
 
         ui->milestoneNameEdit->show();
         ui->milestoneNameEdit->setText(ui->milestoneButton->text());
+        QSize targetSize(std::min(pos.x() - (insideBorder + borderSize - 2) - insideBorder,int(double(width())*0.6)),ui->milestoneNameEdit->height());
         pos = QPoint(insideBorder + borderSize - 2,insideBorder + (ui->milestoneButton->height() - ui->milestoneNameEdit->height())/2);
-        QSize targetSize(int(double(ui->milestoneButton->width()*0.6)),ui->milestoneNameEdit->height());
         ui->milestoneNameEdit->move(pos);
-        ui->milestoneNameEdit->setFixedWidth(QFontMetrics(ui->milestoneButton->font()).horizontalAdvance(ui->milestoneButton->text()) + 8);
+        if (mode != target) {
+            ui->milestoneNameEdit->setFixedWidth(QFontMetrics(ui->milestoneButton->font()).horizontalAdvance(ui->milestoneButton->text()) + 8);
+        }
         if (animated) {
             group->addAnimation(targetSizeAnimation(ui->milestoneNameEdit,targetSize,time));
         } else {
@@ -261,13 +268,23 @@ QList<c_process *> c_milestoneView::getProcessesPtr() {
     QList<c_process *> res;
     foreach (QString key, processMap.keys()) {
         res.push_back(&processMap[key]);
-        qDebug() << processMap[key].getTemperature();
     }
     return res;
 }
 
-void c_milestoneView::setDefaultMode(modes _defaultMode) {
+void c_milestoneView::setDefaultMode(modes _defaultMode, bool animated) {
     defaultMode = _defaultMode;
+    if (animated) {
+        QParallelAnimationGroup *group = new QParallelAnimationGroup;
+        for (int i = 0; i < stepList.size(); ++i) {
+            group->addAnimation(stepList[i]->switchMode(modes::none,true,500));
+        }
+        group->start(QAbstractAnimation::DeleteWhenStopped);
+    } else {
+        for (int i = 0; i < stepList.size(); ++i) {
+            delete stepList[i]->switchMode(modes::none,false);
+        }
+    }
 }
 
 void c_milestoneView::slotHandleResizeStep(QAbstractAnimation *animation) {
@@ -324,8 +341,7 @@ void c_milestoneView::slotUpdateProcesses() {
         qDebug() << step;
         QList<c_process *> processings = step->getProcessingsPtr();
         for (int j = 0; j < processings.size(); ++j) {
-            processMap[processings[j]->getType()] = *processings[j];
-            qDebug() << processings[j] << processMap[processings[j]->getType()].getTemperature() << processings[j]->getType();
+            processMap[processings[j]->getType()].setDuration(processings[j]->getDuration() + processMap[processings[j]->getType()].getDuration());
         }
     }
     if (processResume != nullptr) {
@@ -352,4 +368,9 @@ void c_milestoneView::slotUpdateCurrentCharCount() {
     int max = (int(double(ui->milestoneButton->width())*0.6))/QFontMetrics(ui->milestoneNameEdit->font()).averageCharWidth();
     ui->charCount->setText(QString("%1/%2").arg(ui->milestoneNameEdit->text().size()).arg(max));
     ui->milestoneNameEdit->setMaxLength(max);
+}
+
+c_widget::modes c_milestoneView::getDefaultMode() const
+{
+    return defaultMode;
 }

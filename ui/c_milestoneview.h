@@ -24,7 +24,8 @@ public:
 
     QList<c_process *> getProcessesPtr();
 
-    void setDefaultMode(modes defaultMode);
+    void setDefaultMode(modes defaultMode, bool animated);
+    modes getDefaultMode() const;
 
 public slots:
     void slotHandleResizeStep(QAbstractAnimation *animation);
