@@ -35,9 +35,12 @@ public:
     void setProcess(c_process *value);
 
 signals:
-    void removeProcess(const c_process *);
+    void removeProcess(c_process *);
+    void resized();
 
 private:
+    QString formatProcessText() const;
+
     Ui::c_processElemView *ui;
     c_process* process;
 };

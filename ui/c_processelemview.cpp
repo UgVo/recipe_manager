@@ -14,16 +14,14 @@ c_processElemView::c_processElemView(c_process *_process, QWidget *parent) :
     ui->processType->setModel(model);
     ui->processType->insertItem(0,"");
 
-    QFontMetrics metrics(ui->processTypeLabel->font());
+    QFontMetrics metrics(ui->processLabel->font());
 
     if (process != nullptr) {
         ui->duration->setValue(process->getDuration());
         ui->temperature->setValue(process->getTemperature());
         ui->processType->setCurrentText(process->getType());
-        ui->durationLabel->setText(QString("%1 min").arg(process->getDuration()));
-        ui->temperatureLabel->setText(QString("%1°C").arg(process->getTemperature()));
-        ui->processTypeLabel->setText(process->getType());
-        ui->processTypeLabel->setFixedWidth(metrics.horizontalAdvance(process->getType())+2);
+        ui->processLabel->setText(formatProcessText());
+        ui->processLabel->setFixedWidth(metrics.horizontalAdvance(process->getType())+2);
     } else {
         ui->processType->setCurrentText("");
         ui->temperature->setValue(0);
@@ -32,10 +30,8 @@ c_processElemView::c_processElemView(c_process *_process, QWidget *parent) :
 
     ui->temperature->setFixedWidth(ui->temperature->width());
     ui->duration->setFixedWidth(ui->duration->width());
-    ui->durationLabel->setFixedWidth(metrics.horizontalAdvance(ui->durationLabel->text()));
-    ui->temperatureLabel->setFixedWidth(metrics.horizontalAdvance(ui->temperatureLabel->text()));
 
-    ui->label->setFixedWidth(metrics.horizontalAdvance(ui->label->text())+2);
+    ui->label->setFixedWidth(getHorizontalAdvanceLabel(ui->label));
     ui->widget->setStyleSheet("QWidget#widget {"
                               " border : 1px solid white;"
                               " border-radius : 2px;"
@@ -58,22 +54,20 @@ QAbstractAnimation *c_processElemView::switchMode(modes target, bool, int) {
         case modes::edition:
             ui->duration->setReadOnly(false);
             ui->temperature->setReadOnly(false);
-            ui->processTypeLabel->hide();
+            ui->processLabel->hide();
             ui->processType->setDisabled(false);
             ui->processType->show();
             ui->label->show();
             ui->label_2->show();
 
             ui->temperature->show();
-            ui->temperatureLabel->hide();
             ui->duration->show();
-            ui->durationLabel->hide();
 
             metrics = QFontMetrics(ui->label->font());
 
             ui->label->setFixedWidth(metrics.boundingRect(ui->label->text()).width()+2);
 
-            this->setFixedSize(getSize(target));
+            this->setFixedSize(c_processElemView::getSize(target));
             this->setFixedHeight(heightProcess);
 
             break;
@@ -82,28 +76,19 @@ QAbstractAnimation *c_processElemView::switchMode(modes target, bool, int) {
         case modes::minimal:
             ui->duration->setReadOnly(true);
             ui->temperature->setReadOnly(true);
-            ui->processTypeLabel->setText(ui->processType->currentText());
-            ui->processTypeLabel->show();
+            ui->processLabel->setText(formatProcessText());
+            ui->processLabel->setFixedWidth(getHorizontalAdvanceLabel(ui->processLabel));
+            ui->processLabel->show();
+
             ui->processType->setDisabled(true);
             ui->processType->hide();
             ui->label->hide();
             ui->label_2->hide();
 
             ui->temperature->hide();
-            if (ui->temperature->value() != 0) {
-                ui->temperatureLabel->show();
-            } else {
-                ui->temperatureLabel->hide();
-            }
             ui->duration->hide();
-            ui->durationLabel->show();
 
-            ui->durationLabel->setText(QString("%1 min").arg(ui->duration->value()));
-            ui->temperatureLabel->setText(QString("%1°C").arg(ui->temperature->value()));
-            ui->durationLabel->setFixedWidth(metrics.horizontalAdvance(ui->durationLabel->text()));
-            ui->temperatureLabel->setFixedWidth(metrics.horizontalAdvance(ui->temperatureLabel->text()));
-
-            this->setFixedSize(getSize(target));
+            this->setFixedSize(c_processElemView::getSize(target));
 
             break;
     default:
@@ -122,8 +107,8 @@ QSize c_processElemView::getSize(modes target) const {
         case modes::minimal:
             if (isEmpty())
                 return QSize(0,0);
-            return QSize(ui->durationLabel->width() + (ui->temperature->value()?ui->temperatureLabel->width():0)
-                         + ui->processTypeLabel->width()
+            ui->processLabel->setText(formatProcessText());
+            return QSize( ui->processLabel->width()
                          + marginLeft + marginRight
                          + ui->widget->layout()->spacing()*2,heightProcess);
         case modes::edition:
@@ -135,36 +120,23 @@ QSize c_processElemView::getSize(modes target) const {
 }
 
 void c_processElemView::save() {
-    QFontMetrics metrics(ui->processTypeLabel->font());
-    if (ui->processType->currentText() != "") {
-        process = static_cast<c_processView *>(parent())->newProcessing();
-        *process = c_process(ui->processType->currentText(),ui->duration->value(),ui->duration->value());
-        ui->durationLabel->setText(QString("%1 min").arg(process->getDuration()));
-        ui->temperatureLabel->setText(QString("%1°C").arg(process->getTemperature()));
-        ui->processTypeLabel->setText(process->getType());
-        ui->processTypeLabel->setFixedWidth(metrics.horizontalAdvance(process->getType())+2);
-    } else {
-        if (ui->processType->currentText() == "") {
+    if (process != nullptr) {
+        if (ui->processType->currentText().isEmpty()) {
             emit removeProcess(process);
             process = nullptr;
             ui->duration->setValue(0);
             ui->temperature->setValue(0);
-            ui->processTypeLabel->setText("");
+            ui->processLabel->setText("");
         } else {
-            if (ui->duration->value() != process->getDuration()) {
-                process->setDuration(ui->duration->value());
-                ui->durationLabel->setText(QString("%1 min").arg(process->getDuration()));
-            }
-            if (ui->temperature->value() != process->getTemperature()) {
-                process->setTemperature(ui->temperature->value());
-                ui->temperatureLabel->setText(QString("%1°C").arg(process->getTemperature()));
-            }
-            if (!ui->processType->currentText().compare(process->getType())) {
-                process->setType(ui->processType->currentText());
-                ui->processTypeLabel->setText(process->getType());
-                ui->processTypeLabel->setFixedWidth(metrics.horizontalAdvance(process->getType())+2);
-            }
+            process->setType(ui->processType->currentText());
+            process->setDuration(ui->duration->value());
+            process->setTemperature(ui->temperature->value());
         }
+    } else if (!ui->processType->currentText().isEmpty()){
+        process = static_cast<c_processView *>(parent())->newProcessing();
+        *process = c_process(ui->processType->currentText(),ui->duration->value(),ui->temperature->value());
+        ui->processLabel->setText(formatProcessText());
+        ui->processLabel->setFixedWidth(getHorizontalAdvanceLabel(ui->processLabel));
     }
 }
 
@@ -178,19 +150,24 @@ bool c_processElemView::isEmpty() const {
 
 void c_processElemView::setProcess(c_process *value) {
     process = value;
-    QFontMetrics metrics(ui->processTypeLabel->font());
     if (process != nullptr) {
         ui->duration->setValue(process->getDuration());
         ui->temperature->setValue(process->getTemperature());
         ui->processType->setCurrentText(process->getType());
-        ui->durationLabel->setText(QString("%1 min").arg(process->getDuration()));
-        ui->temperatureLabel->setText(QString("%1°C").arg(process->getTemperature()));
-        ui->processTypeLabel->setText(process->getType());
-        ui->processTypeLabel->setFixedWidth(metrics.horizontalAdvance(process->getType())+2);
+        ui->processLabel->setText(formatProcessText());
+        ui->processLabel->setFixedWidth(getHorizontalAdvanceLabel(ui->processLabel));
     } else {
         ui->processType->setCurrentText("");
         ui->temperature->setValue(0);
         ui->duration->setValue(0);
     }
+    delete switchMode(mode,false);
+    emit resized();
+}
+
+QString c_processElemView::formatProcessText() const {
+    return QString("%1%2%3").arg(ui->processType->currentText(),
+                                 ui->duration->value()!=0?QString(" %1 min").arg(ui->duration->value()):QString(""),
+                                 ui->temperature->value()!=0?QString(" %1°C").arg(ui->temperature->value()):QString(""));
 }
 

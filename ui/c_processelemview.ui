@@ -38,14 +38,17 @@
    <item>
     <widget class="QWidget" name="widget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
       <property name="leftMargin">
-       <number>4</number>
+       <number>0</number>
       </property>
       <property name="topMargin">
        <number>1</number>
       </property>
       <property name="rightMargin">
-       <number>4</number>
+       <number>0</number>
       </property>
       <property name="bottomMargin">
        <number>1</number>
@@ -65,19 +68,6 @@
           </property>
           <property name="sizeAdjustPolicy">
            <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="processTypeLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>TextLabel</string>
           </property>
          </widget>
         </item>
@@ -103,6 +93,12 @@
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
          <widget class="QSpinBox" name="duration">
+          <property name="minimumSize">
+           <size>
+            <width>47</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
             <width>47</width>
@@ -120,13 +116,6 @@
           </property>
           <property name="value">
            <number>999</number>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="durationLabel">
-          <property name="text">
-           <string>TextLabel</string>
           </property>
          </widget>
         </item>
@@ -187,14 +176,20 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QLabel" name="temperatureLabel">
-          <property name="text">
-           <string>TextLabel</string>
-          </property>
-         </widget>
-        </item>
        </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="processLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -202,6 +197,7 @@
   </layout>
  </widget>
  <resources>
+  <include location="../rsc/rsc.qrc"/>
   <include location="../rsc/rsc.qrc"/>
  </resources>
  <connections/>
