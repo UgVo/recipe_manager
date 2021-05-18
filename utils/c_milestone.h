@@ -14,7 +14,9 @@ class c_milestone : public QObject
 
 public:
     c_milestone(int rank = 0, QList<c_step> steps = QList<c_step>(), QString name = "", int id = -1);
+    c_milestone(int rank = 0, QList<c_step *> steps = QList<c_step *>(), QString name = "", int id = -1);
     c_milestone(const c_milestone &other);
+    ~c_milestone() override;
 
     int getId() const;
     void setId(int value);
@@ -51,7 +53,7 @@ private:
     int rank;
     QString name;
     bool complete;
-    QList<c_step> steps;
+    QList<c_step *> steps;
 };
 
 #endif // C_MILESTONE_H

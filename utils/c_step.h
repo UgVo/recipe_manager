@@ -73,12 +73,12 @@ private:
 
     int id;
     int rank;
-    QList<c_component> components;
+    QList<c_component *> components;
     QList<QString> equipments;
     QString description;
     QList<QString> imagesUrl;
-    QList<c_note> notes;
-    QList<c_process> processings;
+    QList<c_note *> notes;
+    QList<c_process *> processings;
     bool complete;
 };
 
