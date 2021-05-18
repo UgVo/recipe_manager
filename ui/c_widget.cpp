@@ -48,7 +48,6 @@ void c_widget::rollback() {
 }
 
 void c_widget::resizeEvent(QResizeEvent *) {
-    update();
 }
 
 QAbstractAnimation *c_widget::fadeAnimation(QWidget *parent, bool up, int time, int delay) {
