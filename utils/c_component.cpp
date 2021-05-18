@@ -15,9 +15,8 @@ c_component::c_component(const c_component &other) {
 }
 
 c_component::~c_component() {
-    if (ingredient != nullptr) {
-        free(ingredient);
-    }
+    if (ingredient != nullptr)
+        delete ingredient;
 }
 
 c_ingredient& c_component::getIngredient() {
