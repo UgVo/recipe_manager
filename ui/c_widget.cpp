@@ -204,6 +204,12 @@ QPropertyAnimation *c_widget::inflateAnimation(QWidget *parent, QSize endSize, i
     return animation;
 }
 
+int c_widget::getHorizontalAdvanceLabel(QLabel *label) const {
+    int res = 0;
+    res = QFontMetrics(label->font()).horizontalAdvance(label->text());
+    return res;
+}
+
 c_widget::modes c_widget::getMode() const
 {
     return mode;

@@ -9,6 +9,8 @@
 #include <QParallelAnimationGroup>
 #include <QGraphicsOpacityEffect>
 #include <QSequentialAnimationGroup>
+#include <QLabel>
+#include <QFontMetrics>
 #include <utils/utils.h>
 
 class c_widget : public QWidget
@@ -43,6 +45,8 @@ protected:
                                              std::function<void()> lambda = nullptr, modes mode = modes::resume);
     QPropertyAnimation *deflateAnimation(QWidget *parent, int time);
     QPropertyAnimation *inflateAnimation(QWidget *parent, QSize endSize, int time);
+
+    int getHorizontalAdvanceLabel(QLabel *label) const;
 
     modes mode;
     c_widget* m_parent;
