@@ -28,30 +28,30 @@ find_package(QT NAMES Qt6 Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Widgets Sql REQUIRED)
 
 set(PROJECT_SOURCES
-        main.cpp
-        c_mainwindow.cpp
-        ui/c_componentelemview.cpp
-        ui/c_componentview.cpp
-        ui/c_equipementsview.cpp
-        ui/c_image.cpp
-        ui/c_milestoneview.cpp
-        ui/c_notesdialog.cpp
-        ui/c_noteview.cpp
-        ui/c_processelemview.cpp
-        ui/c_processview.cpp
-        ui/c_recipeview.cpp
-        ui/c_stepview.cpp
-        ui/c_widget.cpp
-        utils/c_component.cpp
-        utils/c_dbmanager.cpp
-        utils/c_ingredient.cpp
-        utils/c_iomanager.cpp
-        utils/c_milestone.cpp
-        utils/c_note.cpp
-        utils/c_recipe.cpp
-        utils/c_step.cpp
-        utils/utils.cpp
-        utils/c_process.cpp
+    main.cpp
+    c_mainwindow.cpp
+    ui/c_componentelemview.cpp
+    ui/c_componentview.cpp
+    ui/c_equipementsview.cpp
+    ui/c_image.cpp
+    ui/c_milestoneview.cpp
+    ui/c_notesdialog.cpp
+    ui/c_noteview.cpp
+    ui/c_processelemview.cpp
+    ui/c_processview.cpp
+    ui/c_recipeview.cpp
+    ui/c_stepview.cpp
+    ui/c_widget.cpp
+    utils/c_component.cpp
+    utils/c_dbmanager.cpp
+    utils/c_ingredient.cpp
+    utils/c_iomanager.cpp
+    utils/c_milestone.cpp
+    utils/c_note.cpp
+    utils/c_recipe.cpp
+    utils/c_step.cpp
+    utils/utils.cpp
+    utils/c_process.cpp
 )
 
 set(PROJECT_HEADERS
