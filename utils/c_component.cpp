@@ -1,7 +1,7 @@
 #include "c_component.h"
 #include "c_ingredient.h"
 
-c_component::c_component(const c_ingredient &_ingredient, const int _quantity, const int _unit, const int _id) : quantity(_quantity), unit(_unit), id(_id) {
+c_component::c_component(const c_ingredient &_ingredient, const int _quantity, const recipe::unit _unit, const int _id) : quantity(_quantity), unit(_unit), id(_id) {
     ingredient = new c_ingredient;
     *ingredient = _ingredient;
 }
@@ -40,12 +40,12 @@ void c_component::setQuantity(int value) {
     quantity = value;
 }
 
-int c_component::getUnit() const {
+recipe::unit c_component::getUnit() const {
     return unit;
 }
 
-void c_component::setUnit(int value) {
-    unit = recipe::unitToString.keys().contains(value)?value:recipe::unit::none;
+void c_component::setUnit(recipe::unit value) {
+    unit = value;
 }
 
 int c_component::getId() const {

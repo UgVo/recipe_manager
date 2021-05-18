@@ -1,7 +1,7 @@
 #include "utils.h"
 
 namespace recipe {
-    QMap<int,QString> unitToString {
+    QMap<unit,QString> unitToString {
         {unit::g,"g"},
         {unit::L,"L"},
         {unit::dL,"dL"},

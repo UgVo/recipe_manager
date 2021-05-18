@@ -12,7 +12,7 @@ class c_component
 {
 
 public:
-    c_component(const c_ingredient& ingredient, const int quantity = 0, const int unit = recipe::unit::none , const int id = -1);
+    c_component(const c_ingredient& ingredient, const int quantity = 0, const recipe::unit unit = recipe::unit::none , const int id = -1);
     c_component(const c_component& other);
     ~c_component();
 
@@ -23,8 +23,8 @@ public:
     int getQuantity() const;
     void setQuantity(int value);
 
-    int getUnit() const;
-    void setUnit(int value);
+    recipe::unit getUnit() const;
+    void setUnit(recipe::unit value);
 
     int getId() const;
     void setId(int value);
@@ -35,7 +35,7 @@ public:
 private:
     c_ingredient *ingredient;
     int quantity;
-    int unit;
+    recipe::unit unit;
     int id;
 
 signals:

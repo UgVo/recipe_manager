@@ -1202,7 +1202,7 @@ QList<c_component> c_dbManager::getComponents(int id) {
         int idUnit = query.record().indexOf("unit");
         while (query.next()) {
             res.push_back(c_component(c_ingredient(),query.value(idQuantity).toInt(),
-                                      query.value(idUnit).toInt(),query.value(id).toInt()));
+                                      recipe::unit(query.value(idUnit).toInt()),query.value(id).toInt()));
             int ingredientId = query.value(idIngredient).toInt();
             if (!ingredients.contains(ingredientId)) {
                 qDebug() << "ingredient missing in cache, loading from database...";
