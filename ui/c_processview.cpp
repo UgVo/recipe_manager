@@ -19,8 +19,11 @@ c_processView::c_processView(QList<c_process *> _processes, c_widget *widget, QW
     }
 
     for (int i = 0; i < processElems.size(); ++i) {
-        QObject::connect(processElems[i],&c_processElemView::removeProcess, [=] (const c_process *process) {
+        QObject::connect(processElems[i],&c_processElemView::removeProcess, [=] (c_process *process) {
             static_cast<c_stepView *>(m_parent)->getStep()->removeProcessing(process);
+        });
+        QObject::connect(processElems[i],&c_processElemView::resized, this, [=] () {
+            delete switchMode(mode,false);
         });
     }
 
@@ -165,6 +168,15 @@ void c_processView::rollback() {
     }
     for (qsizetype i = processes.size(); i < maxNumberProcess; ++i) {
         processElems[i]->setProcess(nullptr);
+    }
+}
+
+void c_processView::setProcessings(QList<c_process *> _processes) {
+    if (_processes.size() ==  maxNumberProcess) {
+        processes = _processes;
+        for (int i = 0; i < processes.size(); ++i) {
+            processElems[i]->setProcess(processes[i]);
+        }
     }
 }
 

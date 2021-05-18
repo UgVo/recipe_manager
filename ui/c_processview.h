@@ -29,6 +29,7 @@ public:
     void save() override;
     void rollback() override;
 
+    void setProcessings(QList<c_process *> processes);
     c_process *newProcessing();
 
     bool isEmpty() const;
