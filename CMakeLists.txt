@@ -89,7 +89,7 @@ set(PROJECT_FORM
     ui/c_noteview.ui
     ui/c_processelemview.ui
     ui/c_processview.ui
-    ui/c_step_view.ui
+    ui/c_stepview.ui
 )
 
 set(RESOURCE_FILES

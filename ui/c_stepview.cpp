@@ -1,5 +1,5 @@
 #include "c_stepview.h"
-#include "ui_c_step_view.h"
+#include "ui_c_stepview.h"
 
 QSize c_stepView::maxSizeImage((stepWidth/3)*2,(stepWidth/3)*2);
 int c_stepView::interImageSpace = 5;

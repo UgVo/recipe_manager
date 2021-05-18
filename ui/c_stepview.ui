@@ -82,7 +82,11 @@
        </size>
       </property>
       <property name="text">
-       <string>PushButton</string>
+       <string/>
+      </property>
+      <property name="icon">
+       <iconset resource="../rsc/rsc.qrc">
+        <normaloff>:/images/collapse-arrow.png</normaloff>:/images/collapse-arrow.png</iconset>
       </property>
      </widget>
      <widget class="QWidget" name="widget" native="true">
@@ -269,6 +273,7 @@
   </layout>
  </widget>
  <resources>
+  <include location="../rsc/rsc.qrc"/>
   <include location="../rsc/rsc.qrc"/>
  </resources>
  <connections/>
