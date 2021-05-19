@@ -22,7 +22,7 @@ public:
     explicit c_processView(QList<c_process *> processes, c_widget *widget, QWidget *parent = nullptr);
     ~c_processView() override;
 
-    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000) override;
+    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 600, QAnimationGroup *parentGroupAnimation = nullptr) override;
     QSize getSize(modes target) const override;
     int getWidth(modes target) const override;
 

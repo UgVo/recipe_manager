@@ -29,9 +29,9 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     QObject::connect(ui->label,&QTextEdit::textChanged, [=] () {
         if (getHeightText(mode) != ui->label->height()) {
             if (parent == nullptr) {
-                switchMode(mode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+                switchMode(mode,true,500);
             } else {
-                emit animationRequired(switchMode(mode,true,500));
+                emit animationRequired(switchMode(mode,true,500,new QParallelAnimationGroup));
             }
         }
     });
@@ -60,18 +60,18 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     ui->displayButton->hide();
     QObject::connect(ui->displayButton,&QPushButton::clicked,[=] () {
         if (parent == nullptr) {
-            switchMode(modes::display,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+            switchMode(modes::display,true,500);
         } else {
-            emit animationRequired(switchMode(modes::display,true,500));
+            emit animationRequired(switchMode(modes::display,true,500,new QParallelAnimationGroup));
         }
     });
 
     ui->resumeButton->hide();
     QObject::connect(ui->resumeButton,&QPushButton::clicked,[=] () {
         if (parent == nullptr) {
-            switchMode(modes::resume,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+            switchMode(modes::resume,true,500);
         } else {
-            emit animationRequired(switchMode(modes::resume,true,500));
+            emit animationRequired(switchMode(modes::resume,true,500,new QParallelAnimationGroup));
         }
     });
 
@@ -85,9 +85,9 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     components = new c_componentView(step->getComponentsPtr(),this,ui->widget);
     QObject::connect(components,&c_componentView::resized, [=] () {
         if (parent == nullptr) {
-            switchMode(mode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+            switchMode(mode,true,500);
         } else {
-            emit animationRequired(switchMode(mode,true,500));
+            emit animationRequired(switchMode(mode,true,500,new QParallelAnimationGroup));
         }
     });
 
@@ -103,9 +103,9 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
         QObject::connect(images[i],&c_image::newImage,this,&c_stepView::imageAdded);
         QObject::connect(images[i],&c_image::resized, [=] () {
             if (parent == nullptr) {
-                switchMode(mode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+                switchMode(mode,true,500);
             } else {
-                emit animationRequired(switchMode(mode,true,500));
+                emit animationRequired(switchMode(mode,true,500,new QParallelAnimationGroup));
             }
         });
     }
@@ -119,9 +119,9 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
     QMenu *menu = new QMenu();
     menu->addAction("Edit", this, [=] () {
         if (parent == nullptr) {
-            switchMode(modes::edition)->start(QAbstractAnimation::DeleteWhenStopped);
+            switchMode(modes::edition);
         } else {
-            emit animationRequired(switchMode(modes::edition,true,600));
+            emit animationRequired(switchMode(modes::edition,true,500,new QParallelAnimationGroup));
         }
     });
     menu->addAction("Delete", this, [this] () {
@@ -146,7 +146,7 @@ c_stepView::c_stepView(c_step *_step, QWidget *parent) :
                         "   border : 1px solid black;"
                         "}");
 
-    delete c_stepView::switchMode(modes::minimal,false);
+    c_stepView::switchMode(modes::minimal,false);
 }
 
 c_stepView::~c_stepView() {
@@ -157,15 +157,17 @@ c_stepView::~c_stepView() {
 void c_stepView::triggerShowButton() {
     ui->showButton->raise();
     if (mode == modes::minimal) {
-        if (parent() == nullptr)
-            switchMode(defaultMode)->start(QAbstractAnimation::DeleteWhenStopped);
-        else
-            emit animationRequired(switchMode(defaultMode));
+        if (parent() == nullptr) {
+            switchMode(defaultMode,true,500);
+        } else {
+            emit animationRequired(switchMode(defaultMode,true,500,new QParallelAnimationGroup));
+        }
     } else {
-        if (parent() == nullptr)
-            switchMode(modes::minimal)->start(QAbstractAnimation::DeleteWhenStopped);
-        else
-            emit animationRequired(switchMode(modes::minimal));
+        if (parent() == nullptr) {
+            switchMode(modes::minimal,true,500);
+        } else {
+            emit animationRequired(switchMode(modes::minimal,true,500,new QParallelAnimationGroup));
+        }
     }
 }
 
@@ -203,10 +205,11 @@ void c_stepView::editSaved() {
         defaultMode = (components->isEmpty() && equipments->isEmpty()) ? modes::display : modes::resume;
     }
 
-    if (parent() == nullptr)
-        switchMode(defaultMode)->start(QAbstractAnimation::DeleteWhenStopped);
-    else
-        emit animationRequired(switchMode(defaultMode));
+    if (parent() == nullptr) {
+        switchMode(defaultMode,true,500);
+    } else {
+        emit animationRequired(switchMode(defaultMode,true,500,new QParallelAnimationGroup));
+    }
 
     emit saved();
 }
@@ -237,10 +240,11 @@ void c_stepView::editCanceled() {
     }
 
 
-    if (parent() == nullptr)
-        switchMode(defaultMode)->start(QAbstractAnimation::DeleteWhenStopped);
-    else
-        emit animationRequired(switchMode(defaultMode));
+    if (parent() == nullptr) {
+        switchMode(defaultMode,true,500);
+    } else {
+        emit animationRequired(switchMode(defaultMode,true,500,new QParallelAnimationGroup));
+    }
 }
 
 void c_stepView::slotAddNote() {
@@ -262,11 +266,11 @@ int c_stepView::getImageCount(){
     return countImages;
 }
 
-void c_stepView::imageAdded(QAbstractAnimation * animations) {
+void c_stepView::imageAdded() {
     if (parent() == nullptr)
-        switchMode(mode,true,500,animations);
+        switchMode(mode,true,500);
     else
-        emit animationRequired(switchMode(mode,true,500,animations));
+        emit animationRequired(switchMode(mode,true,500,new QParallelAnimationGroup));
     checkCount();
 }
 
@@ -300,11 +304,8 @@ int c_stepView::getHeightText(modes targetMode) const {
     return res;
 }
 
-QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, QAbstractAnimation *childAnims) {
+QAbstractAnimation *c_stepView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    if (childAnims) {
-        group->addAnimation(childAnims);
-    }
     modes parentMode = static_cast<c_milestoneView *>(parent())->getDefaultMode();
     QSize targetSize;
     QPoint targetPos;
@@ -363,7 +364,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 processes->move(targetPos);
             }
             if ((mode == modes::edition) || !animated)
-                group->addAnimation(processes->switchMode(target,animated,time));
+                processes->switchMode(target,animated,time,group);
 
             // Images
             QList<QPoint> posList = arrangeImages(target);
@@ -374,7 +375,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 } else {
                     images[i]->move(posList[i]);
                 }
-                group->addAnimation(images[i]->switchMode(target,animated,time));
+                images[i]->switchMode(target,animated,time,group);
                 images[i]->show();
                 images[i]->raise();
             }
@@ -421,7 +422,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 components->move(targetPos);
                 components->show();
             }
-            group->addAnimation(components->switchMode(target,animated,time));
+            components->switchMode(target,animated,time,group);
 
             // Equipments
             targetPos = QPoint(limit + interImageSpace, borderSize+std::max(ui->rankButton->height(),getHeightText(target))
@@ -437,7 +438,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 equipments->move(targetPos);
                 equipments->show();
             }
-            group->addAnimation(equipments->switchMode(target,animated,time));
+            equipments->switchMode(target,animated,time,group);
 
             // Show button
             targetSize = QSize(this->width()-2*borderSize,buttonHeight);
@@ -545,7 +546,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 processes->move(targetPos);
             }
             if (mode != defaultMode)
-                group->addAnimation(processes->switchMode(target,false,time));
+                processes->switchMode(target,false,time,group);
 
 
             // Images
@@ -556,7 +557,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 } else {
                     images[i]->move(posList[i]);
                 }
-                group->addAnimation(images[i]->switchMode(target,animated,time));
+                images[i]->switchMode(target,animated,time,group);
                 images[i]->show();
                 images[i]->raise();
             }
@@ -705,7 +706,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 processes->move(targetPos);
                 processes->show();
             }
-            group->addAnimation(processes->switchMode(target,animated,time));
+            processes->switchMode(target,animated,time,group);
 
             // Images
             QList<QPoint> posList = arrangeImages(target);
@@ -717,7 +718,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                     images[i]->move(posList[i]);
                     images[i]->show();
                 }
-                group->addAnimation(images[i]->switchMode(target,animated,time));
+                images[i]->switchMode(target,animated,time,group);
                 images[i]->show();
                 images[i]->raise();
             }
@@ -751,7 +752,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 components->move(targetPos);
                 components->show();
             }
-            group->addAnimation(components->switchMode(target,animated,time));
+            components->switchMode(target,animated,time,group);
 
             // Equipments
             targetPos = QPoint(borderSize, borderSize + getHeightText(target) + 2*interImageSpace + std::max(components->getSize(target).height(),processes->getSize(target).height()));
@@ -765,7 +766,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 equipments->show();
                 equipments->move(targetPos);
             }
-            group->addAnimation(equipments->switchMode(target,animated,time));
+            equipments->switchMode(target,animated,time,group);
 
             // Show button
             targetSize = QSize(this->width()-2*borderSize,buttonHeight);
@@ -872,7 +873,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                 processes->move(targetPos);
             }
             if (mode == modes::edition || !animated)
-                group->addAnimation(processes->switchMode(target,animated,time));
+                processes->switchMode(target,animated,time,group);
 
             // Images
             QList<QPoint> posList = arrangeImages(target);
@@ -884,7 +885,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
                     images[i]->hide();
                     images[i]->move(posList[i]);
                 }
-                group->addAnimation(images[i]->switchMode(target,animated,time));
+                images[i]->switchMode(target,animated,time,group);
             }
 
             // Menu Button
@@ -935,7 +936,7 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
             targetPos = QPoint(limit + interImageSpace,borderSize+std::max(ui->rankButton->height(),getHeightText(target))
                                + processes->getSize(target).height() + interImageSpace);
             components->move(targetPos);
-            group->addAnimation(components->switchMode(target,animated,time));
+            components->switchMode(target,animated,time,group);
 
             //Equipments
             targetPos = QPoint(limit + interImageSpace, borderSize+std::max(ui->rankButton->height(),getHeightText(target))
@@ -984,7 +985,8 @@ QAnimationGroup *c_stepView::switchMode(modes target, bool animated, int time, Q
     ui->showButton->raise();
 
     mode = target;
-    return group;
+
+    return handleAnimation(animated,group,parentGroupAnimation);
 }
 
 QSize c_stepView::getSize(modes target) const {

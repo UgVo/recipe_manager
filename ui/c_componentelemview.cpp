@@ -27,15 +27,15 @@ c_componentElemView::c_componentElemView(c_component *_component, c_widget *widg
 
     this->setFixedHeight(heigthWidget);
 
-    delete c_componentElemView::switchMode(modes::resume,false);
+    c_componentElemView::switchMode(modes::resume,false);
 }
 
 c_componentElemView::~c_componentElemView() {
     delete ui;
 }
 
-QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated, int time) {
-    QParallelAnimationGroup *res = new QParallelAnimationGroup();
+QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
+    QParallelAnimationGroup *group = new QParallelAnimationGroup();
     QFontMetrics metrics(ui->ingredientLineEdit->font());
     QPoint pos(0,0);
     QSize targetSizeLabel;
@@ -53,15 +53,15 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
                                                   "}");
 
             if (animated) {
-                res->addAnimation(targetPositionAnimation(ui->checkBox,pos,time/3));
+                group->addAnimation(targetPositionAnimation(ui->checkBox,pos,time/3));
                 pos += QPoint(ui->checkBox->width() + insideBorder,0);
-                res->addAnimation(targetPositionAnimation(ui->quantitySpinBox,QPoint(0,-ui->quantitySpinBox->height()),time/3));
-                res->addAnimation(targetPositionAnimation(ui->quantityUnitLabel,pos,time/3));
-                res->addAnimation(targetPositionAnimation(ui->unitComboBox,QPoint(ui->quantitySpinBox->width() + insideBorder,-ui->quantitySpinBox->height()),time/3));
+                group->addAnimation(targetPositionAnimation(ui->quantitySpinBox,QPoint(0,-ui->quantitySpinBox->height()),time/3));
+                group->addAnimation(targetPositionAnimation(ui->quantityUnitLabel,pos,time/3));
+                group->addAnimation(targetPositionAnimation(ui->unitComboBox,QPoint(ui->quantitySpinBox->width() + insideBorder,-ui->quantitySpinBox->height()),time/3));
                 pos += QPoint(ui->quantityUnitLabel->width() + insideBorder,0);
-                res->addAnimation(targetGeometryAnimation(ui->ingredientLineEdit,QSize(metrics.horizontalAdvance(ui->ingredientLineEdit->text())+10,heigthWidget),pos,time));
-                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
-                res->addAnimation(targetPositionAnimation(ui->deleteButton,QPoint(getSize(modes::edition).width()+ui->deleteButton->width(),0),time/3));
+                group->addAnimation(targetGeometryAnimation(ui->ingredientLineEdit,QSize(metrics.horizontalAdvance(ui->ingredientLineEdit->text())+10,heigthWidget),pos,time));
+                group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                group->addAnimation(targetPositionAnimation(ui->deleteButton,QPoint(getSize(modes::edition).width()+ui->deleteButton->width(),0),time/3));
             } else {
                 ui->checkBox->move(pos);
                 pos += QPoint(ui->checkBox->width() + insideBorder,0);
@@ -85,15 +85,15 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
             }
 
             if (animated) {
-                res->addAnimation(targetPositionAnimation(ui->checkBox,QPoint(0,-ui->checkBox->height()),time + time/3,time));
-                res->addAnimation(targetPositionAnimation(ui->quantitySpinBox,pos,time + time/3,time));
-                res->addAnimation(targetPositionAnimation(ui->quantityUnitLabel,QPoint(ui->checkBox->width() + insideBorder,ui->quantityUnitLabel->height()),time + time/3,time));
+                group->addAnimation(targetPositionAnimation(ui->checkBox,QPoint(0,-ui->checkBox->height()),time + time/3,time));
+                group->addAnimation(targetPositionAnimation(ui->quantitySpinBox,pos,time + time/3,time));
+                group->addAnimation(targetPositionAnimation(ui->quantityUnitLabel,QPoint(ui->checkBox->width() + insideBorder,ui->quantityUnitLabel->height()),time + time/3,time));
                 pos += QPoint(ui->quantitySpinBox->width()+insideBorder,0);
-                res->addAnimation(targetPositionAnimation(ui->unitComboBox,pos,time + time/3,time));
+                group->addAnimation(targetPositionAnimation(ui->unitComboBox,pos,time + time/3,time));
                 pos += QPoint(ui->unitComboBox->width() + insideBorder,0);
-                res->addAnimation(targetGeometryAnimation(ui->ingredientLineEdit,targetSizeLabel,pos,time));
-                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
-                res->addAnimation(targetPositionAnimation(ui->deleteButton,QPoint(getSize(target).width()-ui->deleteButton->width(),0),time + time/3,time));
+                group->addAnimation(targetGeometryAnimation(ui->ingredientLineEdit,targetSizeLabel,pos,time));
+                group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                group->addAnimation(targetPositionAnimation(ui->deleteButton,QPoint(getSize(target).width()-ui->deleteButton->width(),0),time + time/3,time));
             } else {
                 ui->checkBox->move(QPoint(0,ui->checkBox->height()));
                 ui->quantitySpinBox->move(pos);
@@ -111,7 +111,8 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
         break;
     }
     mode = target;
-    return res;
+
+    return handleAnimation(animated,group,parentGroupAnimation);
 }
 
 QSize c_componentElemView::getSize(modes target) const {

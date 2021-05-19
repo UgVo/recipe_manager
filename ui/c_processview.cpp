@@ -36,8 +36,8 @@ c_processView::~c_processView() {
     delete ui;
 }
 
-QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int time) {
-    QParallelAnimationGroup *res =  new QParallelAnimationGroup();
+QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
+    QParallelAnimationGroup *group =  new QParallelAnimationGroup();
     switch (target) {
     case modes::resume:
     case modes::display:
@@ -45,20 +45,20 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
         QPoint pos = QPoint(0,0);
         for (int i = 0; i < processElems.size(); ++i) {
             if (animated && mode != target) {
-                res->addAnimation(slideAndDeployAnimation(processElems[i],pos,time,[=] () {
-                    delete processElems[i]->switchMode(target,animated,time);
+                group->addAnimation(slideAndDeployAnimation(processElems[i],pos,time,[=] () {
+                    processElems[i]->switchMode(target);
                     processElems[i]->show();
                 },mode));
             } else {
-                delete processElems[i]->switchMode(target,animated,time);
+                processElems[i]->switchMode(target);
                 processElems[i]->move(pos);
             }
             pos += QPoint(processElems[i]->getSize(target).width() + c_stepView::interImageSpace,0);
 
         }
         if (animated) {
-            res->addAnimation(targetSizeAnimation(this,getSize(target),time));
-            res->addAnimation(fadeAnimation(ui->label,false,time/2));
+            group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+            group->addAnimation(fadeAnimation(ui->label,false,time/2));
         } else {
             this->setFixedSize(getSize(target));
             ui->label->hide();
@@ -71,20 +71,20 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
         pos += QPoint(0,ui->label->height() + c_stepView::interImageSpace);
         for (int i = 0; i < processElems.size(); ++i) {
             if (animated && mode != target) {
-                res->addAnimation(slideAndDeployAnimation(processElems[i],pos,time,[=] () {
-                    delete processElems[i]->switchMode(target,animated,time);
+                group->addAnimation(slideAndDeployAnimation(processElems[i],pos,time,[=] () {
+                    processElems[i]->switchMode(target);
                     processElems[i]->show();
                 },target));
             } else {
-                delete processElems[i]->switchMode(target,animated,time);
+                processElems[i]->switchMode(target);
                 processElems[i]->move(pos);
             }
             pos += QPoint(0,processElems[i]->getSize(target).height() + c_stepView::interImageSpace);
         }
         if (animated) {
-            res->addAnimation(targetPositionAnimation(ui->label,QPoint(0,0),time));
-            res->addAnimation(targetSizeAnimation(this,getSize(target),time));
-            res->addAnimation(fadeAnimation(ui->label,true,time,time/2));
+            group->addAnimation(targetPositionAnimation(ui->label,QPoint(0,0),time));
+            group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+            group->addAnimation(fadeAnimation(ui->label,true,time,time/2));
         } else {
             ui->label->move(QPoint(0,0));
             this->setFixedSize(getSize(target));
@@ -96,7 +96,8 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
         break;
     }
     mode = target;
-    return res;
+
+    return handleAnimation(animated,group,parentGroupAnimation);
 }
 
 QSize c_processView::getSize(modes target) const {

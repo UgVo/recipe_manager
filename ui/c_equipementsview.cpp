@@ -47,14 +47,14 @@ c_equipementsView::~c_equipementsView() {
     delete ui;
 }
 
-QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, int time) {
-    QParallelAnimationGroup *res = new QParallelAnimationGroup;
+QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
+    QParallelAnimationGroup *group = new QParallelAnimationGroup;
     switch (target) {
         case modes::display:
         case modes::resume:
         case modes::minimal: {
             if (animated) {
-                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                group->addAnimation(targetSizeAnimation(this,getSize(target),time));
             } else {
                 this->setFixedSize(c_equipementsView::getSize(target));
             }
@@ -85,7 +85,7 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
                 toDeleteEquipment.clear();
             }
             if (animated) {
-                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                group->addAnimation(targetSizeAnimation(this,getSize(target),time));
             } else {
                 this->setFixedSize(getSize(target));
             }
@@ -105,7 +105,8 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
             break;
     }
     mode = target;
-    return res;
+
+    return handleAnimation(animated,group,parentGroupAnimation);
 }
 
 QSize c_equipementsView::getSize(modes target) const {

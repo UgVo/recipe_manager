@@ -27,7 +27,7 @@ public:
     void rollback() override;
 
     bool isEmpty() const;
-    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000);
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAnimationGroup *parentGroupAnimation = nullptr);
 
     QString getPathImage() const;
 
@@ -36,7 +36,7 @@ public slots:
     void deleteButtonClicked();
 
 signals:
-    void newImage(QPropertyAnimation* animation,QSize newSize);
+    void newImage();
     void resized();
 
 private:

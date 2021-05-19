@@ -23,7 +23,7 @@ public:
     explicit c_equipementsView(QList<QString> equipmentList, c_widget *widget, QWidget *parent = nullptr);
     ~c_equipementsView() override;
 
-    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000) override;
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAnimationGroup *parentGroupAnimation = nullptr) override;
     QSize getSize(modes mode) const override;
 
     void save() override;

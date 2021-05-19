@@ -18,7 +18,7 @@ public:
     explicit c_milestoneView(c_milestone *milestone, c_widget *widget = nullptr, QWidget *parent = nullptr);
     ~c_milestoneView() override;
 
-    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500, QAbstractAnimation *childAnims = nullptr) override;
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500, QAnimationGroup *parentGroupAnimation = nullptr) override;
     QSize getSize(modes target) const override;
     QSize getStepDisplaySize() const;
 

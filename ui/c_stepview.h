@@ -33,7 +33,7 @@ public:
     explicit c_stepView(c_step *step, QWidget *parent = nullptr);
     ~c_stepView() override;
 
-    QAnimationGroup *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAbstractAnimation *childAnims = nullptr) override;
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAnimationGroup *parentGroupAnimation = nullptr) override;
     QSize getSize(modes target = modes::none) const override;
     void resizeEvent(QResizeEvent *event) override;
     int getImageCount();
@@ -53,7 +53,7 @@ public slots:
     void editCanceled();
     void slotAddNote();
     void slotShowNotes();
-    void imageAdded(QAbstractAnimation *animations);
+    void imageAdded();
 
 signals:
     void swapRank(recipe::swap direction);

@@ -47,13 +47,13 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
     QObject::connect(ui->milestoneButton,&QPushButton::clicked, [=] () {
         switch (mode) {
         case modes::display:
-            switchMode(modes::minimal,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+            switchMode(modes::minimal,true,500);
             break;
         case modes::minimal:
-            switchMode(defaultMode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+            switchMode(defaultMode,true,500);
             break;
         default:
-            switchMode(modes::minimal,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+            switchMode(modes::minimal,true,500);
             break;
         }
     });
@@ -73,22 +73,20 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
     slotUpdateProcesses();
 
     processResume = new c_processView(getProcessesPtr(),this,ui->milestoneButton);
-    delete processResume->switchMode(modes::resume,false);
+    processResume->switchMode(modes::resume,false);
 
     this->setStyleSheet("outline : 0;");
 
     mode = modes::minimal;
-    delete c_milestoneView::switchMode(mode,false);
+    c_milestoneView::switchMode(mode,false);
 }
 
 c_milestoneView::~c_milestoneView() {
     delete ui;
 }
 
-QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool animated, int time, QAbstractAnimation *childAnims) {
+QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    if (childAnims != nullptr)
-        group->addAnimation(childAnims);
     switch (target) {
     case modes::minimal: {
         arrow->move(ui->milestoneButton->width() - arrow->width()-insideBorder,0);
@@ -227,7 +225,7 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
 
     mode = target;
 
-    return group;
+    return handleAnimation(animated,group,parentGroupAnimation);
 }
 
 QSize c_milestoneView::getSize(modes target) const {
@@ -277,12 +275,12 @@ void c_milestoneView::setDefaultMode(modes _defaultMode, bool animated) {
     if (animated) {
         QParallelAnimationGroup *group = new QParallelAnimationGroup;
         for (int i = 0; i < stepList.size(); ++i) {
-            group->addAnimation(stepList[i]->switchMode(modes::none,true,500));
+            stepList[i]->switchMode(modes::none,true,500,group);
         }
         group->start(QAbstractAnimation::DeleteWhenStopped);
     } else {
         for (int i = 0; i < stepList.size(); ++i) {
-            delete stepList[i]->switchMode(modes::none,false);
+            stepList[i]->switchMode(modes::none,false);
         }
     }
 }
@@ -314,7 +312,7 @@ void c_milestoneView::slotSwapSteps(recipe::swap direction) {
             stepList.swapItemsAt(index,index+1);
         }
     }
-    switchMode(mode)->start(QAbstractAnimation::DeleteWhenStopped);
+    switchMode(mode,true,500);
 }
 
 void c_milestoneView::slotDeleteSteps() {
@@ -325,7 +323,7 @@ void c_milestoneView::slotDeleteSteps() {
         sender->deleteLater();
 
         slotUpdateProcesses();
-        switchMode(mode)->start(QAbstractAnimation::DeleteWhenStopped);
+        switchMode(mode,true,500);
     }
 }
 
@@ -353,7 +351,7 @@ void c_milestoneView::slotAddStep() {
     stepList.push_back(new c_stepView(milestone->newStep(),this));
     stepList.last()->move(borderSize,-stepList.last()->getSize().height());
     stepList.last()->show();
-    delete stepList.last()->switchMode(modes::edition,false);
+    stepList.last()->switchMode(modes::edition,false);
     stepList.last()->lower();
 
     QObject::connect(stepList.last(),&c_stepView::animationRequired,this,&c_milestoneView::slotHandleResizeStep);
@@ -361,7 +359,7 @@ void c_milestoneView::slotAddStep() {
     QObject::connect(stepList.last(),&c_stepView::toDelete,this,&c_milestoneView::slotDeleteSteps);
     QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateProcesses);
 
-    switchMode(mode,true,500)->start(QAbstractAnimation::DeleteWhenStopped);
+    switchMode(mode,true,500);
 }
 
 void c_milestoneView::slotUpdateCurrentCharCount() {

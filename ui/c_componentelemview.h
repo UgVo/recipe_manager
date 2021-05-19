@@ -23,7 +23,7 @@ public:
     explicit c_componentElemView(c_component *component, c_widget *_widget, QWidget *parent = nullptr);
     ~c_componentElemView() override;
 
-    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 1000) override;
+    QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 600, QAnimationGroup *parentGroupAnimation = nullptr) override;
     QSize getSize(modes target) const override;
     void save() override;
     void rollback() override;

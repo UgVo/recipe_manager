@@ -21,15 +21,15 @@ c_componentView::c_componentView(QList<c_component *> _components, c_widget *wid
 
     enableResize = true;
 
-    delete c_componentView::switchMode(modes::minimal,false);
+    c_componentView::switchMode(modes::minimal,false);
 }
 
 c_componentView::~c_componentView() {
     delete ui;
 }
 
-QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int time) {
-    QParallelAnimationGroup *res = new QParallelAnimationGroup();
+QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
+    QParallelAnimationGroup *group = new QParallelAnimationGroup();
     switch (target) {
         case modes::display:
         case modes::resume:
@@ -39,18 +39,18 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
             pos += QPoint(0,ui->labelIngredient->height() + c_stepView::interImageSpace);
             for (int i = 0; i < componentsViews.size(); ++i) {
                 if (animated) {
-                    res->addAnimation(targetPositionAnimation(componentsViews[i],pos,time));
+                    group->addAnimation(targetPositionAnimation(componentsViews[i],pos,time));
                 } else {
                     componentsViews[i]->move(pos);
                 }
-                res->addAnimation(componentsViews[i]->switchMode(target,animated,time));
+                componentsViews[i]->switchMode(target,animated,time,group);
                 pos += QPoint(0,componentsViews[i]->getSize(target).height());
             }
             int max = static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
             addComponentButton->setFixedWidth(max - 2*insideBorder);
             if (animated) {
-                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
-                res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(mode).height()),time/3));
+                group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                group->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(mode).height()),time/3));
             } else {
                 this->setFixedSize(c_componentView::getSize(target));
                 addComponentButton->hide();
@@ -67,22 +67,22 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
             }
             for (int i = 0; i < componentsViews.size(); ++i) {
                 if (animated) {
-                    res->addAnimation(targetPositionAnimation(componentsViews[i],pos,time));
+                    group->addAnimation(targetPositionAnimation(componentsViews[i],pos,time));
                 } else {
                     componentsViews[i]->move(pos);
                 }
-                res->addAnimation(componentsViews[i]->switchMode(target,animated,time));
+                componentsViews[i]->switchMode(target,animated,time,group);
                 pos += QPoint(0,componentsViews[i]->getSize(target).height() + c_stepView::interImageSpace);
             }
             int max = static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
             addComponentButton->setFixedWidth(max - 2*insideBorder);
 
             if (animated) {
-                res->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                group->addAnimation(targetSizeAnimation(this,getSize(target),time));
                 if (target != mode && !componentsViews.isEmpty())
-                    res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time + time/3,time));
+                    group->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time + time/3,time));
                 else
-                    res->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time));
+                    group->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(target).height()-addComponentButton->height()),time));
             } else {
                 this->setFixedSize(getSize(target));
                 addComponentButton->move(QPoint(insideBorder,getSize(target).height()-addComponentButton->height()));
@@ -94,7 +94,8 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
         break;
     }
     mode = target;
-    return res;
+
+    return handleAnimation(animated,group,parentGroupAnimation);
 }
 
 QSize c_componentView::getSize(modes target) const {

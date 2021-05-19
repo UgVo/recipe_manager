@@ -35,8 +35,22 @@ QAbstractAnimation *c_widget::switchMode(c_widget::modes , bool, int) {
     return nullptr;
 }
 
-QAbstractAnimation *c_widget::switchMode(c_widget::modes, bool, int, QAbstractAnimation*) {
+QAbstractAnimation *c_widget::switchMode(c_widget::modes, bool, int, QAnimationGroup *) {
     return nullptr;
+}
+
+QAbstractAnimation *c_widget::handleAnimation(bool animated, QAnimationGroup *group, QAnimationGroup *parentGroupAnimation) {
+    if (animated) {
+        if (parentGroupAnimation == nullptr) {
+            group->start(QAbstractAnimation::DeleteWhenStopped);
+        } else {
+            parentGroupAnimation->addAnimation(group);
+        }
+        return parentGroupAnimation;
+    } else {
+        delete group;
+        return nullptr;
+    }
 }
 
 void c_widget::save() {
