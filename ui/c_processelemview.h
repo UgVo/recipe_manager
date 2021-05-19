@@ -23,7 +23,7 @@ public:
     explicit c_processElemView(c_process* process = nullptr, QWidget *parent = nullptr);
     ~c_processElemView() override;
 
-    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 1000) override;
+    QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = false, int time = 600) override;
     QSize getSize(modes target) const override;
     void save() override;
     void rollback() override;
