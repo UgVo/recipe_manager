@@ -95,7 +95,7 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
     }
     mode = target;
 
-    return handleAnimation(animated,group,parentGroupAnimation);
+    return runBehavior(animated,group,parentGroupAnimation);
 }
 
 QSize c_componentView::getSize(modes target) const {

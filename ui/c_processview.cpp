@@ -97,7 +97,7 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
     }
     mode = target;
 
-    return handleAnimation(animated,group,parentGroupAnimation);
+    return runBehavior(animated,group,parentGroupAnimation);
 }
 
 QSize c_processView::getSize(modes target) const {

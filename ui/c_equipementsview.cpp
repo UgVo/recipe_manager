@@ -106,7 +106,7 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
     }
     mode = target;
 
-    return handleAnimation(animated,group,parentGroupAnimation);
+    return runBehavior(animated,group,parentGroupAnimation);
 }
 
 QSize c_equipementsView::getSize(modes target) const {

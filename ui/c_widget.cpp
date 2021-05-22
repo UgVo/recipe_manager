@@ -39,10 +39,14 @@ QAbstractAnimation *c_widget::switchMode(c_widget::modes, bool, int, QAnimationG
     return nullptr;
 }
 
-QAbstractAnimation *c_widget::handleAnimation(bool animated, QAnimationGroup *group, QAnimationGroup *parentGroupAnimation) {
+QAbstractAnimation *c_widget::runBehavior(bool animated, QAnimationGroup *group, QAnimationGroup *parentGroupAnimation) {
     if (animated) {
         if (parentGroupAnimation == nullptr) {
-            group->start(QAbstractAnimation::DeleteWhenStopped);
+            if (m_parent != nullptr) {
+                m_parent->handleChildrenAnimation(group);
+            } else {
+                group->start(QAbstractAnimation::DeleteWhenStopped);
+            }
         } else {
             parentGroupAnimation->addAnimation(group);
         }
@@ -51,6 +55,10 @@ QAbstractAnimation *c_widget::handleAnimation(bool animated, QAnimationGroup *gr
         delete group;
         return nullptr;
     }
+}
+
+void c_widget::handleChildrenAnimation(QAbstractAnimation *animation) {
+    animation->start(QAbstractAnimation::DeleteWhenStopped);
 }
 
 void c_widget::save() {
@@ -109,17 +117,11 @@ QPropertyAnimation *c_widget::targetGeometryAnimation(QWidget *parent, QSize tar
 }
 
 QPropertyAnimation *c_widget::targetPositionAnimation(QWidget *parent, QPoint targetPos, int time, int delay) {
-    QRect rect;
-    QPropertyAnimation *animation = new QPropertyAnimation(parent,"geometry");
+    QPropertyAnimation *animation = new QPropertyAnimation(parent,"pos");
     animation->setDuration(time);
-    rect = parent->rect();
-    rect.setTopLeft(parent->pos());
-    rect.setSize(parent->size());
-    animation->setKeyValueAt(0, rect);
-    animation->setKeyValueAt(double(delay)/double(time), rect);
-    rect.setTopLeft(targetPos);
-    rect.setSize(parent->size());
-    animation->setKeyValueAt(1,rect);
+    animation->setKeyValueAt(0,parent->pos());
+    animation->setKeyValueAt(double(delay)/double(time), parent->pos());
+    animation->setKeyValueAt(1,targetPos);
     animation->setEasingCurve(QEasingCurve::InOutQuad);
 
     return animation;
@@ -136,7 +138,7 @@ QPropertyAnimation *c_widget::targetSizeAnimation(QWidget *parent, QSize targetS
 
     QObject::connect(animation,&QPropertyAnimation::finished,[=] () {
         animation->disconnect();
-        //parent->setFixedSize(targetSize);
+        parent->setFixedSize(targetSize);
     });
 
     return animation;
@@ -213,6 +215,42 @@ QPropertyAnimation *c_widget::inflateAnimation(QWidget *parent, QSize endSize, i
     rect.setSize(endSize);
     animation->setEndValue(rect);
     animation->setEasingCurve(QEasingCurve::InOutQuad);
+
+    return animation;
+}
+
+QPropertyAnimation *c_widget::rotateAnimation(c_pixmapGraphics *parent, qreal angle, int time) {
+    QPropertyAnimation *animation = new QPropertyAnimation(parent,"rotation");
+    animation->setStartValue(parent->rotation());
+    animation->setEndValue(angle);
+    animation->setDuration(time);
+    animation->setEasingCurve(QEasingCurve::InOutQuad);
+
+    return animation;
+}
+
+QPropertyAnimation *c_widget::openMenuAnimation(QMenu *menu, int time) {
+    QPropertyAnimation* animation = new QPropertyAnimation(menu, "size");
+    animation->setDuration(time);
+    animation->setStartValue(QSize(0, 0));
+    animation->setEndValue(QSize(menu->width(), menu->height()));
+    animation->setEasingCurve(QEasingCurve::InOutQuad);
+
+    return animation;
+}
+
+QPropertyAnimation *c_widget::closeMenuAnimation(QMenu *menu, int time) {
+    QPropertyAnimation* animation = new QPropertyAnimation(menu, "size");
+    QSize menuSize = menu->size();
+    menu->show();
+    animation->setDuration(time);
+    animation->setStartValue(menuSize);
+    animation->setEndValue(QSize(0, 0));
+    animation->setEasingCurve(QEasingCurve::InOutQuad);
+
+    QObject::connect(animation,&QAbstractAnimation::finished,menu, [=] () {
+       menu->setFixedSize(menuSize);
+    });
 
     return animation;
 }

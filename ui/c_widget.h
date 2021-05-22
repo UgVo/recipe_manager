@@ -11,7 +11,15 @@
 #include <QSequentialAnimationGroup>
 #include <QLabel>
 #include <QFontMetrics>
+#include <QGraphicsPixmapItem>
+#include <QMenu>
 #include <utils/utils.h>
+
+class c_pixmapGraphics : public QObject, public QGraphicsPixmapItem
+{
+    Q_OBJECT
+    Q_PROPERTY (qreal rotation READ rotation WRITE setRotation)
+};
 
 class c_widget : public QWidget
 {
@@ -28,7 +36,8 @@ public:
     virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500);
     virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool = true, int time = 500, QAnimationGroup *parentGroupAnimation = nullptr);
 
-    virtual QAbstractAnimation *handleAnimation(bool animated,QAnimationGroup *group, QAnimationGroup *parentGroupAnimation);
+    virtual QAbstractAnimation *runBehavior(bool animated,QAnimationGroup *group, QAnimationGroup *parentGroupAnimation);
+    virtual void handleChildrenAnimation(QAbstractAnimation *animation);
 
     virtual void save();
     virtual void rollback();
@@ -47,6 +56,9 @@ protected:
                                              std::function<void()> lambda = nullptr, modes mode = modes::resume);
     QPropertyAnimation *deflateAnimation(QWidget *parent, int time);
     QPropertyAnimation *inflateAnimation(QWidget *parent, QSize endSize, int time);
+    QPropertyAnimation *rotateAnimation(c_pixmapGraphics *parent, qreal angle, int time);
+    QPropertyAnimation *openMenuAnimation(QMenu *menu, int time);
+    QPropertyAnimation *closeMenuAnimation(QMenu *menu, int time);
 
     int getHorizontalAdvanceLabel(QLabel *label) const;
 

@@ -225,7 +225,7 @@ QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool ani
 
     mode = target;
 
-    return handleAnimation(animated,group,parentGroupAnimation);
+    return runBehavior(animated,group,parentGroupAnimation);
 }
 
 QSize c_milestoneView::getSize(modes target) const {

@@ -986,7 +986,7 @@ QAbstractAnimation *c_stepView::switchMode(modes target, bool animated, int time
 
     mode = target;
 
-    return handleAnimation(animated,group,parentGroupAnimation);
+    return runBehavior(animated,group,parentGroupAnimation);
 }
 
 QSize c_stepView::getSize(modes target) const {

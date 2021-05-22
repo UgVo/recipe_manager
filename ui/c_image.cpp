@@ -179,7 +179,7 @@ QAbstractAnimation *c_image::switchMode(modes target, bool animated, int time, Q
     }
     mode = target;
 
-    return handleAnimation(animated,group,parentGroupAnimation);
+    return runBehavior(animated,group,parentGroupAnimation);
 }
 
 QString c_image::getPathImage() const {
