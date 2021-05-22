@@ -80,7 +80,7 @@ void c_image::rollback() {
     this->resize(this->size());
 }
 
-bool c_image::isEmpty() const{
+bool c_image::isEmpty() const {
     return pathImage.isEmpty();
 }
 
@@ -130,10 +130,10 @@ QAbstractAnimation *c_image::switchMode(modes target, bool animated, int time, Q
             pathOldImage = pathImage;
             oldImage = image;
         }
+        QSize targetSize = getSize(target);
         ui->imageLabel->move(0,0);
         ui->addButton->move(0,0);
-        ui->deleteButton->move(getSize(target).width()-deleteButtonSize.width(),0);
-        QSize targetSize = getSize(target);
+        ui->deleteButton->move(targetSize.width()-deleteButtonSize.width(),0);
         if (isEmpty()) {
             if (animated) {
                 group->addAnimation(targetSizeAnimation(ui->addButton,targetSize,time));
@@ -239,7 +239,7 @@ QSize c_image::getSize(modes target) const {
     case modes::resume:
     case modes::minimal: {
         count = std::min(c_stepView::maxNumberImages/2,count);
-        availableWidth =  (limit - c_stepView::borderSize  - (count-1)*c_stepView::interImageSpace)/(count);
+        availableWidth =  std::max((limit - c_stepView::borderSize  - (count-1)*c_stepView::interImageSpace)/(count),0);
         availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
         QSize resumeSize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
         if (isEmpty())
