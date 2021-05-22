@@ -35,18 +35,7 @@ c_step::~c_step() {
 }
 
 c_step::c_step(const c_step &other) {
-    complete = other.isCompleted();
-    id = other.getId();
-    rank = other.getRank();
-    setComponents(other.getComponents());
-    equipments = other.getEquipments();
-    description = other.getDescription();
-    imagesUrl = other.getImagesUrl();
-    setProcessings(other.getProcessings());
-    setNotes(other.getNotes());
-    std::sort(notes.begin(),notes.end(),[] (c_note *note1, c_note *note2) {
-        return *note1 < *note2;
-    });
+    *this = other;
 }
 
 int c_step::getId() const {

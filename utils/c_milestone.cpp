@@ -13,11 +13,7 @@ c_milestone::c_milestone(int _rank, QList<c_step *> _steps, QString _name, int _
 }
 
 c_milestone::c_milestone(const c_milestone &other) {
-    id = other.getId();
-    rank = other.getRank();
-    name = other.getName();
-    complete = other.isComplete();
-    setSteps(other.getSteps());
+    *this = other;
 }
 
 c_milestone::~c_milestone() {
