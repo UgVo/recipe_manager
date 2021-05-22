@@ -11,12 +11,18 @@ class c_recipe
 {
 
 public:
-    explicit c_recipe(int serving = 0, QList<c_milestone> planning = QList<c_milestone>(),
+    c_recipe(int serving, QList<c_milestone> planning = QList<c_milestone>(),
                       QList<c_process> globalProcessing = QList<c_process>(),
                       QString imageUrl = "", QString settingUpImageUrl = "",
                       QList<c_note> notes = QList<c_note>(),
                       int id = -1);
-    c_recipe(c_recipe const &recipe);
+    c_recipe(int serving, QList<c_milestone *> planning = QList<c_milestone *>(),
+                      QList<c_process *> globalProcessing = QList<c_process *>(),
+                      QString imageUrl = "", QString settingUpImageUrl = "",
+                      QList<c_note *> notes = QList<c_note *>(),
+                      int id = -1);
+    c_recipe();
+    c_recipe(c_recipe const &other);
     ~c_recipe();
 
     int getId() const;
@@ -33,16 +39,19 @@ public:
 
     QList<c_note> getNotes();
     QList<c_note> getNotes() const;
+    QList<c_note *> getNotesPtr();
     void setNotes(const QList<c_note> &value);
 
     QList<c_milestone> getPlanning();
     QList<c_milestone> getPlanning() const;
+    QList<c_milestone *> getPlanningPtr();
     void setPlanning(const QList<c_milestone> &value);
     QList<int> getMilestonesIds();
     bool addMilestone(const c_milestone milestone, int rank); // TODO
 
     QList<c_process> getGlobalProcessing();
     QList<c_process> getGlobalProcessing() const;
+    QList<c_process *> getGlobalProcessingPtr();
     void setGlobalProcessing(const QList<c_process> &value);
 
     c_recipe& operator=(const c_recipe& other);
@@ -67,9 +76,9 @@ private:
     QString imageUrl;
     QString settingUpImageUrl;
     int servings;
-    QList<c_note> notes;
-    QList<c_milestone> planning;
-    QList<c_process> globalProcessing;
+    QList<c_note *> notes;
+    QList<c_milestone *> planning;
+    QList<c_process *> globalProcessing;
 };
 
 #endif // C_RECIPE_H

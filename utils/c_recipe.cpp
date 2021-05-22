@@ -6,31 +6,59 @@ c_recipe::c_recipe(int _serving, QList<c_milestone> _planning,
                    QString _settingUpImageUrl, QList<c_note> _notes,
                    int _id)
     : id(_id), imageUrl(_imageUrl), settingUpImageUrl(_settingUpImageUrl),
-        servings(_serving), notes(_notes), planning(_planning),
-        globalProcessing(_globalProcessing) {
+        servings(_serving) {
     complete = true;
-    std::sort(notes.begin(),notes.end());
-    std::sort(planning.begin(),planning.end());
-    std::sort(globalProcessing.begin(),globalProcessing.end());
+    for (int i = 0; i < _planning.size(); ++i) {
+        planning.push_back(new c_milestone(_planning[i]));
+    }
+    std::sort(planning.begin(),planning.end(),&recipe::compare<c_milestone>);
+
+    for (int i = 0; i < _globalProcessing.size(); ++i) {
+        globalProcessing.push_back(new c_process(_globalProcessing[i]));
+    }
+
+    for (int i = 0; i < _notes.size(); ++i) {
+        notes.push_back(new c_note(_notes[i]));
+    }
+    std::sort(notes.begin(),notes.end(),&recipe::compare<c_note>);
 }
 
-c_recipe::c_recipe(const c_recipe &recipe) {
-    id = recipe.getId();
-    imageUrl = recipe.getImageUrl();
-    settingUpImageUrl = recipe.getSettingUpImageUrl();
-    servings = recipe.getServings();
-    notes = recipe.getNotes();
-    planning = recipe.getPlanning();
-    globalProcessing = recipe.getGlobalProcessing();
-    complete = recipe.isComplete();
+c_recipe::c_recipe(int _serving, QList<c_milestone *> _planning, QList<c_process *> _globalProcessing, QString _imageUrl, QString _settingUpImageUrl, QList<c_note *> _notes, int _id)
+    :id(_id), complete(true), imageUrl(_imageUrl), settingUpImageUrl(_settingUpImageUrl), servings(_serving), notes(_notes), planning(_planning), globalProcessing(_globalProcessing)
+{
 
-    std::sort(notes.begin(),notes.end());
-    std::sort(planning.begin(),planning.end());
-    std::sort(globalProcessing.begin(),globalProcessing.end());
+}
+
+c_recipe::c_recipe() {
+    id = -1;
+    complete = false;
+    imageUrl = "";
+    settingUpImageUrl = "";
+    servings = -1;
+    notes = QList<c_note *>();
+    planning = QList<c_milestone *>();
+    globalProcessing = QList<c_process *>();
+}
+
+c_recipe::c_recipe(const c_recipe &other) {
+    *this = other;
 }
 
 c_recipe::~c_recipe() {
+    for (int i = 0; i < planning.size(); ++i) {
+        if (planning[i] != nullptr)
+            delete  planning[i];
+    }
 
+    for (int i = 0; i < globalProcessing.size(); ++i) {
+        if (globalProcessing[i] != nullptr)
+            delete  globalProcessing[i];
+    }
+
+    for (int i = 0; i < notes.size(); ++i) {
+        if (notes[i] != nullptr)
+            delete  notes[i];
+    }
 }
 
 int c_recipe::getId() const {
@@ -66,37 +94,93 @@ void c_recipe::setServings(int value) {
 }
 
 QList<c_note> c_recipe::getNotes() {
-    return notes;
+    QList<c_note> res;
+    for (int i = 0; i < notes.size(); ++i) {
+        res.push_back(*notes[i]);
+    }
+    return res;
 }
 
 QList<c_note> c_recipe::getNotes() const {
+    QList<c_note> res;
+    for (int i = 0; i < notes.size(); ++i) {
+        res.push_back(*notes[i]);
+    }
+    return res;
+}
+
+QList<c_note *> c_recipe::getNotesPtr() {
     return notes;
 }
 
 
 void c_recipe::setNotes(const QList<c_note> &value) {
-    notes = value;
-    std::sort(notes.begin(),notes.end());
+    if (value.size() > notes.size()) {
+        for (int i = 0; i < notes.size(); ++i) {
+            *(notes[i]) = value[i];
+        }
+        for (qsizetype i = notes.size(); i < value.size(); ++i) {
+            notes.push_back(new c_note(value[i]));
+        }
+    } else {
+        for (int i = 0; i < value.size(); ++i) {
+            *(notes[i]) = value[i];
+        }
+        qsizetype i = value.size();
+        while (notes.size() > value.size()) {
+            delete notes[i];
+            notes.removeAt(i);
+        }
+    }
+    std::sort(notes.begin(),notes.end(),&recipe::compare<c_note>);
 }
 
 QList<c_milestone> c_recipe::getPlanning() {
-    return planning;
+    QList<c_milestone> res;
+    for (int i = 0; i < planning.size(); ++i) {
+        res.push_back(*planning[i]);
+    }
+    return res;
 }
 
 QList<c_milestone> c_recipe::getPlanning() const {
+    QList<c_milestone> res;
+    for (int i = 0; i < planning.size(); ++i) {
+        res.push_back(*planning[i]);
+    }
+    return res;
+}
+
+QList<c_milestone *> c_recipe::getPlanningPtr() {
     return planning;
 }
 
 void c_recipe::setPlanning(const QList<c_milestone> &value) {
-    planning = value;
-    std::sort(planning.begin(),planning.end());
+    if (value.size() > planning.size()) {
+        for (int i = 0; i < planning.size(); ++i) {
+            *(planning[i]) = value[i];
+        }
+        for (qsizetype i = planning.size(); i < value.size(); ++i) {
+            planning.push_back(new c_milestone(value[i]));
+        }
+    } else {
+        for (int i = 0; i < value.size(); ++i) {
+            *(planning[i]) = value[i];
+        }
+        qsizetype i = value.size();
+        while (planning.size() > value.size()) {
+            delete planning[i];
+            planning.removeAt(i);
+        }
+    }
+    std::sort(planning.begin(),planning.end(),&recipe::compare<c_milestone>);
 }
 
 QList<int> c_recipe::getMilestonesIds() {
     QList<int> res;
-    for (QList<c_milestone>::iterator it = planning.begin(); it != planning.end(); ++it) {
-        if (it->getId() != -1)
-            res.append(it->getId());
+    for (QList<c_milestone*>::iterator it = planning.begin(); it != planning.end(); ++it) {
+        if ((*it)->getId() != -1)
+            res.append((*it)->getId());
     }
     return res;
 }
@@ -106,16 +190,43 @@ bool c_recipe::addMilestone(const c_milestone milestone, int rank) {
 }
 
 QList<c_process> c_recipe::getGlobalProcessing() {
-    return globalProcessing;
+    QList<c_process> res;
+    for (int i = 0; i < globalProcessing.size(); ++i) {
+        res.push_back(*globalProcessing[i]);
+    }
+    return res;
 }
 
 QList<c_process> c_recipe::getGlobalProcessing() const {
+    QList<c_process> res;
+    for (int i = 0; i < globalProcessing.size(); ++i) {
+        res.push_back(*globalProcessing[i]);
+    }
+    return res;
+}
+
+QList<c_process *> c_recipe::getGlobalProcessingPtr() {
     return globalProcessing;
 }
 
 void c_recipe::setGlobalProcessing(const QList<c_process> &value) {
-    globalProcessing = value;
-    std::sort(globalProcessing.begin(),globalProcessing.end());
+    if (value.size() > globalProcessing.size()) {
+        for (int i = 0; i < globalProcessing.size(); ++i) {
+            *(globalProcessing[i]) = value[i];
+        }
+        for (qsizetype i = globalProcessing.size(); i < value.size(); ++i) {
+            globalProcessing.push_back(new c_process(value[i]));
+        }
+    } else {
+        for (int i = 0; i < value.size(); ++i) {
+            *(globalProcessing[i]) = value[i];
+        }
+        qsizetype i = value.size();
+        while (globalProcessing.size() > value.size()) {
+            delete globalProcessing[i];
+            globalProcessing.removeAt(i);
+        }
+    }
 }
 
 c_recipe &c_recipe::operator=(const c_recipe &other) {
@@ -123,13 +234,9 @@ c_recipe &c_recipe::operator=(const c_recipe &other) {
     imageUrl = other.getImageUrl();
     settingUpImageUrl = other.getSettingUpImageUrl();
     servings = other.getServings();
-    notes = other.getNotes();
-    planning = other.getPlanning();
-    globalProcessing = other.getGlobalProcessing();
-
-    std::sort(notes.begin(),notes.end());
-    std::sort(planning.begin(),planning.end());
-    std::sort(globalProcessing.begin(),globalProcessing.end());
+    setNotes(other.getNotes());
+    setPlanning(other.getPlanning());
+    setGlobalProcessing(other.getGlobalProcessing());
 
     return *this;
 }
@@ -138,9 +245,9 @@ bool c_recipe::operator==(const c_recipe &other) const {
     return (imageUrl == other.getImageUrl())
             && (settingUpImageUrl == other.getSettingUpImageUrl())
             && (servings == other.getServings())
-            && (notes == other.getNotes())
-            && (planning == other.getPlanning())
-            && (globalProcessing == other.getGlobalProcessing());
+            && (getNotes() == other.getNotes())
+            && (getPlanning() == other.getPlanning())
+            && (getGlobalProcessing() == other.getGlobalProcessing());
 }
 
 c_recipe c_recipe::creatEmpty(int id) {
@@ -159,20 +266,19 @@ bool c_recipe::isEmpty() {
 }
 
 void c_recipe::completeProcessings() {
-    globalProcessing = c_dbManager::getRecipeProcesses(id);
+    setGlobalProcessing(c_dbManager::getRecipeProcesses(id));
     std::sort(globalProcessing.begin(),globalProcessing.end());
 }
 
 void c_recipe::completeNotes() {
-    notes = c_dbManager::getRecipeNotes(id);
+    setNotes(c_dbManager::getRecipeNotes(id));
     std::sort(notes.begin(),notes.end());
 }
 
 void c_recipe::completeMilestones() {
-    planning = c_dbManager::getMilestones(id);
-    std::sort(planning.begin(),planning.end());
-    for (QList<c_milestone>::iterator it = planning.begin(); it != planning.end(); ++it) {
-        it->completeMilestone();
+    setPlanning(c_dbManager::getMilestones(id));
+    for (QList<c_milestone *>::iterator it = planning.begin(); it != planning.end(); ++it) {
+        (*it)->completeMilestone();
     }
 }
 
