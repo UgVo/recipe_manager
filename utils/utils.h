@@ -13,6 +13,10 @@ namespace recipe
     extern QMap<unit,QString> unitToString;
 
     QString toCapitalised(QString str);
+
+    template<typename T> bool compare(T *elem1,T *elem2) {
+        return *elem1 < *elem2;
+    };
 }
 
 #endif // UTILS_H

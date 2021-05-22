@@ -13,9 +13,7 @@ c_step::c_step(int _rank, QString _description, QList<QString> _imagesUrl, QList
     for (int i = 0; i < _notes.size(); ++i) {
         notes.push_back(new c_note(_notes[i]));
     }
-    std::sort(notes.begin(),notes.end(),[] (c_note *note1, c_note *note2) {
-        return *note1 < *note2;
-    });
+    std::sort(notes.begin(),notes.end(),&recipe::compare<c_note>);
 }
 
 c_step::~c_step() {
@@ -247,9 +245,7 @@ c_step &c_step::operator=(const c_step &other) {
     imagesUrl = other.getImagesUrl();
     processings = other.processings;
     notes = other.notes;
-    std::sort(notes.begin(),notes.end(),[] (c_note *note1, c_note *note2) {
-        return *note1 < *note2;
-    });
+    std::sort(notes.begin(),notes.end(),&recipe::compare<c_note>);
 
     return *this;
 }
