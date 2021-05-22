@@ -1,21 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author/>
- <comment/>
- <exportmacro/>
  <class>c_recipeView</class>
- <widget name="c_recipeView" class="QWidget">
+ <widget class="QWidget" name="c_recipeView">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>1010</width>
+    <height>941</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <widget class="QScrollArea" name="milestonesScroll">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>130</y>
+     <width>132</width>
+     <height>99</height>
+    </rect>
+   </property>
+   <property name="verticalScrollBarPolicy">
+    <enum>Qt::ScrollBarAlwaysOn</enum>
+   </property>
+   <property name="widgetResizable">
+    <bool>true</bool>
+   </property>
+   <widget class="QWidget" name="milestoneArea">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>116</width>
+      <height>97</height>
+     </rect>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLineEdit" name="titleRecipe">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>90</y>
+     <width>113</width>
+     <height>21</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="imageRecipe">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>10</y>
+     <width>151</width>
+     <height>101</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+  </widget>
  </widget>
- <pixmapfunction/>
+ <resources/>
  <connections/>
 </ui>
