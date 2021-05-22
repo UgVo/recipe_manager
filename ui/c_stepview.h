@@ -30,12 +30,13 @@ class c_stepView : public c_widget
     Q_OBJECT
 
 public:
-    explicit c_stepView(c_step *step, QWidget *parent = nullptr);
+    explicit c_stepView(c_step *step, c_widget *widget = nullptr, QWidget *parent = nullptr);
     ~c_stepView() override;
 
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAnimationGroup *parentGroupAnimation = nullptr) override;
     QSize getSize(modes target = modes::none) const override;
     void resizeEvent(QResizeEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *e) override;
     int getImageCount();
     c_step *getStep() const;
     void checkCount();
@@ -51,7 +52,6 @@ public slots:
     void triggerShowButton();
     void editSaved();
     void editCanceled();
-    void slotAddNote();
     void slotShowNotes();
     void imageAdded();
 
@@ -69,6 +69,7 @@ private:
     QList<QPoint> arrangeImages(modes target = modes::display);
 
     Ui::c_stepView *ui;
+    QMenu *menu;
     c_step* step;
     QList<QString> imageList;
     QList<c_image*> images;
@@ -81,6 +82,7 @@ private:
     int limit;
 
     modes defaultMode;
+    bool checked;
 };
 
 #endif // C_STEP_VIEW_H
