@@ -116,7 +116,7 @@ QSize c_equipementsView::getSize(modes target) const {
         case modes::resume:
         case modes::minimal: {
             if (isEmpty()) {
-                return QSize(0,0);
+                return QSize(8,0);
             }
             int width = m_parent->width() - static_cast<c_stepView *>(m_parent)->getLimit() - c_stepView::borderSize - c_stepView::interImageSpace;
             res.setWidth(width);
@@ -188,7 +188,7 @@ bool c_equipementsView::eventFilter(QObject *obj, QEvent *event) {
        }
        return true;
    }
-    return QObject::eventFilter(obj, event);
+   return QObject::eventFilter(obj, event);
 }
 
 void c_equipementsView::addEquipment(QString newEquipment) {
