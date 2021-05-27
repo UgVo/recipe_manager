@@ -99,7 +99,7 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
     slotUpdateProcesses();
 
     processResume = new c_processView(getProcessesPtr(),this,ui->milestoneButton);
-    processResume->switchMode(modes::resume,false);
+    processResume->switchMode(modes::minimal,false);
 
     this->setStyleSheet("outline : 0;");
 
@@ -119,7 +119,7 @@ c_milestoneView::~c_milestoneView() {
 
 QAbstractAnimation *c_milestoneView::switchMode(c_widget::modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    QSize processesTargetSize = processResume->getSize(modes::resume);
+    QSize processesTargetSize = processResume->getSize(modes::minimal);
     QSize stepTargetSize = this->getSize(target);
     QSize stepTargetSizeEdition = this->getSize(modes::edition);
     switch (target) {
