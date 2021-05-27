@@ -54,24 +54,18 @@
        <number>1</number>
       </property>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QComboBox" name="processType">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="editable">
-           <bool>false</bool>
-          </property>
-          <property name="sizeAdjustPolicy">
-           <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QLabel" name="icon">
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="processType">
+        <property name="text">
+         <string>TextLabel</string>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QLabel" name="label">

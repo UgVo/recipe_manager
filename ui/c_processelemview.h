@@ -20,7 +20,7 @@ class c_processElemView : public c_widget
     Q_OBJECT
 
 public:
-    explicit c_processElemView(c_process* process = nullptr, QWidget *parent = nullptr);
+    explicit c_processElemView(QString processType, c_process* process = nullptr, QWidget *parent = nullptr);
     ~c_processElemView() override;
 
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = false, int time = 600) override;
@@ -39,10 +39,11 @@ signals:
     void resized();
 
 private:
-    QString formatProcessText() const;
+    QString formatProcessText(modes target) const;
 
     Ui::c_processElemView *ui;
     c_process* process;
+    QString processType;
 };
 
 #endif // C_PROCESSELEMVIEW_H

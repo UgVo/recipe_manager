@@ -4,26 +4,26 @@
 
 int c_processElemView::heightProcess = 25;
 
-c_processElemView::c_processElemView(c_process *_process, QWidget *parent) :
+c_processElemView::c_processElemView(QString _processType, c_process *_process, QWidget *parent) :
     c_widget(parent),
     ui(new Ui::c_processElemView), process(_process) {
     ui->setupUi(this);
 
     QSet<QString> processTypes = c_dbManager::getProcessTypes();
-    QStringListModel *model = new QStringListModel(QList<QString>(processTypes.begin(),processTypes.end()));
-    ui->processType->setModel(model);
-    ui->processType->insertItem(0,"");
-
-    QFontMetrics metrics(ui->processLabel->font());
+    if (processTypes.contains(_processType)) {
+        ui->processType->setText(_processType);
+        processType = _processType;
+    } else {
+        qErrnoWarning("Wrong processType, not contained in database, potentiel corruption of the database");
+        throw 200;
+    }
 
     if (process != nullptr) {
+        QFontMetrics metrics(ui->processLabel->font());
         ui->duration->setValue(process->getDuration());
         ui->temperature->setValue(process->getTemperature());
-        ui->processType->setCurrentText(process->getType());
-        ui->processLabel->setText(formatProcessText());
         ui->processLabel->setFixedWidth(metrics.horizontalAdvance(process->getType())+2);
     } else {
-        ui->processType->setCurrentText("");
         ui->temperature->setValue(0);
         ui->duration->setValue(0);
     }
@@ -36,6 +36,7 @@ c_processElemView::c_processElemView(c_process *_process, QWidget *parent) :
                               " border : 1px solid white;"
                               " border-radius : 2px;"
                               "}");
+    ui->icon->setFixedSize(20,20);
 
     mode = modes::resume;
     delete c_processElemView::switchMode(mode,false);
@@ -52,6 +53,8 @@ QAbstractAnimation *c_processElemView::switchMode(modes target, bool, int) {
     QFontMetrics metrics(ui->label->font());
     switch (target) {
         case modes::edition:
+        ui->icon->show();
+        ui->icon->setPixmap(QPixmap(recipe::processToPixmapUrl[processType]).scaled(20,20,Qt::KeepAspectRatio,Qt::SmoothTransformation));
             ui->duration->setReadOnly(false);
             ui->temperature->setReadOnly(false);
             ui->processLabel->hide();
@@ -73,10 +76,11 @@ QAbstractAnimation *c_processElemView::switchMode(modes target, bool, int) {
             break;
         case modes::display:
         case modes::resume:
-        case modes::minimal:
+            ui->icon->show();
+            ui->icon->setPixmap(QPixmap(recipe::processToPixmapUrl[processType]).scaled(20,20,Qt::KeepAspectRatio,Qt::SmoothTransformation));
             ui->duration->setReadOnly(true);
             ui->temperature->setReadOnly(true);
-            ui->processLabel->setText(formatProcessText());
+            ui->processLabel->setText(formatProcessText(target));
             ui->processLabel->setFixedWidth(getHorizontalAdvanceLabel(ui->processLabel));
             ui->processLabel->show();
 
@@ -91,6 +95,26 @@ QAbstractAnimation *c_processElemView::switchMode(modes target, bool, int) {
             this->setFixedSize(c_processElemView::getSize(target));
 
             break;
+        case modes::minimal: {
+            ui->icon->show();
+            ui->icon->setPixmap(QPixmap(recipe::processToPixmapUrl[processType]).scaled(20,20,Qt::KeepAspectRatio,Qt::SmoothTransformation));
+            ui->duration->setReadOnly(true);
+            ui->temperature->setReadOnly(true);
+            ui->processLabel->setText(formatProcessText(target));
+            ui->processLabel->setFixedWidth(getHorizontalAdvanceLabel(ui->processLabel));
+            ui->processLabel->show();
+
+            ui->processType->setDisabled(true);
+            ui->processType->hide();
+            ui->label->hide();
+            ui->label_2->hide();
+
+            ui->temperature->hide();
+            ui->duration->hide();
+
+            this->setFixedSize(c_processElemView::getSize(target));
+            break;
+        }
     default:
         break;
     }
@@ -107,8 +131,7 @@ QSize c_processElemView::getSize(modes target) const {
         case modes::minimal:
             if (isEmpty())
                 return QSize(0,0);
-            ui->processLabel->setText(formatProcessText());
-            return QSize( ui->processLabel->width()
+            return QSize( ui->processLabel->width() + insideBorder + ui->icon->width()
                          + marginLeft + marginRight
                          + ui->widget->layout()->spacing()*2,heightProcess);
         case modes::edition:
@@ -121,21 +144,21 @@ QSize c_processElemView::getSize(modes target) const {
 
 void c_processElemView::save() {
     if (process != nullptr) {
-        if (ui->processType->currentText().isEmpty()) {
+        if (ui->duration->value() == 0) {
             emit removeProcess(process);
             process = nullptr;
             ui->duration->setValue(0);
             ui->temperature->setValue(0);
             ui->processLabel->setText("");
         } else {
-            process->setType(ui->processType->currentText());
+            process->setType(processType);
             process->setDuration(ui->duration->value());
             process->setTemperature(ui->temperature->value());
         }
-    } else if (!ui->processType->currentText().isEmpty()){
+    } else if (ui->duration->value() != 0){
         process = static_cast<c_processView *>(parent())->newProcessing();
-        *process = c_process(ui->processType->currentText(),ui->duration->value(),ui->temperature->value());
-        ui->processLabel->setText(formatProcessText());
+        *process = c_process(processType,ui->duration->value(),ui->temperature->value());
+        ui->processLabel->setText(formatProcessText(mode));
         ui->processLabel->setFixedWidth(getHorizontalAdvanceLabel(ui->processLabel));
     }
 }
@@ -153,11 +176,9 @@ void c_processElemView::setProcess(c_process *value) {
     if (process != nullptr) {
         ui->duration->setValue(process->getDuration());
         ui->temperature->setValue(process->getTemperature());
-        ui->processType->setCurrentText(process->getType());
-        ui->processLabel->setText(formatProcessText());
+        ui->processLabel->setText(formatProcessText(mode));
         ui->processLabel->setFixedWidth(getHorizontalAdvanceLabel(ui->processLabel));
     } else {
-        ui->processType->setCurrentText("");
         ui->temperature->setValue(0);
         ui->duration->setValue(0);
     }
@@ -165,9 +186,19 @@ void c_processElemView::setProcess(c_process *value) {
     emit resized();
 }
 
-QString c_processElemView::formatProcessText() const {
-    return QString("%1%2%3").arg(ui->processType->currentText(),
-                                 ui->duration->value()!=0?QString(" %1 min").arg(ui->duration->value()):QString(""),
-                                 ui->temperature->value()!=0?QString(" %1°C").arg(ui->temperature->value()):QString(""));
+QString c_processElemView::formatProcessText(modes target) const {
+    switch (target) {
+    case edition:
+    case resume:
+    case display:
+        return QString("%1%2%3").arg(processType,
+                                     ui->duration->value()!=0?QString(" %1 min").arg(ui->duration->value()):QString(""),
+                                     ui->temperature->value()!=0?QString(" %1°C").arg(ui->temperature->value()):QString(""));
+    case minimal:
+        return QString("%1").arg(ui->duration->value()!=0?QString("%1 min").arg(ui->duration->value()):QString(""));
+    default:
+        break;
+    }
+    return QString();
 }
 

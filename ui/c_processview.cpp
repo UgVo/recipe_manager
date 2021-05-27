@@ -11,11 +11,17 @@ c_processView::c_processView(QList<c_process *> _processes, c_widget *widget, QW
     while (processes.size() > maxNumberProcess) {
         processes.pop_back();
     }
+    QList<QString> processTypes = c_dbManager::getProcessTypes().values();
+    if (processTypes.size() != maxNumberProcess) {
+        qErrnoWarning("Wrong number of processTypes, potentiel corruption of the database");
+        throw 300;
+    }
     for (int i = 0; i < processes.size(); ++i) {
-        processElems.push_back(new c_processElemView(processes[i],this));
+        processElems.push_back(new c_processElemView(processes[i]->getType(),processes[i],this));
+        processTypes.removeOne(processes[i]->getType());
     }
     for (qsizetype i = processes.size(); i < maxNumberProcess; ++i) {
-        processElems.push_back(new c_processElemView(nullptr,this));
+        processElems.push_back(new c_processElemView(processTypes[i-processes.size()],nullptr,this));
     }
 
     for (int i = 0; i < processElems.size(); ++i) {
