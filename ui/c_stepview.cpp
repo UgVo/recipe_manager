@@ -279,7 +279,7 @@ QAbstractAnimation *c_stepView::switchMode(modes target, bool animated, int time
     if (target == modes::none) {
         target = mode;
     }
-    QSize processesTargetSize = processes->getSize(target);
+    QSize processesTargetSize = processes->getSize(target==modes::minimal?modes::resume:target);
     QSize componentsTargetSize = components->getSize(target);
     QSize stepTargetSize = this->getSize(target);
     switch (target) {
@@ -838,7 +838,7 @@ QAbstractAnimation *c_stepView::switchMode(modes target, bool animated, int time
                 processes->move(targetPos);
             }
             if (mode == modes::edition || !animated)
-                processes->switchMode(target,animated,time,group);
+                processes->switchMode(modes::resume,animated,time,group);
 
             // Images
             QList<QPoint> posList = arrangeImages(target);
