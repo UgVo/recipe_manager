@@ -39,6 +39,14 @@ QAbstractAnimation *c_widget::switchMode(c_widget::modes, bool, int, QAnimationG
     return nullptr;
 }
 
+int c_widget::getImageAreaWidth(c_widget::modes ) const {
+    return width() - 2*borderSize;
+}
+
+int c_widget::getImageCount() const {
+    return 1;
+}
+
 QAbstractAnimation *c_widget::runBehavior(bool animated, QAnimationGroup *group, QAnimationGroup *parentGroupAnimation) {
     if (animated) {
         if (parentGroupAnimation == nullptr) {

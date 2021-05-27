@@ -37,10 +37,10 @@ public:
     QSize getSize(modes target = modes::none) const override;
     void resizeEvent(QResizeEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *e) override;
-    int getImageCount();
+    int getImageCount() const override;
     c_step *getStep() const;
     void checkCount();
-    int getLimit() const;
+    int getImageAreaWidth(modes target) const override;
     void updateLimit();
 
     static QSize maxSizeImage;

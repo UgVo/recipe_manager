@@ -228,7 +228,7 @@ void c_stepView::slotShowNotes() {
     noteDialog->exec();
 }
 
-int c_stepView::getImageCount(){
+int c_stepView::getImageCount() const {
     return countImages;
 }
 
@@ -1126,8 +1126,19 @@ int c_stepView::getImagesMaxHeigth(modes target) const {
     return max;
 }
 
-int c_stepView::getLimit() const {
-    return limit;
+int c_stepView::getImageAreaWidth(modes target) const {
+    switch (target) {
+    case display:
+    case edition:
+        return width() - 2*borderSize;
+    case resume:
+    case minimal:
+        return limit - borderSize;
+    default:
+        break;
+    }
+    return 0;
+}
 }
 
 void c_stepView::updateLimit() {

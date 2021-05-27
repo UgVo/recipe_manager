@@ -36,6 +36,8 @@ public:
     virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500);
     virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool = true, int time = 500, QAnimationGroup *parentGroupAnimation = nullptr);
 
+    virtual int getImageAreaWidth(modes target) const;
+    virtual int getImageCount() const;
     virtual QAbstractAnimation *runBehavior(bool animated,QAnimationGroup *group, QAnimationGroup *parentGroupAnimation);
     virtual void handleChildrenAnimation(QAbstractAnimation *animation);
 

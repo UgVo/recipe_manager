@@ -225,21 +225,16 @@ void c_image::deleteButtonClicked() {
 }
 
 QSize c_image::getSize(modes target) const {
-    int width = 0;
-    int count = 1;
-    int limit = 0;
+    int width = m_parent->getImageAreaWidth(target);
+    int count = m_parent->getImageCount();
     int availableWidth = 0;
-    if (static_cast<c_stepView *>(m_parent)) {
-        width = static_cast<c_stepView *>(m_parent)->width();
-        limit = static_cast<c_stepView *>(m_parent)->getLimit();
-        count = static_cast<c_stepView *>(m_parent)->getImageCount();
-        count = std::max(count,1);
-    }
+    count = std::max(count,1);
+
     switch (target) {
     case modes::resume:
     case modes::minimal: {
         count = std::min(c_stepView::maxNumberImages/2,count);
-        availableWidth =  std::max((limit - c_stepView::borderSize  - (count-1)*c_stepView::interImageSpace)/(count),0);
+        availableWidth =  std::max((width  - (count-1)*c_stepView::interImageSpace)/(count),0);
         availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
         QSize resumeSize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
         if (isEmpty())
@@ -249,7 +244,7 @@ QSize c_image::getSize(modes target) const {
 
     }
     case modes::display: {
-        int availableWidth =  (width - 2*c_stepView::borderSize  - (count-1)*c_stepView::interImageSpace)/count;
+        int availableWidth =  (width  - (count-1)*c_stepView::interImageSpace)/count;
         availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
         QSize displaySize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
         if (isEmpty())
@@ -258,7 +253,7 @@ QSize c_image::getSize(modes target) const {
             return QPixmap(pathImage).scaled(displaySize, Qt::KeepAspectRatio, Qt::SmoothTransformation).size();
     }
     case modes::edition: {
-        int availableWidth =  (width - 2*c_stepView::borderSize  - (c_stepView::maxNumberImages)*c_stepView::interImageSpace)/c_stepView::maxNumberImages;
+        int availableWidth =  (width  - (c_stepView::maxNumberImages)*c_stepView::interImageSpace)/c_stepView::maxNumberImages;
         availableWidth = availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth;
         QSize displaySize = QSize(availableWidth>c_stepView::maxSizeImage.width()?c_stepView::maxSizeImage.width():availableWidth,c_stepView::maxSizeImage.height());
         if (isEmpty()) {
