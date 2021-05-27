@@ -17,7 +17,7 @@ c_componentView::c_componentView(QList<c_component *> _components, c_widget *wid
 
     QObject::connect(addComponentButton,&QPushButton::clicked,this,&c_componentView::newComponent);
 
-    ui->labelIngredient->setFixedHeight(labelHeight);
+    ui->labelIngredient->setFixedSize(m_parent->getComponentsAreaWidth(modes::minimal),labelHeight);
 
     enableResize = true;
 

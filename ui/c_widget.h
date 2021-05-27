@@ -38,6 +38,10 @@ public:
 
     virtual int getImageAreaWidth(modes target) const;
     virtual int getImageCount() const;
+    virtual int getEquipmentAreaWidth(modes target) const;
+    virtual int getComponentsAreaWidth(modes target) const;
+    virtual int getProcessesAreaWidth(modes target) const;
+
     virtual QAbstractAnimation *runBehavior(bool animated,QAnimationGroup *group, QAnimationGroup *parentGroupAnimation);
     virtual void handleChildrenAnimation(QAbstractAnimation *animation);
 

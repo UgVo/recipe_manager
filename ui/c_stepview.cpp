@@ -1139,6 +1139,47 @@ int c_stepView::getImageAreaWidth(modes target) const {
     }
     return 0;
 }
+
+int c_stepView::getEquipmentAreaWidth(modes target) const {
+    switch (target) {
+    case display:
+    case resume:
+    case minimal:
+        return stepWidth - limit - borderSize - interImageSpace;
+    case edition:
+        return stepWidth - 2*borderSize;
+    default:
+        break;
+    }
+    return 0;
+}
+
+int c_stepView::getComponentsAreaWidth(modes target) const {
+    switch (target) {
+    case display:
+    case resume:
+    case minimal:
+        return stepWidth - limit - borderSize - interImageSpace;
+    case edition:
+        return stepWidth - 2*borderSize;
+    default:
+        break;
+    }
+    return 0;
+}
+
+int c_stepView::getProcessesAreaWidth(modes target) const {
+    switch (target) {
+    case display:
+    case resume:
+    case minimal:
+        return stepWidth - 2*borderSize;
+    case edition:
+        return stepWidth/2 - borderSize - interImageSpace;
+    default:
+        break;
+    }
+    return 0;
 }
 
 void c_stepView::updateLimit() {

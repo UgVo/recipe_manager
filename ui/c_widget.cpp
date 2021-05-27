@@ -47,6 +47,18 @@ int c_widget::getImageCount() const {
     return 1;
 }
 
+int c_widget::getEquipmentAreaWidth(modes ) const {
+    return width() - 2*borderSize;
+}
+
+int c_widget::getComponentsAreaWidth(modes ) const {
+    return width() - 2*borderSize;
+}
+
+int c_widget::getProcessesAreaWidth(modes ) const {
+    return width() - 2*borderSize;
+}
+
 QAbstractAnimation *c_widget::runBehavior(bool animated, QAnimationGroup *group, QAnimationGroup *parentGroupAnimation) {
     if (animated) {
         if (parentGroupAnimation == nullptr) {

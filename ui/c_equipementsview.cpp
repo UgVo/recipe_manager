@@ -111,6 +111,7 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
 
 QSize c_equipementsView::getSize(modes target) const {
     QSize res;
+    int width = m_parent->getEquipmentAreaWidth(target);
     switch (target) {
         case modes::display:
         case modes::resume:
@@ -118,7 +119,6 @@ QSize c_equipementsView::getSize(modes target) const {
             if (isEmpty()) {
                 return QSize(8,0);
             }
-            int width = m_parent->width() - static_cast<c_stepView *>(m_parent)->getLimit() - c_stepView::borderSize - c_stepView::interImageSpace;
             res.setWidth(width);
             int top,bottom,left,right;
             ui->widget->layout()->getContentsMargins(&left,&top,&right,&bottom);
@@ -129,7 +129,7 @@ QSize c_equipementsView::getSize(modes target) const {
         }
         break;
         case modes::edition: {
-            res.setWidth(m_parent->width() - 2*c_stepView::borderSize);
+            res.setWidth(width);
             int top,bottom;
             ui->widget->layout()->getContentsMargins(nullptr,&top,nullptr,&bottom);
             res.setHeight(ui->widgetEdit->height() + top + bottom + ui->label->height() + ui->widget->layout()->spacing());

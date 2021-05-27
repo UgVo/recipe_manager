@@ -41,6 +41,9 @@ public:
     c_step *getStep() const;
     void checkCount();
     int getImageAreaWidth(modes target) const override;
+    int getEquipmentAreaWidth(modes target) const override;
+    int getComponentsAreaWidth(modes target) const override;
+    int getProcessesAreaWidth(modes target) const override;
     void updateLimit();
 
     static QSize maxSizeImage;

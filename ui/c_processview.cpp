@@ -130,7 +130,7 @@ QSize c_processView::getSize(modes target) const {
                 totalHeight += processElems[i]->getSize(target).height();
             }
             totalHeight += maxNumberProcess*c_stepView::interImageSpace + ui->label->height();
-            totalWidth = static_cast<c_stepView *>(m_parent)->width()/2 - c_stepView::borderSize - c_stepView::interImageSpace;
+            totalWidth = m_parent->getProcessesAreaWidth(target);
             break;
     default:
         break;
