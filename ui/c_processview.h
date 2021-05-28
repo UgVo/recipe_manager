@@ -14,12 +14,11 @@ namespace Ui {
 class c_processView;
 }
 
-class c_processView : public c_widget
+class c_processView : public c_directedWidget
 {
     Q_OBJECT
 
 public:
-    enum direction{verticale,horizontale};
 
     explicit c_processView(QList<c_process *> processes, c_widget *widget, QWidget *parent = nullptr);
     ~c_processView() override;
@@ -41,8 +40,6 @@ private:
     QList<c_process *> processes;
     QList<c_process *> processSave;
     QList<c_processElemView *> processElems;
-
-    direction processDirection;
 
     static int maxNumberProcess;
 };

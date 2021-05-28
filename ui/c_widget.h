@@ -79,4 +79,16 @@ protected:
     static int borderSize;
 };
 
+class c_directedWidget : public c_widget
+{
+
+public:
+    c_directedWidget(QWidget *parent = nullptr, c_widget *m_parent = nullptr);
+
+protected:
+    enum direction{verticale,horizontale};
+    direction listDirection;
+};
+
+
 #endif // C_WIDGET_H

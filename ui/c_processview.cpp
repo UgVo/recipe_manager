@@ -5,7 +5,7 @@
 int c_processView::maxNumberProcess = 3;
 
 c_processView::c_processView(QList<c_process *> _processes, c_widget *widget, QWidget *parent) :
-    c_widget(parent,widget),
+    c_directedWidget(parent,widget),
     ui(new Ui::c_processView), processes(_processes) {
     ui->setupUi(this);
     while (processes.size() > maxNumberProcess) {
@@ -61,7 +61,7 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
                 processElems[i]->switchMode(target);
                 processElems[i]->move(pos);
             }
-            if (processDirection == verticale) {
+            if (listDirection == verticale) {
                 pos += QPoint(0,processElems[i]->getSize(target).height() + c_stepView::interImageSpace);
             } else {
                 pos += QPoint(processElems[i]->getSize(target).width() + c_stepView::interImageSpace,0);
@@ -141,10 +141,10 @@ QSize c_processView::getSize(modes target) {
             totalHeight += (countNotEmpty-1)*c_stepView::interImageSpace;
             if (totalWidth > m_parent->getProcessesAreaWidth(target)) {
                 totalWidth = maxWidth;
-                processDirection = verticale;
+                listDirection = verticale;
             } else {
                 totalHeight = maxHeight;
-                processDirection = horizontale;
+                listDirection = horizontale;
             }
             break;
         case modes::edition:

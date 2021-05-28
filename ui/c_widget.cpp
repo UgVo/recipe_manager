@@ -294,3 +294,8 @@ void c_widget::setMode(c_widget::modes value)
 {
     mode = value;
 }
+
+c_directedWidget::c_directedWidget(QWidget *parent, c_widget *m_parent) : c_widget(parent,m_parent)
+{
+
+}
