@@ -36,6 +36,7 @@ c_processView::c_processView(QList<c_process *> _processes, c_widget *widget, QW
     ui->label->setFixedHeight(labelHeight);
 
     mode = modes::resume;
+    c_processView::switchMode(mode,false);
 }
 
 c_processView::~c_processView() {
@@ -44,6 +45,7 @@ c_processView::~c_processView() {
 
 QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group =  new QParallelAnimationGroup();
+    QSize widgetSize = c_processView::getSize(target);
     switch (target) {
     case modes::resume:
     case modes::display:
@@ -59,14 +61,17 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
                 processElems[i]->switchMode(target);
                 processElems[i]->move(pos);
             }
-            pos += QPoint(processElems[i]->getSize(target).width() + c_stepView::interImageSpace,0);
-
+            if (processDirection == verticale) {
+                pos += QPoint(0,processElems[i]->getSize(target).height() + c_stepView::interImageSpace);
+            } else {
+                pos += QPoint(processElems[i]->getSize(target).width() + c_stepView::interImageSpace,0);
+            }
         }
         if (animated) {
-            group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+            group->addAnimation(targetSizeAnimation(this,widgetSize,time));
             group->addAnimation(fadeAnimation(ui->label,false,time/2));
         } else {
-            this->setFixedSize(getSize(target));
+            this->setFixedSize(widgetSize);
             ui->label->hide();
         }
     }
@@ -89,11 +94,11 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
         }
         if (animated) {
             group->addAnimation(targetPositionAnimation(ui->label,QPoint(0,0),time));
-            group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+            group->addAnimation(targetSizeAnimation(this,widgetSize,time));
             group->addAnimation(fadeAnimation(ui->label,true,time,time/2));
         } else {
             ui->label->move(QPoint(0,0));
-            this->setFixedSize(getSize(target));
+            this->setFixedSize(widgetSize);
             ui->label->show();
         }
     }
@@ -106,10 +111,16 @@ QAbstractAnimation *c_processView::switchMode(modes target, bool animated, int t
     return runBehavior(animated,group,parentGroupAnimation);
 }
 
-QSize c_processView::getSize(modes target) const {
+QSize c_processView::getSize(modes target) {
     QSize res;
     int totalWidth = 0;
     int totalHeight = 0;
+    int countNotEmpty = 0;
+    int maxWidth = 0;
+    int maxHeight = 0;
+    for (int i = 0; i < processElems.size(); ++i) {
+        countNotEmpty += !processElems[i]->isEmpty();
+    }
     switch (target) {
         case modes::display:
         case modes::resume:
@@ -118,12 +129,23 @@ QSize c_processView::getSize(modes target) const {
                 return QSize(0,0);
             }
             for (int i = 0; i < processElems.size(); ++i) {
-                totalWidth += processElems[i]->getSize(target).width();
+                QSize elemSize = processElems[i]->getSize(target);
+                totalWidth += elemSize.width();
+                totalHeight += elemSize.height();
+                if (maxHeight < elemSize.height())
+                    maxHeight = elemSize.height();
+                if (maxWidth < elemSize.width())
+                    maxWidth = elemSize.width();
             }
-            totalWidth += (processElems.size()-1)*c_stepView::interImageSpace;
-            totalHeight = (*std::max_element(processElems.begin(),processElems.end(),[=] (c_processElemView *a, c_processElemView *b) {
-                return a->getSize(target).height() < b->getSize(target).height();
-            }))->getSize(target).height();
+            totalWidth += (countNotEmpty-1)*c_stepView::interImageSpace;
+            totalHeight += (countNotEmpty-1)*c_stepView::interImageSpace;
+            if (totalWidth > m_parent->getProcessesAreaWidth(target)) {
+                totalWidth = maxWidth;
+                processDirection = verticale;
+            } else {
+                totalHeight = maxHeight;
+                processDirection = horizontale;
+            }
             break;
         case modes::edition:
             for (int i = 0; i < processElems.size(); ++i) {

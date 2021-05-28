@@ -19,11 +19,13 @@ class c_processView : public c_widget
     Q_OBJECT
 
 public:
+    enum direction{verticale,horizontale};
+
     explicit c_processView(QList<c_process *> processes, c_widget *widget, QWidget *parent = nullptr);
     ~c_processView() override;
 
     QAbstractAnimation *switchMode(modes mode = modes::resume, bool animated = true, int time = 600, QAnimationGroup *parentGroupAnimation = nullptr) override;
-    QSize getSize(modes target) const override;
+    QSize getSize(modes target) override;
     int getWidth(modes target) const override;
 
     void save() override;
@@ -39,6 +41,8 @@ private:
     QList<c_process *> processes;
     QList<c_process *> processSave;
     QList<c_processElemView *> processElems;
+
+    direction processDirection;
 
     static int maxNumberProcess;
 };
