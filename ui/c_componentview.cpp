@@ -22,6 +22,7 @@ c_componentView::c_componentView(QList<c_component *> _components, c_widget *wid
 
     enableResize = true;
 
+    ui->labelIngredient->setFixedHeight(c_widget::labelHeight);
     if (!name.isEmpty()) {
         ui->labelIngredient->setText(name);
     }
@@ -217,6 +218,7 @@ void c_componentView::rollback() {
 void c_componentView::updateComponents(QList<c_component *> newList, QAnimationGroup *parentGroupAnimation) {
     QList<c_component*> addSet = (QSet<c_component*>(newList.begin(),newList.end()) - componentSet).values();
     QList<c_component*> removeSet = (componentSet - QSet<c_component*>(newList.begin(),newList.end())).values();
+    QList<c_component*> updateSet = (componentSet.intersect(QSet<c_component*>(newList.begin(),newList.end()))).values();
     for (int i = 0; i < addSet.size(); ++i) {
         componentsViews.push_back(new c_componentElemView(addSet[i],this,ui->widget));
         componentMapView[addSet[i]] = componentsViews.last();
@@ -231,6 +233,9 @@ void c_componentView::updateComponents(QList<c_component *> newList, QAnimationG
         toRemove->hide();
         componentMapView.remove(removeSet[i]);
         componentSet.remove(removeSet[i]);
+    }
+    for (int i = 0; i < updateSet.size(); ++i) {
+        componentMapView[updateSet[i]]->updateComponent(updateSet[i]);
     }
     switchMode(mode,true,parentGroupAnimation->duration(),parentGroupAnimation);
 }

@@ -44,6 +44,7 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
         case modes::resume:
         case modes::minimal:
             ui->quantityUnitLabel->setFixedWidth(metrics.horizontalAdvance(ui->quantityUnitLabel->text())+4);
+            ui->checkBox->setFixedSize(ui->checkBox->size());
             ui->checkBox->show();
             ui->quantityUnitLabel->show();
             ui->ingredientLineEdit->setReadOnly(true);
@@ -70,7 +71,7 @@ QAbstractAnimation *c_componentElemView::switchMode(modes target, bool animated,
                 ui->unitComboBox->move(QPoint(ui->quantitySpinBox->width() + insideBorder,-ui->quantitySpinBox->height()));
                 pos += QPoint(ui->quantityUnitLabel->width() + insideBorder,0);
                 ui->ingredientLineEdit->move(pos);
-                ui->ingredientLineEdit->setFixedSize(QSize(metrics.horizontalAdvance(ui->ingredientLineEdit->text())+6,heigthWidget));
+                ui->ingredientLineEdit->setFixedSize(QSize(metrics.horizontalAdvance(ui->ingredientLineEdit->text())+10,heigthWidget));
                 this->setFixedSize(c_componentElemView::getSize(target));
                 ui->deleteButton->move(QPoint(c_componentElemView::getSize(modes::edition).width()+ui->deleteButton->width(),0));
             }
@@ -181,6 +182,11 @@ void c_componentElemView::rollback() {
 
 c_component *c_componentElemView::getComponent() {
     return component;
+}
+
+void c_componentElemView::updateComponent(c_component *newComponent) {
+    *component = *newComponent;
+    rollback();
 }
 
 void c_componentElemView::setFocus() {

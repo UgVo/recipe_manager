@@ -29,6 +29,7 @@ public:
     void rollback() override;
 
     c_component *getComponent();
+    void updateComponent(c_component *newComponent);
     void setFocus();
 
 signals:
