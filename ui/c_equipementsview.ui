@@ -78,6 +78,18 @@
        </layout>
       </item>
       <item>
+       <widget class="QWidget" name="widgetEquipments" native="true">
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="spacing">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QTextEdit" name="textEdit">
         <property name="verticalScrollBarPolicy">
          <enum>Qt::ScrollBarAlwaysOff</enum>

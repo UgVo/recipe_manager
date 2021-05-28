@@ -6,7 +6,7 @@
 int c_equipementsView::numberMaxEquipement = 5;
 
 c_equipementsView::c_equipementsView(QList<QString> _equipmentList, c_widget *widget, QWidget *parent) :
-    c_widget(parent,widget),
+    c_directedWidget(parent,widget),
     ui(new Ui::c_equipementsView), equipmentList(_equipmentList) {
     ui->setupUi(this);
     ui->textEdit->setText(equipmentList.join(", "));
@@ -15,6 +15,10 @@ c_equipementsView::c_equipementsView(QList<QString> _equipmentList, c_widget *wi
     equipementsListModel = QList<QString>(equipmentSet.begin(),equipmentSet.end());
 
     for (int i = 0; i < equipmentList.size(); ++i) {
+        equipmentLabelMap[equipmentList[i]] = (new QLabel(ui->widgetEquipments));
+        equipmentLabelMap[equipmentList[i]]->setText(recipe::toCapitalised(equipmentList[i]));
+        static_cast<QHBoxLayout*>(ui->widgetEquipments->layout())->insertWidget(i,equipmentLabelMap[equipmentList[i]]);
+
         equipementsListModel.removeOne(equipmentList[i]);
         buttonList.append(new QPushButton(equipmentList[i]));
         static_cast<QHBoxLayout*>(ui->widgetEdit->layout())->insertWidget(i,buttonList.last());
@@ -49,33 +53,40 @@ c_equipementsView::~c_equipementsView() {
 
 QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
+    QSize widgetSize = c_equipementsView::getSize(target);
     switch (target) {
         case modes::display:
         case modes::resume:
         case modes::minimal: {
             if (animated) {
-                group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                group->addAnimation(targetSizeAnimation(this,widgetSize,time));
             } else {
-                this->setFixedSize(c_equipementsView::getSize(target));
+                this->setFixedSize(widgetSize);
             }
 
-            int left,right;
-            static_cast<QVBoxLayout *>(ui->widget->layout())->getContentsMargins(&left,nullptr,&right,nullptr);
-            ui->textEdit->setFixedWidth(c_equipementsView::getSize(target).width() - left - right);
-            ui->textEdit->document()->setTextWidth(ui->textEdit->width());
+            if (listDirection == verticale) {
+                ui->widgetEquipments->show();
+                ui->textEdit->hide();
+            } else {
+                int left,right;
+                ui->widgetEquipments->hide();
+                static_cast<QVBoxLayout *>(ui->widget->layout())->getContentsMargins(&left,nullptr,&right,nullptr);
+                ui->textEdit->setFixedWidth(c_equipementsView::getSize(target).width() - left - right);
+                ui->textEdit->document()->setTextWidth(ui->textEdit->width());
 
-            ui->textEdit->setFixedHeight(ui->textEdit->document()->size().toSize().height()+3);
+                ui->textEdit->setFixedHeight(ui->textEdit->document()->size().toSize().height()+3);
 
-            ui->textEdit->show();
-            ui->textEdit->setReadOnly(true);
+                ui->textEdit->show();
+                ui->textEdit->setReadOnly(true);
+                ui->textEdit->setStyleSheet("QTextEdit {"
+                                            "  border : 1px solid white;"
+                                            "  background: transparent;"
+                                            "}");
+            }
             ui->widget->setStyleSheet("QWidget#widget {"
                                       " border : 1px solid white;"
                                       " border-radius : 2px;"
                                       "}");
-            ui->textEdit->setStyleSheet("QTextEdit {"
-                                        "  border : 1px solid white;"
-                                        "  background: transparent;"
-                                        "}");
             ui->widgetEdit->hide();
         }
         break;
@@ -89,6 +100,7 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
             } else {
                 this->setFixedSize(getSize(target));
             }
+            ui->widgetEquipments->hide();
             ui->textEdit->hide();
             ui->widgetEdit->show();
             ui->widgetEdit->setStyleSheet("QWidget#widgetEdit {"
@@ -109,9 +121,10 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
     return runBehavior(animated,group,parentGroupAnimation);
 }
 
-QSize c_equipementsView::getSize(modes target) const {
+QSize c_equipementsView::getSize(modes target) {
     QSize res;
     int width = m_parent->getEquipmentAreaWidth(target);
+    int height = m_parent->getEquipmentsAreaHeight(target);
     switch (target) {
         case modes::display:
         case modes::resume:
@@ -119,13 +132,25 @@ QSize c_equipementsView::getSize(modes target) const {
             if (isEmpty()) {
                 return QSize(8,0);
             }
+
             res.setWidth(width);
             int top,bottom,left,right;
             ui->widget->layout()->getContentsMargins(&left,&top,&right,&bottom);
             ui->textEdit->setFixedWidth(width - left - right);
             ui->textEdit->document()->setTextWidth(ui->textEdit->width());
-
-            res.setHeight(ui->textEdit->document()->size().toSize().height()+3 + ui->label->height() + ui->widget->layout()->spacing() + top + bottom);
+            int heightH = ui->textEdit->document()->size().toSize().height()+3 + ui->label->height() + ui->widget->layout()->spacing() + top + bottom;
+            int topEquipment,bottomEquipment;
+            ui->widgetEquipments->layout()->getContentsMargins(nullptr,&topEquipment,nullptr,&bottomEquipment);
+            int heightV = topEquipment + bottomEquipment + labelHeight*int(equipmentLabelMap.count())
+                    + int(equipmentLabelMap.count() - 1)*ui->widgetEquipments->layout()->spacing()
+                    + ui->label->height() + ui->widget->layout()->spacing() + top + bottom;
+            if (heightV > height) {
+                res.setHeight(heightH);
+                listDirection = horizontale;
+            } else {
+                res.setHeight(heightV);
+                listDirection = verticale;
+            }
         }
         break;
         case modes::edition: {
@@ -142,6 +167,21 @@ QSize c_equipementsView::getSize(modes target) const {
 }
 
 void c_equipementsView::save() {
+    for (int i = 0; i < equipmentList.size(); ++i) {
+        if (!equipmentLabelMap.contains(equipmentList[i])) {
+            equipmentLabelMap[equipmentList[i]] = (new QLabel(ui->widgetEquipments));
+            equipmentLabelMap[equipmentList[i]]->setText(recipe::toCapitalised(equipmentList[i]));
+            static_cast<QHBoxLayout*>(ui->widgetEquipments->layout())->insertWidget(int(equipmentLabelMap.count()-1),equipmentLabelMap[equipmentList[i]]);
+        }
+    }
+    QList<QString> wantedList = equipmentLabelMap.keys();
+    QList<QString> removeList = (QSet<QString>(wantedList.begin(),wantedList.end()) -  QSet<QString>(equipmentList.begin(),equipmentList.end())).values();
+    for (int i = 0; i < removeList.size(); ++i) {
+        static_cast<QHBoxLayout*>(ui->widgetEquipments->layout())->removeWidget(equipmentLabelMap[removeList[i]]);
+        equipmentLabelMap[removeList[i]]->hide();
+        equipmentLabelMap[removeList[i]]->deleteLater();
+        equipmentLabelMap.remove(removeList[i]);
+    }
     ui->textEdit->setText(equipmentList.join(", "));
     ui->newEquipment->clear();
 }

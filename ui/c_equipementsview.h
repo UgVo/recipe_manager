@@ -15,7 +15,7 @@ namespace Ui {
 class c_equipementsView;
 }
 
-class c_equipementsView : public c_widget
+class c_equipementsView : public c_directedWidget
 {
     Q_OBJECT
 
@@ -24,7 +24,7 @@ public:
     ~c_equipementsView() override;
 
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAnimationGroup *parentGroupAnimation = nullptr) override;
-    QSize getSize(modes mode) const override;
+    QSize getSize(modes mode) override;
 
     void save() override;
     void rollback() override;
@@ -50,6 +50,7 @@ private:
     QList<QPushButton *> buttonList;
     QStringListModel *model;
     QList<QString> equipementsListModel;
+    QMap<QString,QLabel *> equipmentLabelMap;
     QTimer timer;
 
     bool write;
