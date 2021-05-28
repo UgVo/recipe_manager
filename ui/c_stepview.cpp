@@ -939,8 +939,6 @@ QAbstractAnimation *c_stepView::switchMode(modes target, bool animated, int time
                 ui->showButton->move(targetPos);
                 this->setFixedSize(targetSize);
             }
-            qDebug() << step->getRank() << c_widget::mapModeToString[target] << targetSize;
-
             break;
         }
         default:

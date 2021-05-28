@@ -185,10 +185,6 @@ QList<int> c_recipe::getMilestonesIds() {
     return res;
 }
 
-bool c_recipe::addMilestone(const c_milestone milestone, int rank) {
-    return false;
-}
-
 QList<c_process> c_recipe::getGlobalProcessing() {
     QList<c_process> res;
     for (int i = 0; i < globalProcessing.size(); ++i) {

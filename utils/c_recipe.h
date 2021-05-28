@@ -24,7 +24,7 @@ public:
                       int id = -1);
     c_recipe();
     c_recipe(c_recipe const &other);
-    ~c_recipe();
+    ~c_recipe() override;
 
     int getId() const;
     void setId(const int value);
@@ -48,7 +48,6 @@ public:
     QList<c_milestone *> getPlanningPtr();
     void setPlanning(const QList<c_milestone> &value);
     QList<int> getMilestonesIds();
-    bool addMilestone(const c_milestone milestone, int rank); // TODO
 
     QList<c_process> getGlobalProcessing();
     QList<c_process> getGlobalProcessing() const;

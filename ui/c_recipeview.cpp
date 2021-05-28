@@ -109,10 +109,7 @@ QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int ti
         }
         if (animated) {
             if (targetPos.y() > heightMilstones) {
-                qDebug() << "resize";
                 ui->milestoneArea->setFixedHeight(targetPos.y());
-            } else {
-                qDebug() << "resize later";
             }
             heightMilstones = targetPos.y();
         } else {
@@ -138,7 +135,6 @@ void c_recipeView::handleChildrenAnimation(QAbstractAnimation *animation) {
         updateOneComponentsList(group);
     }
     switchMode(mode,true,group->duration(),group);
-    ui->milestonesScroll->verticalScrollBar()->value();
     runBehavior(true,group,nullptr);
 }
 

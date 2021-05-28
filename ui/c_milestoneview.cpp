@@ -391,7 +391,6 @@ void c_milestoneView::slotUpdateProcesses() {
     }
     for (int i = 0; i < stepList.size(); ++i) {
         c_step * step = stepList[i]->getStep();
-        qDebug() << step;
         QList<c_process *> processings = step->getProcessingsPtr();
         for (int j = 0; j < processings.size(); ++j) {
             processMap[processings[j]->getType()].setDuration(processings[j]->getDuration() + processMap[processings[j]->getType()].getDuration());
