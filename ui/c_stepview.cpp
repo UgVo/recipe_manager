@@ -192,9 +192,11 @@ void c_stepView::editSaved() {
     } else {
         defaultMode = (components->isEmpty() && equipments->isEmpty()) ? modes::display : modes::resume;
     }
-    switchMode(defaultMode,true,500);
 
     emit saved();
+    switchMode(defaultMode,true,500);
+
+
 }
 
 void c_stepView::editCanceled() {
@@ -1128,7 +1130,7 @@ int c_stepView::getImageAreaWidth(modes target) const {
     switch (target) {
     case display:
     case edition:
-        return width() - 2*borderSize;
+        return stepWidth - 2*borderSize;
     case resume:
     case minimal:
         return limit - borderSize;
