@@ -23,6 +23,8 @@ public:
     void handleChildrenAnimation(QAbstractAnimation* animation) override;
 
     int getComponentsAreaWidth(modes target) const override;
+    int getProcessesAreaWidth(modes target) const;
+
     void resizeEvent(QResizeEvent* e) override;
     void updateOneComponentsList(QAnimationGroup *parentGroupAnimation);
 
@@ -36,7 +38,10 @@ private:
     int heightMilstones;
     bool componentChanged;
     c_milestoneView *senderComponentChanged;
+    c_processView *globalProcessingView;
+
     QMap<c_milestoneView *,c_componentView*> componentMap;
+    QMap<QString,c_process*> processMap;
 };
 
 #endif // C_RECIPEVIEW_H

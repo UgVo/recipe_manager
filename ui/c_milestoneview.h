@@ -40,6 +40,9 @@ public:
 
     c_milestone *getMilestone() const;
 
+    const QMap<QString, c_process> &getProcessMap() const;
+    void setProcessMap(const QMap<QString, c_process> &newProcessMap);
+
 public slots:
     void slotHandleResizeStep();
     void slotSwapSteps(recipe::swap direction);
@@ -52,6 +55,7 @@ public slots:
 signals:
     void resized();
     void componentsListChanged();
+    void processMapChanged();
 
 private:
     Ui::c_milestoneView *ui;
@@ -68,6 +72,7 @@ private:
 
     modes defaultMode;
     Q_PROPERTY(QMap<QString, c_component *> componentsList READ getComponents WRITE setComponentsList NOTIFY componentsListChanged)
+    Q_PROPERTY(QMap<QString, c_process> processMap READ getProcessMap WRITE setProcessMap NOTIFY processMapChanged)
 };
 
 #endif // C_MILESTONEVIEW_H

@@ -50,16 +50,17 @@
    </property>
   </widget>
   <widget class="QLabel" name="imageRecipe">
+  <widget class="QLabel" name="labelProcesses">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>10</y>
-     <width>151</width>
-     <height>101</height>
+     <x>130</x>
+     <y>400</y>
+     <width>47</width>
+     <height>13</height>
     </rect>
    </property>
    <property name="text">
-    <string/>
+    <string>Temps :</string>
    </property>
   </widget>
  </widget>
