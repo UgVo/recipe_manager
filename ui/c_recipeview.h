@@ -22,6 +22,7 @@ public:
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500, QAnimationGroup *parentGroupAnimation = nullptr) override;
     void handleChildrenAnimation(QAbstractAnimation* animation) override;
 
+    int getImageAreaWidth(modes target) const override;
     int getComponentsAreaWidth(modes target) const override;
     int getProcessesAreaWidth(modes target) const;
 
@@ -36,6 +37,7 @@ private:
     c_recipe *recipe;
     QList<c_milestoneView *> milestonesViews;
     int heightMilstones;
+    c_image *imageRecipe;
     bool componentChanged;
     c_milestoneView *senderComponentChanged;
     c_processView *globalProcessingView;

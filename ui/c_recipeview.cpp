@@ -39,11 +39,17 @@ c_recipeView::c_recipeView(c_recipe *recipe, c_widget *widget, QWidget *parent) 
                                      "  border : 1px solid black;"
                                      "}");
     ui->milestonesScroll->setFixedWidth(ui->milestoneArea->width() + 2*insideBorder + 11);
+    ui->titleRecipe->setFixedHeight(26);
+    ui->titleRecipe->setFixedWidth(ui->milestonesScroll->width());
+    ui->titleRecipe->setStyleSheet("font-size: 20px;");
+
     ui->labelIngredients->setStyleSheet("font-size: 16px");
     ui->labelIngredients->setFixedHeight(22);
     ui->labelProcesses->setStyleSheet("font-size: 16px");
     ui->labelProcesses->setFixedHeight(22);
 
+    imageRecipe = new c_image(recipe->getImageUrl(),this,this);
+    imageRecipe->switchMode(modes::display,false);
 
     c_recipeView::switchMode(modes::display,false);
 }
@@ -55,14 +61,16 @@ c_recipeView::~c_recipeView()
 
 QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    QSize mainImageSize = recipe->getImageUrl().isEmpty() ? QSize(0,0) : QSize(200,200);
     QSize recipeViewSize = this->size();
+    int leftWidth = std::max(getImageAreaWidth(target) + 4*borderSize, getEquipmentAreaWidth(target) + getComponentsAreaWidth(target) + 4*borderSize);
+    QPoint targetPos;
     switch (target) {
     case modes::display:{
         // Main Image
-        ui->imageRecipe->move(borderSize,borderSize);
+        imageRecipe->move(2*borderSize,2*borderSize);
         if (recipe->getImageUrl().isEmpty()) {
-            ui->imageRecipe->hide();
+            imageRecipe->hide();
+        }
         ui->labelIngredients->move(2*borderSize,3*borderSize+imageRecipe->getSize(target).height());
         ui->labelIngredients->setFixedWidth(getComponentsAreaWidth(target));
 
@@ -81,14 +89,16 @@ QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int ti
          ui->labelProcesses->setFixedWidth(getProcessesAreaWidth(target));
         globalProcessingView->move(2*borderSize + ui->labelIngredients->width() + insideBorder, 3*borderSize+imageRecipe->getSize(target).height() + ui->labelIngredients->height() + insideBorder);
         // title
-        ui->titleRecipe->move(mainImageSize.width() + borderSize + insideBorder, borderSize);
+        ui->titleRecipe->move(leftWidth, 2*borderSize);
+        ui->titleRecipe->setText(recipe->getName());
+        ui->titleRecipeEdit->hide();
 
         // ScrollArea
-        ui->milestonesScroll->move(mainImageSize.width() + borderSize + insideBorder, borderSize + ui->titleRecipe->height() + insideBorder);
-        ui->milestonesScroll->setFixedHeight(recipeViewSize.height() - (2*borderSize + ui->titleRecipe->height() + insideBorder));
+        ui->milestonesScroll->move(leftWidth, 2*borderSize + ui->titleRecipe->height() + insideBorder);
+        ui->milestonesScroll->setFixedHeight(recipeViewSize.height() - (3*borderSize + ui->titleRecipe->height() + insideBorder));
 
         // MilestoneArea
-        QPoint targetPos = QPoint(0,0);
+        targetPos = QPoint(0,0);
         for (int i = 0; i < milestonesViews.size(); ++i) {
             if (animated) {
                 group->addAnimation(targetPositionAnimation(milestonesViews[i],targetPos,time));
@@ -109,6 +119,7 @@ QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int ti
             ui->milestoneArea->setFixedHeight(targetPos.y());
         }
 
+        this->setFixedWidth(leftWidth + ui->milestonesScroll->width() + 2*borderSize);
 
         break;
     }
@@ -129,6 +140,11 @@ void c_recipeView::handleChildrenAnimation(QAbstractAnimation *animation) {
     switchMode(mode,true,group->duration(),group);
     ui->milestonesScroll->verticalScrollBar()->value();
     runBehavior(true,group,nullptr);
+}
+
+int c_recipeView::getImageAreaWidth(modes ) const {
+    return 400;
+}
 
 }
 

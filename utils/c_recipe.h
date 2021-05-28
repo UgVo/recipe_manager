@@ -7,16 +7,17 @@
 #include "c_milestone.h"
 #include "c_process.h"
 
-class c_recipe
+class c_recipe : public QObject
 {
+    Q_OBJECT
 
 public:
-    c_recipe(int serving, QList<c_milestone> planning = QList<c_milestone>(),
+    c_recipe(int serving, QString name, QList<c_milestone> planning = QList<c_milestone>(),
                       QList<c_process> globalProcessing = QList<c_process>(),
                       QString imageUrl = "", QString settingUpImageUrl = "",
                       QList<c_note> notes = QList<c_note>(),
                       int id = -1);
-    c_recipe(int serving, QList<c_milestone *> planning = QList<c_milestone *>(),
+    c_recipe(int serving, QString name, QList<c_milestone *> planning = QList<c_milestone *>(),
                       QList<c_process *> globalProcessing = QList<c_process *>(),
                       QString imageUrl = "", QString settingUpImageUrl = "",
                       QList<c_note *> notes = QList<c_note *>(),
@@ -65,6 +66,12 @@ public:
 
     void completeRecipe();
 
+    const QString &getName() const;
+    void setName(const QString &newName);
+
+signals:
+    void nameChanged();
+
 private:
 
     void completeProcessings();
@@ -72,6 +79,7 @@ private:
     void completeMilestones();
 
     int id;
+    QString name;
     bool complete;
     QString imageUrl;
     QString settingUpImageUrl;
@@ -79,6 +87,8 @@ private:
     QList<c_note *> notes;
     QList<c_milestone *> planning;
     QList<c_process *> globalProcessing;
+
+    Q_PROPERTY(QString name READ getName WRITE setName NOTIFY nameChanged)
 };
 
 #endif // C_RECIPE_H

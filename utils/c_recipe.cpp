@@ -1,11 +1,11 @@
 #include "c_recipe.h"
 #include "c_dbmanager.h"
 
-c_recipe::c_recipe(int _serving, QList<c_milestone> _planning,
+c_recipe::c_recipe(int _serving,  QString _name, QList<c_milestone> _planning,
                    QList<c_process> _globalProcessing, QString _imageUrl,
                    QString _settingUpImageUrl, QList<c_note> _notes,
                    int _id)
-    : id(_id), imageUrl(_imageUrl), settingUpImageUrl(_settingUpImageUrl),
+    : id(_id), name(_name), imageUrl(_imageUrl), settingUpImageUrl(_settingUpImageUrl),
         servings(_serving) {
     complete = true;
     for (int i = 0; i < _planning.size(); ++i) {
@@ -23,14 +23,14 @@ c_recipe::c_recipe(int _serving, QList<c_milestone> _planning,
     std::sort(notes.begin(),notes.end(),&recipe::compare<c_note>);
 }
 
-c_recipe::c_recipe(int _serving, QList<c_milestone *> _planning, QList<c_process *> _globalProcessing, QString _imageUrl, QString _settingUpImageUrl, QList<c_note *> _notes, int _id)
-    :id(_id), complete(true), imageUrl(_imageUrl), settingUpImageUrl(_settingUpImageUrl), servings(_serving), notes(_notes), planning(_planning), globalProcessing(_globalProcessing)
+c_recipe::c_recipe(int _serving, QString _name, QList<c_milestone *> _planning, QList<c_process *> _globalProcessing, QString _imageUrl, QString _settingUpImageUrl, QList<c_note *> _notes, int _id)
+    :id(_id), name(_name), complete(true), imageUrl(_imageUrl), settingUpImageUrl(_settingUpImageUrl), servings(_serving), notes(_notes), planning(_planning), globalProcessing(_globalProcessing)
 {
-
 }
 
 c_recipe::c_recipe() {
     id = -1;
+    name = QString("Nom");
     complete = false;
     imageUrl = "";
     settingUpImageUrl = "";
@@ -231,6 +231,7 @@ void c_recipe::setGlobalProcessing(const QList<c_process> &value) {
 
 c_recipe &c_recipe::operator=(const c_recipe &other) {
     id = other.getId();
+    name = other.name;
     imageUrl = other.getImageUrl();
     settingUpImageUrl = other.getSettingUpImageUrl();
     servings = other.getServings();
@@ -280,6 +281,17 @@ void c_recipe::completeMilestones() {
     for (QList<c_milestone *>::iterator it = planning.begin(); it != planning.end(); ++it) {
         (*it)->completeMilestone();
     }
+}
+
+const QString &c_recipe::getName() const {
+    return name;
+}
+
+void c_recipe::setName(const QString &newName) {
+    if (name == newName)
+        return;
+    name = newName;
+    emit nameChanged();
 }
 
 bool c_recipe::isComplete() const {
