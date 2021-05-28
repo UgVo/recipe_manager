@@ -1,15 +1,13 @@
 #include "c_ingredient.h"
 #include "c_dbmanager.h"
+#include "c_recipe.h"
 
-c_ingredient::c_ingredient(QString _type, QString _name, c_recipe _subRecipe, int _id) :
+c_ingredient::c_ingredient(QString _type, QString _name, c_recipe *_subRecipe, int _id) :
     type(_type.toLower()), name(_name.toLower()), subRecipe(_subRecipe) ,id(_id) {
 }
 
 c_ingredient::c_ingredient(const c_ingredient &ingredient) {
-    id = ingredient.getId();
-    type = ingredient.getType();
-    subRecipe = ingredient.getSubRecipe();
-    name = ingredient.getName();
+    *this = ingredient;
 }
 
 int c_ingredient::getId() const {
@@ -29,25 +27,25 @@ void c_ingredient::setType(const QString &value) {
 }
 
 bool c_ingredient::asSubRecipe() const {
-    return subRecipe.getId()!=-1;
+    return subRecipe!=nullptr;
 }
 
 c_recipe c_ingredient::getSubRecipe() const {
-    return subRecipe;
+    return *subRecipe;
 }
 
 c_recipe& c_ingredient::getSubRecipe() {
-    return subRecipe;
+    return *subRecipe;
 }
 
 void c_ingredient::setSubRecipe(c_recipe value) {
-    subRecipe = value;
+    *subRecipe = value;
 }
 
 c_ingredient &c_ingredient::operator=(const c_ingredient &other) {
     id = other.getId();
     type = other.getType();
-    subRecipe = other.getSubRecipe();
+    subRecipe = other.subRecipe;
     name = other.getName();
     return *this;
 }
@@ -55,7 +53,7 @@ c_ingredient &c_ingredient::operator=(const c_ingredient &other) {
 bool c_ingredient::operator==(const c_ingredient &other) const {
     return (type == other.getType())
             && (name == other.getName())
-            && (subRecipe == other.getSubRecipe());
+            && (*subRecipe == other.getSubRecipe());
 }
 
 int c_ingredient::registerIngredient() {

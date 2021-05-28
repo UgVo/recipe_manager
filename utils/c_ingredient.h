@@ -4,13 +4,14 @@
 #include <QObject>
 #include <QList>
 #include "utils/utils.h"
-#include "utils/c_recipe.h"
+
+class c_recipe;
 
 class c_ingredient
 {
 
 public:
-    c_ingredient(QString type = "none", QString name = "none", c_recipe subRecipe = c_recipe(),int id = -1);
+    c_ingredient(QString type = "none", QString name = "none", c_recipe *subRecipe = nullptr,int id = -1);
     c_ingredient(const c_ingredient& ingredient);
 
     int getId() const;
@@ -37,7 +38,7 @@ public:
 private:
     QString type;
     QString name;
-    c_recipe subRecipe;
+    c_recipe *subRecipe;
     int id;
 
 signals:
