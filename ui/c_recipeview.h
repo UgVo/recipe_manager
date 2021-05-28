@@ -22,13 +22,21 @@ public:
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500, QAnimationGroup *parentGroupAnimation = nullptr) override;
     void handleChildrenAnimation(QAbstractAnimation* animation) override;
 
+    int getComponentsAreaWidth(modes target) const override;
     void resizeEvent(QResizeEvent* e) override;
+    void updateOneComponentsList(QAnimationGroup *parentGroupAnimation);
+
+private slots:
+    void slotComponentListChanged();
 
 private:
     Ui::c_recipeView *ui;
     c_recipe *recipe;
     QList<c_milestoneView *> milestonesViews;
     int heightMilstones;
+    bool componentChanged;
+    c_milestoneView *senderComponentChanged;
+    QMap<c_milestoneView *,c_componentView*> componentMap;
 };
 
 #endif // C_RECIPEVIEW_H

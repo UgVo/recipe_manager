@@ -19,17 +19,22 @@ class c_componentView : public c_widget
     Q_OBJECT
 
 public:
-    explicit c_componentView(QList<c_component*> components, c_widget *widget, QWidget *parent = nullptr);
+    explicit c_componentView(QList<c_component*> components, c_widget *widget, QWidget *parent = nullptr, QString name = QString());
     ~c_componentView() override;
 
     QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true, int time = 600, QAnimationGroup *parentGroupAnimation = nullptr) override;
     QSize getSize(modes target = modes::resume) const override;
     int getWidth(modes target = modes::resume) const override;
 
-    void save();
-    void rollback();
+    void save() override;
+    void rollback() override;
+
+    void updateComponents(QList<c_component *> newList, QAnimationGroup *parentGroupAnimation);
 
     bool isEmpty() const;
+
+    const QString &getName() const;
+    void setName(const QString &newName);
 
 public slots:
     void newComponent();
@@ -43,7 +48,10 @@ private:
     QList<c_componentElemView *> toDeleteComponents;
     QList<c_componentElemView *> addedComponents;
     QList<c_componentElemView *> componentsViews;
+    QSet<c_component*> componentSet;
+    QMap<c_component*,c_componentElemView*> componentMapView;
     QPushButton *addComponentButton;
+    QString name;
 
     bool enableResize;
 };

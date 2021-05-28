@@ -92,6 +92,7 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
         QObject::connect(stepList.last(),&c_stepView::swapRank,this,&c_milestoneView::slotSwapSteps);
         QObject::connect(stepList.last(),&c_stepView::toDelete,this,&c_milestoneView::slotDeleteSteps);
         QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateProcesses);
+        QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateComponentsList);
     }
 
     processResume = nullptr;
@@ -102,6 +103,8 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
     processResume->switchMode(modes::minimal,false);
 
     this->setStyleSheet("outline : 0;");
+
+    slotUpdateComponentsList();
 
     mode = modes::minimal;
     c_milestoneView::switchMode(mode,false);
@@ -420,8 +423,27 @@ void c_milestoneView::slotUpdateCurrentCharCount() {
     ui->milestoneNameEdit->setMaxLength(max);
 }
 
-c_widget::modes c_milestoneView::getDefaultMode() const
+c_milestone *c_milestoneView::getMilestone() const
 {
+    return milestone;
+}
+
+const QMap<QString, c_component *> &c_milestoneView::getComponents() const {
+    return componentsList;
+}
+
+QList<c_component *> c_milestoneView::getComponentsList() {
+    return componentsList.values();
+}
+
+void c_milestoneView::setComponentsList(const QMap<QString, c_component *> &newComponentsList) {
+    if (componentsList == newComponentsList)
+        return;
+    componentsList = newComponentsList;
+    emit componentsListChanged();
+}
+
+c_widget::modes c_milestoneView::getDefaultMode() const {
     return defaultMode;
 }
 
@@ -442,4 +464,35 @@ void c_milestoneView::handleChildrenAnimation(QAbstractAnimation *animation) {
     group->addAnimation(animation);
     switchMode(mode,true,group->duration(),group);
     runBehavior(true,group,nullptr);
+}
+
+void c_milestoneView::slotUpdateComponentsList() {
+    componentsList.clear();
+    QList<c_step *> steps = milestone->getStepsPtr();
+    for (int i = 0; i < steps.size(); ++i) {
+        QList<c_component *> compo = steps[i]->getComponentsPtr();
+        for (int j = 0; j < compo.size(); ++j) {
+            QString key = QString("%1%2").arg(compo[j]->getIngredient().getName(),
+                                              recipe::unitToString[compo[j]->getUnit()]);
+            if (componentsList.contains(key)) {
+                *componentsList[key] += *compo[j];
+            } else {
+                componentsList[key] = compo[j];
+            }
+        }
+    }
+    emit componentsListChanged();
+}
+
+const QMap<QString, c_process> &c_milestoneView::getProcessMap() const
+{
+    return processMap;
+}
+
+void c_milestoneView::setProcessMap(const QMap<QString, c_process> &newProcessMap)
+{
+    if (processMap == newProcessMap)
+        return;
+    processMap = newProcessMap;
+    emit processMapChanged();
 }

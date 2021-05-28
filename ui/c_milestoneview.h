@@ -34,6 +34,12 @@ public:
     bool eventFilter(QObject *obj,QEvent *event) override;
     void handleChildrenAnimation(QAbstractAnimation *animation) override;
 
+    const QMap<QString, c_component *> &getComponents() const;
+    QList<c_component *> getComponentsList();
+    void setComponentsList(const QMap<QString, c_component*> &newComponentsList);
+
+    c_milestone *getMilestone() const;
+
 public slots:
     void slotHandleResizeStep();
     void slotSwapSteps(recipe::swap direction);
@@ -41,9 +47,11 @@ public slots:
     void slotUpdateProcesses();
     void slotAddStep();
     void slotUpdateCurrentCharCount();
+    void slotUpdateComponentsList();
 
 signals:
     void resized();
+    void componentsListChanged();
 
 private:
     Ui::c_milestoneView *ui;
@@ -56,7 +64,10 @@ private:
     QGraphicsView* view;
     c_pixmapGraphics* item;
 
+    QMap<QString,c_component *> componentsList;
+
     modes defaultMode;
+    Q_PROPERTY(QMap<QString, c_component *> componentsList READ getComponents WRITE setComponentsList NOTIFY componentsListChanged)
 };
 
 #endif // C_MILESTONEVIEW_H

@@ -30,6 +30,8 @@ public:
 
     c_component &operator=(const c_component &other);
     bool operator==(const c_component &other) const;
+    c_component operator+(const c_component &other) const;
+    c_component &operator+=(const c_component &other);
 
 private:
     c_ingredient *ingredient;

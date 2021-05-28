@@ -7,11 +7,14 @@ c_recipeView::c_recipeView(c_recipe *recipe, c_widget *widget, QWidget *parent) 
     ui->setupUi(this);
 
     heightMilstones = 0;
+    componentChanged = false;
+    senderComponentChanged = nullptr;
 
     QList<c_milestone *> milestones = recipe->getPlanningPtr();
     for (int i = 0; i < milestones.size(); ++i) {
         milestonesViews.push_back(new c_milestoneView(milestones[i],this,ui->milestoneArea));
         milestonesViews.last()->setDefaultMode(modes::edition,false);
+        componentMap[milestonesViews.last()] = new c_componentView(milestonesViews.last()->getComponentsList(),this,this,milestones[i]->getName());
         QObject::connect(milestonesViews.last(),&c_milestoneView::resized,this, [=] () {
             switchMode(mode,true,500);
         });
@@ -22,6 +25,8 @@ c_recipeView::c_recipeView(c_recipe *recipe, c_widget *widget, QWidget *parent) 
                                      "  border : 1px solid black;"
                                      "}");
     ui->milestonesScroll->setFixedWidth(ui->milestoneArea->width() + 2*insideBorder + 11);
+    ui->labelIngredients->setStyleSheet("font-size: 16px");
+    ui->labelIngredients->setFixedHeight(22);
 
     c_recipeView::switchMode(modes::display,false);
 }
@@ -41,6 +46,18 @@ QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int ti
         ui->imageRecipe->move(borderSize,borderSize);
         if (recipe->getImageUrl().isEmpty()) {
             ui->imageRecipe->hide();
+        ui->labelIngredients->move(2*borderSize,3*borderSize+imageRecipe->getSize(target).height());
+        ui->labelIngredients->setFixedWidth(getComponentsAreaWidth(target));
+
+        // Components
+        targetPos = QPoint(2*borderSize,imageRecipe->getSize().height()+ ui->labelIngredients->height() + 3*borderSize + insideBorder);
+        for (int i = 0; i < milestonesViews.size(); ++i) {
+            if (animated) {
+                group->addAnimation(targetPositionAnimation(componentMap[milestonesViews[i]],targetPos,time));
+            } else {
+                componentMap[milestonesViews[i]]->move(targetPos);
+            }
+            targetPos += QPoint(0,componentMap[milestonesViews[i]]->getSize().height() + insideBorder);
         }
 
         // title
@@ -86,12 +103,29 @@ QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int ti
 void c_recipeView::handleChildrenAnimation(QAbstractAnimation *animation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
     group->addAnimation(animation);
+    if (componentChanged) {
+        updateOneComponentsList(group);
+    }
     switchMode(mode,true,group->duration(),group);
     ui->milestonesScroll->verticalScrollBar()->value();
     runBehavior(true,group,nullptr);
 
 }
 
+int c_recipeView::getComponentsAreaWidth(modes ) const {
+    return 200;
+}
 void c_recipeView::resizeEvent(QResizeEvent *) {
     switchMode(mode);
+}
+
+void c_recipeView::updateOneComponentsList(QAnimationGroup *parentGroupAnimation) {
+    componentMap[senderComponentChanged]->updateComponents(senderComponentChanged->getComponentsList(),parentGroupAnimation);
+    componentChanged = false;
+    senderComponentChanged = nullptr;
+}
+
+void c_recipeView::slotComponentListChanged() {
+    componentChanged = true;
+    senderComponentChanged = static_cast<c_milestoneView *>(QObject::sender());
 }

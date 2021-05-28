@@ -2,13 +2,16 @@
 #include "ui_c_componentview.h"
 #include "c_stepview.h"
 
-c_componentView::c_componentView(QList<c_component *> _components, c_widget *widget, QWidget *parent) :
+c_componentView::c_componentView(QList<c_component *> _components, c_widget *widget, QWidget *parent, QString _name) :
     c_widget(parent,widget),
-    ui(new Ui::c_componentView) {
+    ui(new Ui::c_componentView), name(_name) {
     ui->setupUi(this);
+
+    componentSet = QSet<c_component*>(_components.begin(),_components.end());
 
     for (int i = 0; i < _components.size(); ++i) {
         componentsViews.push_back(new c_componentElemView(_components[i],this,ui->widget));
+        componentMapView[_components[i]] = componentsViews.last();
         QObject::connect(componentsViews.last(),&c_componentElemView::deleteMe,this,&c_componentView::removeComponent);
     }
 
@@ -17,9 +20,11 @@ c_componentView::c_componentView(QList<c_component *> _components, c_widget *wid
 
     QObject::connect(addComponentButton,&QPushButton::clicked,this,&c_componentView::newComponent);
 
-    ui->labelIngredient->setFixedSize(m_parent->getComponentsAreaWidth(modes::minimal),labelHeight);
-
     enableResize = true;
+
+    if (!name.isEmpty()) {
+        ui->labelIngredient->setText(name);
+    }
 
     c_componentView::switchMode(modes::minimal,false);
 }
@@ -30,6 +35,7 @@ c_componentView::~c_componentView() {
 
 QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup();
+    QSize widgetSize = c_componentView::getSize(target);
     switch (target) {
         case modes::display:
         case modes::resume:
@@ -49,12 +55,14 @@ QAbstractAnimation *c_componentView::switchMode(modes target, bool animated, int
             int max = static_cast<c_stepView *>(m_parent)->width()/2-c_stepView::borderSize - c_stepView::interImageSpace;
             addComponentButton->setFixedWidth(max - 2*insideBorder);
             if (animated) {
-                group->addAnimation(targetSizeAnimation(this,getSize(target),time));
+                group->addAnimation(targetSizeAnimation(this,widgetSize,time));
                 group->addAnimation(targetPositionAnimation(addComponentButton,QPoint(insideBorder,getSize(mode).height()),time/3));
             } else {
-                this->setFixedSize(c_componentView::getSize(target));
+                this->setFixedSize(widgetSize);
                 addComponentButton->hide();
             }
+            ui->labelIngredient->setFixedSize(widgetSize.width(),labelHeight);
+
         }
         break;
         case modes::edition: {
@@ -170,9 +178,11 @@ void c_componentView::save() {
     QList<c_componentElemView *> componentViewCopy = componentsViews;
     for (int i = 0; i < componentViewCopy.size(); ++i) {
         componentViewCopy[i]->save();
+        componentMapView[componentViewCopy[i]->getComponent()] = componentViewCopy[i];
     }
     for (int i = 0; i < toDeleteComponents.size(); ++i) {
         step->removeComponent(toDeleteComponents[i]->getComponent());
+        componentMapView.remove(toDeleteComponents[i]->getComponent());
         toDeleteComponents[i]->hide();
         toDeleteComponents[i]->deleteLater();
     }
@@ -204,6 +214,27 @@ void c_componentView::rollback() {
     addedComponents.clear();
 }
 
+void c_componentView::updateComponents(QList<c_component *> newList, QAnimationGroup *parentGroupAnimation) {
+    QList<c_component*> addSet = (QSet<c_component*>(newList.begin(),newList.end()) - componentSet).values();
+    QList<c_component*> removeSet = (componentSet - QSet<c_component*>(newList.begin(),newList.end())).values();
+    for (int i = 0; i < addSet.size(); ++i) {
+        componentsViews.push_back(new c_componentElemView(addSet[i],this,ui->widget));
+        componentMapView[addSet[i]] = componentsViews.last();
+        componentsViews.last()->show();
+        componentsViews.last()->switchMode(modes::display,false);
+        componentsViews.last()->move(insideBorder,-componentsViews.last()->getSize(modes::display).height());
+        componentSet.insert(addSet[i]);
+    }
+    for (int i = 0; i < removeSet.size(); ++i) {
+        c_componentElemView* toRemove = componentMapView[removeSet[i]];
+        componentsViews.removeOne(toRemove);
+        toRemove->hide();
+        componentMapView.remove(removeSet[i]);
+        componentSet.remove(removeSet[i]);
+    }
+    switchMode(mode,true,parentGroupAnimation->duration(),parentGroupAnimation);
+}
+
 bool c_componentView::isEmpty() const {
     return componentsViews.isEmpty();
 }
@@ -232,4 +263,12 @@ void c_componentView::removeComponent() {
 
     if (enableResize)
         emit resized();
+}
+
+const QString &c_componentView::getName() const {
+    return name;
+}
+
+void c_componentView::setName(const QString &newName) {
+    name = newName;
 }

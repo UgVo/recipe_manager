@@ -71,3 +71,20 @@ bool c_component::operator==(const c_component &other) const {
             && (other.getQuantity() == quantity)
             && (other.getUnit() == unit);
 }
+
+c_component c_component::operator +(const c_component &other) const {
+    c_component res(*this);
+    if ((*ingredient ==* other.ingredient) && (unit == other.unit)) {
+        res.quantity += other.quantity;
+        return res;
+    }
+    qErrnoWarning(100,"Attempt to sum to c_component of different c_ingredient or unit. Sum not allowed, empty c_component return instead.");
+    return c_component();
+}
+
+c_component &c_component::operator+=(const c_component &other) {
+    if ((*ingredient ==* other.ingredient) && (unit == other.unit)) {
+        quantity += other.quantity;
+    }
+    return *this;
+}
