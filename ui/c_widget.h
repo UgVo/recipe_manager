@@ -32,6 +32,7 @@ public:
     virtual ~c_widget() override;
 
     virtual QSize getSize(modes target) const;
+    virtual QSize getSize(modes target);
     virtual int getWidth(modes target) const;
     virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool animated = true,int time = 500);
     virtual QAbstractAnimation *switchMode(modes target = modes::resume, bool = true, int time = 500, QAnimationGroup *parentGroupAnimation = nullptr);

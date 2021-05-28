@@ -27,6 +27,10 @@ QSize c_widget::getSize(c_widget::modes) const {
     return QSize();
 }
 
+QSize c_widget::getSize(c_widget::modes) {
+    return QSize();
+}
+
 int c_widget::getWidth(c_widget::modes) const {
     return 0;
 }
