@@ -11,6 +11,7 @@ namespace recipe
     enum unit {g,L,dL,cL,mL,cuillere,pincee,none};
     enum swap{swapAbove,swapBelow};
     extern QMap<unit,QString> unitToString;
+    extern QMap<QString,QString> processToPixmapUrl;
 
     QString toCapitalised(QString str);
 

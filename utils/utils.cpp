@@ -12,6 +12,12 @@ namespace recipe {
         {unit::none,""}
     };
 
+    QMap<QString,QString> processToPixmapUrl {
+        {"Repos",":/images/repos_icon.png"},
+        {"Préparation",":/images/preparation_icon.png"},
+        {"Cuisson",":/images/cuisson_icon.png"}
+    };
+
     QString toCapitalised(QString str) {
         return str.left(1).toUpper()+str.mid(1);
     }
