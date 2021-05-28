@@ -43,6 +43,7 @@ public:
     int getImageAreaWidth(modes target) const override;
     int getEquipmentAreaWidth(modes target) const override;
     int getComponentsAreaWidth(modes target) const override;
+    int getEquipmentsAreaHeight(modes target) const override;
     int getProcessesAreaWidth(modes target) const override;
     void updateLimit();
 

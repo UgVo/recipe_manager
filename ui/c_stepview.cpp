@@ -1168,6 +1168,20 @@ int c_stepView::getComponentsAreaWidth(modes target) const {
     return 0;
 }
 
+int c_stepView::getEquipmentsAreaHeight(modes target) const {
+    switch (target) {
+    case display:
+    case resume:
+    case minimal:
+        return getImagesMaxHeigth() - insideBorder - components->getSize(target).height();
+    case edition:
+        return c_widget::getEquipmentAreaWidth(target);
+    default:
+        break;
+    }
+    return 0;
+}
+
 int c_stepView::getProcessesAreaWidth(modes target) const {
     switch (target) {
     case display:

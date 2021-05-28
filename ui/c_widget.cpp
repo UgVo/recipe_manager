@@ -59,6 +59,10 @@ int c_widget::getComponentsAreaWidth(modes ) const {
     return width() - 2*borderSize;
 }
 
+int c_widget::getEquipmentsAreaHeight(modes ) const {
+    return height() - 2*borderSize;
+}
+
 int c_widget::getProcessesAreaWidth(modes ) const {
     return width() - 2*borderSize;
 }
