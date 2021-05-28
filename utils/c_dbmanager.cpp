@@ -481,7 +481,10 @@ QList<c_ingredient> c_dbManager::getAllIngredients() {
         int idName = query.record().indexOf("name");
         int idRecipeId = query.record().indexOf("recipe_id");
         while (query.next()) {
-            res.push_back(c_ingredient(query.value(idType).toString(),query.value(idName).toString(),c_recipe::creatEmpty(query.value(idRecipeId).toInt()),query.value(id).toInt()));
+            res.push_back(c_ingredient(query.value(idType).toString(),query.value(idName).toString(),nullptr,query.value(id).toInt()));
+            if (query.value(idRecipeId).toInt() != -1) {
+                res.last().setSubRecipe(c_recipe::creatEmpty(query.value(idRecipeId).toInt()));
+            }
         }
     }
     return res;
