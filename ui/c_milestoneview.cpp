@@ -91,20 +91,19 @@ c_milestoneView::c_milestoneView(c_milestone *_milestone, c_widget *widget, QWid
         QObject::connect(stepList.last(),&c_stepView::animationRequired,this,&c_milestoneView::slotHandleResizeStep);
         QObject::connect(stepList.last(),&c_stepView::swapRank,this,&c_milestoneView::slotSwapSteps);
         QObject::connect(stepList.last(),&c_stepView::toDelete,this,&c_milestoneView::slotDeleteSteps);
-        QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateProcesses);
-        QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateComponentsList);
+        QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotSaved);
     }
 
     processResume = nullptr;
 
-    slotUpdateProcesses();
+    updateProcesses();
 
     processResume = new c_processView(getProcessesPtr(),this,ui->milestoneButton);
     processResume->switchMode(modes::minimal,false);
 
     this->setStyleSheet("outline : 0;");
 
-    slotUpdateComponentsList();
+    updateComponentsList();
 
     mode = modes::minimal;
     c_milestoneView::switchMode(mode,false);
@@ -377,13 +376,13 @@ void c_milestoneView::slotDeleteSteps() {
         sender->hide();
         sender->deleteLater();
 
-        slotUpdateProcesses();
-        slotUpdateComponentsList();
+        slotSaved();
+
         switchMode(mode,true,500);
     }
 }
 
-void c_milestoneView::slotUpdateProcesses() {
+void c_milestoneView::updateProcesses() {
     processMap.clear();
     QSet<QString> processTypesSet = c_dbManager::getProcessTypes();
     QList<QString> processTypeList = QList<QString>(processTypesSet.begin(),processTypesSet.end());
@@ -414,10 +413,14 @@ void c_milestoneView::slotAddStep() {
     QObject::connect(stepList.last(),&c_stepView::animationRequired,this,&c_milestoneView::slotHandleResizeStep);
     QObject::connect(stepList.last(),&c_stepView::swapRank,this,&c_milestoneView::slotSwapSteps);
     QObject::connect(stepList.last(),&c_stepView::toDelete,this,&c_milestoneView::slotDeleteSteps);
-    QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateProcesses);
-    QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateComponentsList);
+    QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotSaved);
 
     switchMode(mode,true,500);
+}
+
+void c_milestoneView::slotSaved() {
+    updateProcesses();
+    updateComponentsList();
 }
 
 void c_milestoneView::slotUpdateCurrentCharCount() {
@@ -469,7 +472,7 @@ void c_milestoneView::handleChildrenAnimation(QAbstractAnimation *animation) {
     runBehavior(true,group,nullptr);
 }
 
-void c_milestoneView::slotUpdateComponentsList() {
+void c_milestoneView::updateComponentsList() {
     componentsList.clear();
     QList<c_step *> steps = milestone->getStepsPtr();
     for (int i = 0; i < steps.size(); ++i) {

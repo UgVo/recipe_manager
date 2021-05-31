@@ -43,14 +43,16 @@ public:
     const QMap<QString, c_process> &getProcessMap() const;
     void setProcessMap(const QMap<QString, c_process> &newProcessMap);
 
+    void updateProcesses();
+    void updateComponentsList();
+
 public slots:
     void slotHandleResizeStep();
     void slotSwapSteps(recipe::swap direction);
     void slotDeleteSteps();
-    void slotUpdateProcesses();
     void slotAddStep();
     void slotUpdateCurrentCharCount();
-    void slotUpdateComponentsList();
+    void slotSaved();
 
 signals:
     void resized();
