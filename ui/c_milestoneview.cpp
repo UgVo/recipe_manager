@@ -378,6 +378,7 @@ void c_milestoneView::slotDeleteSteps() {
         sender->deleteLater();
 
         slotUpdateProcesses();
+        slotUpdateComponentsList();
         switchMode(mode,true,500);
     }
 }
@@ -399,6 +400,8 @@ void c_milestoneView::slotUpdateProcesses() {
     if (processResume != nullptr) {
         processResume->setProcessings(getProcessesPtr());
     }
+
+    emit processMapChanged();
 }
 
 void c_milestoneView::slotAddStep() {
@@ -412,6 +415,7 @@ void c_milestoneView::slotAddStep() {
     QObject::connect(stepList.last(),&c_stepView::swapRank,this,&c_milestoneView::slotSwapSteps);
     QObject::connect(stepList.last(),&c_stepView::toDelete,this,&c_milestoneView::slotDeleteSteps);
     QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateProcesses);
+    QObject::connect(stepList.last(),&c_stepView::saved,this,&c_milestoneView::slotUpdateComponentsList);
 
     switchMode(mode,true,500);
 }

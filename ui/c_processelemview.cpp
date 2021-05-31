@@ -182,7 +182,16 @@ void c_processElemView::setProcess(c_process *value) {
         ui->temperature->setValue(0);
         ui->duration->setValue(0);
     }
-    delete switchMode(mode,false);
+    switchMode(mode,false);
+    emit resized();
+}
+
+void c_processElemView::updateView() {
+    ui->duration->setValue(process->getDuration());
+    ui->temperature->setValue(process->getTemperature());
+    ui->processLabel->setText(formatProcessText(mode));
+    ui->processLabel->setFixedWidth(getHorizontalAdvanceLabel(ui->processLabel));
+    switchMode(mode,false);
     emit resized();
 }
 

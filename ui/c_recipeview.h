@@ -24,13 +24,14 @@ public:
 
     int getImageAreaWidth(modes target) const override;
     int getComponentsAreaWidth(modes target) const override;
-    int getProcessesAreaWidth(modes target) const;
+    int getProcessesAreaWidth(modes target) const override;
 
     void resizeEvent(QResizeEvent* e) override;
     void updateOneComponentsList(QAnimationGroup *parentGroupAnimation);
 
 private slots:
     void slotComponentListChanged();
+    void slotProcessMapChanged();
 
 private:
     Ui::c_recipeView *ui;

@@ -33,6 +33,7 @@ public:
     static int heightProcess;
 
     void setProcess(c_process *value);
+    void updateView();
 
 signals:
     void removeProcess(c_process *);

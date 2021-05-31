@@ -32,6 +32,7 @@ public:
 
     void setProcessings(QList<c_process *> processes);
     c_process *newProcessing();
+    void updateProcessings();
 
     bool isEmpty() const;
 

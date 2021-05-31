@@ -213,6 +213,12 @@ c_process *c_processView::newProcessing() {
     return static_cast<c_stepView *>(m_parent)->getStep()->newProcessing();
 }
 
+void c_processView::updateProcessings() {
+    for (c_processElemView *elem : processElems) {
+        elem->updateView();
+    }
+}
+
 bool c_processView::isEmpty() const {
     for (int i = 0; i < processElems.size(); ++i) {
         if(!processElems[i]->isEmpty())

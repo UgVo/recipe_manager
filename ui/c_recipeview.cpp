@@ -26,6 +26,7 @@ c_recipeView::c_recipeView(c_recipe *recipe, c_widget *widget, QWidget *parent) 
             processMap[key]->setDuration(processMap[key]->getDuration() + processes[key].getDuration());
         }
         QObject::connect(milestonesViews.last(),&c_milestoneView::componentsListChanged,this,&c_recipeView::slotComponentListChanged);
+        QObject::connect(milestonesViews.last(),&c_milestoneView::processMapChanged,this,&c_recipeView::slotProcessMapChanged);
         QObject::connect(milestonesViews.last(),&c_milestoneView::resized,this, [=] () {
             switchMode(mode,true,500);
         });
@@ -165,4 +166,17 @@ void c_recipeView::updateOneComponentsList(QAnimationGroup *parentGroupAnimation
 void c_recipeView::slotComponentListChanged() {
     componentChanged = true;
     senderComponentChanged = static_cast<c_milestoneView *>(QObject::sender());
+}
+
+void c_recipeView::slotProcessMapChanged() {
+    for (auto it = processMap.begin(); it != processMap.end(); ++it) {
+        *it.value() = c_process(it.key());
+    }
+    for (int i = 0; i < milestonesViews.size(); ++i) {
+        QList<c_process> processings = milestonesViews[i]->getProcessMap().values();
+        for (int j = 0; j < processings.size(); ++j) {
+            processMap[processings[j].getType()]->setDuration(processings[j].getDuration() + processMap[processings[j].getType()]->getDuration());
+        }
+    }
+    globalProcessingView->updateProcessings();
 }
