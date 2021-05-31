@@ -33,6 +33,8 @@ public:
 
     bool eventFilter(QObject* obj, QEvent* event);
 
+    void setEquipmentList(const QSet<QString> equipments);
+
 public slots:
     void addEquipment(QString newEquipment);
     void removeEquipment();
@@ -47,10 +49,10 @@ private:
     QList<QString> equipmentList;
     QList<QString> addedEquipment;
     QList<QString> toDeleteEquipment;
-    QList<QPushButton *> buttonList;
     QStringListModel *model;
     QList<QString> equipementsListModel;
     QMap<QString,QLabel *> equipmentLabelMap;
+    QMap<QString,QPushButton *> equipmentButtonMap;
     QTimer timer;
 
     bool write;
