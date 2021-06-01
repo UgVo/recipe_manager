@@ -39,7 +39,7 @@ public:
 
     virtual int getImageAreaWidth(modes target) const;
     virtual int getImageCount() const;
-    virtual int getEquipmentAreaWidth(modes target) const;
+    virtual int getEquipmentsAreaWidth(modes target) const;
     virtual int getComponentsAreaWidth(modes target) const;
     virtual int getEquipmentsAreaHeight(modes target) const;
     virtual int getProcessesAreaWidth(modes target) const;

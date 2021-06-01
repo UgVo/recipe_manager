@@ -1140,7 +1140,7 @@ int c_stepView::getImageAreaWidth(modes target) const {
     return 0;
 }
 
-int c_stepView::getEquipmentAreaWidth(modes target) const {
+int c_stepView::getEquipmentsAreaWidth(modes target) const {
     switch (target) {
     case display:
     case resume:
@@ -1175,7 +1175,7 @@ int c_stepView::getEquipmentsAreaHeight(modes target) const {
     case minimal:
         return getImagesMaxHeigth() - insideBorder - components->getSize(target).height();
     case edition:
-        return c_widget::getEquipmentAreaWidth(target);
+        return c_widget::getEquipmentsAreaWidth(target);
     default:
         break;
     }

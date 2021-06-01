@@ -51,7 +51,7 @@ int c_widget::getImageCount() const {
     return 1;
 }
 
-int c_widget::getEquipmentAreaWidth(modes ) const {
+int c_widget::getEquipmentsAreaWidth(modes ) const {
     return width() - 2*borderSize;
 }
 
