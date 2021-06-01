@@ -66,7 +66,7 @@ int c_ingredient::registerIngredient() {
 }
 
 QString c_ingredient::getName() const {
-    return name;
+    return recipe::toCapitalised(name);
 }
 
 void c_ingredient::setName(const QString &value) {

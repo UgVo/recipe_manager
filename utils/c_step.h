@@ -32,6 +32,7 @@ public:
     void removeComponent(const c_component *value);
 
     QList<QString> getEquipments() const;
+    QSet<QString> getEquipmentsSet() const;
     void setEquipments(const QList<QString> &value);
 
     QString getDescription() const;

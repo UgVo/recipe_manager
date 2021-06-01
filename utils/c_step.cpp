@@ -105,6 +105,10 @@ QList<QString> c_step::getEquipments() const {
     return equipments;
 }
 
+QSet<QString> c_step::getEquipmentsSet() const {
+    return QSet(equipments.begin(),equipments.end());
+}
+
 void c_step::setEquipments(const QList<QString> &value) {
     equipments = value;
 }
