@@ -23,6 +23,8 @@ public:
     void handleChildrenAnimation(QAbstractAnimation* animation) override;
 
     int getImageAreaWidth(modes target) const override;
+    int getEquipmentsAreaWidth(modes target) const override;
+    int getEquipmentsAreaHeight(modes target) const override;
     int getComponentsAreaWidth(modes target) const override;
     int getProcessesAreaWidth(modes target) const override;
 
@@ -32,6 +34,7 @@ public:
 private slots:
     void slotComponentListChanged();
     void slotProcessMapChanged();
+    void slotEquipmentSetChanged();
 
 private:
     Ui::c_recipeView *ui;
@@ -42,9 +45,11 @@ private:
     bool componentChanged;
     c_milestoneView *senderComponentChanged;
     c_processView *globalProcessingView;
+    c_equipementsView *equipments;
 
     QMap<c_milestoneView *,c_componentView*> componentMap;
     QMap<QString,c_process*> processMap;
+    QSet<QString> equipmentSet;
 };
 
 #endif // C_RECIPEVIEW_H

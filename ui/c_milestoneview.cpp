@@ -421,6 +421,7 @@ void c_milestoneView::slotAddStep() {
 void c_milestoneView::slotSaved() {
     updateProcesses();
     updateComponentsList();
+    updateEquipmentSet();
 }
 
 void c_milestoneView::slotUpdateCurrentCharCount() {
@@ -488,6 +489,26 @@ void c_milestoneView::updateComponentsList() {
         }
     }
     emit componentsListChanged();
+}
+
+void c_milestoneView::updateEquipmentSet() {
+    equipmentSet.clear();
+    for (c_stepView *step : stepList) {
+        equipmentSet += step->getStep()->getEquipmentsSet();
+    }
+    emit equipmentListChanged();
+}
+
+const QSet<QString> &c_milestoneView::getEquipmentSet() const {
+    return equipmentSet;
+}
+
+void c_milestoneView::setEquipmentSet(const QSet<QString> &newEquipmentList)
+{
+    if (equipmentSet == newEquipmentList)
+        return;
+    equipmentSet = newEquipmentList;
+    emit equipmentListChanged();
 }
 
 const QMap<QString, c_process> &c_milestoneView::getProcessMap() const

@@ -43,8 +43,12 @@ public:
     const QMap<QString, c_process> &getProcessMap() const;
     void setProcessMap(const QMap<QString, c_process> &newProcessMap);
 
+    const QSet<QString> &getEquipmentSet() const;
+    void setEquipmentSet(const QSet<QString> &newEquipmentList);
+
     void updateProcesses();
     void updateComponentsList();
+    void updateEquipmentSet();
 
 public slots:
     void slotHandleResizeStep();
@@ -58,6 +62,7 @@ signals:
     void resized();
     void componentsListChanged();
     void processMapChanged();
+    void equipmentListChanged();
 
 private:
     Ui::c_milestoneView *ui;
@@ -71,10 +76,12 @@ private:
     c_pixmapGraphics* item;
 
     QMap<QString,c_component *> componentsList;
+    QSet<QString> equipmentSet;
 
     modes defaultMode;
     Q_PROPERTY(QMap<QString, c_component *> componentsList READ getComponents WRITE setComponentsList NOTIFY componentsListChanged)
     Q_PROPERTY(QMap<QString, c_process> processMap READ getProcessMap WRITE setProcessMap NOTIFY processMapChanged)
+    Q_PROPERTY(QSet<QString> equipmentSet READ getEquipmentSet WRITE setEquipmentSet NOTIFY equipmentListChanged)
 };
 
 #endif // C_MILESTONEVIEW_H

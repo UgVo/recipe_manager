@@ -9,6 +9,7 @@ c_recipeView::c_recipeView(c_recipe *recipe, c_widget *widget, QWidget *parent) 
     heightMilstones = 0;
     componentChanged = false;
     senderComponentChanged = nullptr;
+    equipments = nullptr;
 
     QSet<QString> processTypesSet = c_dbManager::getProcessTypes();
     QList<QString> processTypeList = QList<QString>(processTypesSet.begin(),processTypesSet.end());
@@ -16,6 +17,8 @@ c_recipeView::c_recipeView(c_recipe *recipe, c_widget *widget, QWidget *parent) 
         processMap[processTypeList[i]] = new c_process(processTypeList[i]);
     }
 
+    ui->labelIngredients->setStyleSheet("font-size: 16px");
+    ui->labelIngredients->setFixedHeight(22);
     QList<c_milestone *> milestones = recipe->getPlanningPtr();
     for (int i = 0; i < milestones.size(); ++i) {
         milestonesViews.push_back(new c_milestoneView(milestones[i],this,ui->milestoneArea));
@@ -27,13 +30,14 @@ c_recipeView::c_recipeView(c_recipe *recipe, c_widget *widget, QWidget *parent) 
         }
         QObject::connect(milestonesViews.last(),&c_milestoneView::componentsListChanged,this,&c_recipeView::slotComponentListChanged);
         QObject::connect(milestonesViews.last(),&c_milestoneView::processMapChanged,this,&c_recipeView::slotProcessMapChanged);
+        QObject::connect(milestonesViews.last(),&c_milestoneView::equipmentListChanged,this,&c_recipeView::slotEquipmentSetChanged);
         QObject::connect(milestonesViews.last(),&c_milestoneView::resized,this, [=] () {
             switchMode(mode,true,500);
         });
+        milestonesViews.last()->updateEquipmentSet();
     }
 
-    globalProcessingView = new c_processView(processMap.values(),this,this);
-
+    slotEquipmentSetChanged();
 
     ui->milestoneArea->setFixedWidth(milestonesViews[0]->getSize(modes::display).width());
     ui->milestoneArea->setStyleSheet("QWidget#milestoneArea {"
@@ -44,13 +48,20 @@ c_recipeView::c_recipeView(c_recipe *recipe, c_widget *widget, QWidget *parent) 
     ui->titleRecipe->setFixedWidth(ui->milestonesScroll->width());
     ui->titleRecipe->setStyleSheet("font-size: 20px;");
 
-    ui->labelIngredients->setStyleSheet("font-size: 16px");
-    ui->labelIngredients->setFixedHeight(22);
-    ui->labelProcesses->setStyleSheet("font-size: 16px");
-    ui->labelProcesses->setFixedHeight(22);
 
     imageRecipe = new c_image(recipe->getImageUrl(),this,this);
     imageRecipe->switchMode(modes::display,false);
+
+    ui->labelProcesses->setStyleSheet("font-size: 16px");
+    ui->labelProcesses->setFixedHeight(22);
+    globalProcessingView = new c_processView(processMap.values(),this,this);
+
+    ui->labelEquipment->setStyleSheet("font-size: 16px");
+    ui->labelEquipment->setFixedHeight(22);
+    equipments = new c_equipementsView(equipmentSet.values(),this,this);
+    equipments->hideTitle(true);
+
+    //this->setStyleSheet("border : 1px solid black");
 
     c_recipeView::switchMode(modes::display,false);
 }
@@ -63,7 +74,7 @@ c_recipeView::~c_recipeView()
 QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
     QSize recipeViewSize = this->size();
-    int leftWidth = std::max(getImageAreaWidth(target) + 4*borderSize, getEquipmentAreaWidth(target) + getComponentsAreaWidth(target) + 4*borderSize);
+    int leftWidth = std::max(getImageAreaWidth(target) + 4*borderSize, getEquipmentsAreaWidth(target) + getComponentsAreaWidth(target) + 4*borderSize);
     QPoint targetPos;
     switch (target) {
     case modes::display:{
@@ -86,9 +97,16 @@ QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int ti
             targetPos += QPoint(0,componentMap[milestonesViews[i]]->getSize().height() + insideBorder);
         }
 
+        // Processes
         ui->labelProcesses->move(2*borderSize + ui->labelIngredients->width() + insideBorder, 3*borderSize+imageRecipe->getSize(target).height());
-         ui->labelProcesses->setFixedWidth(getProcessesAreaWidth(target));
+        ui->labelProcesses->setFixedWidth(getProcessesAreaWidth(target));
         globalProcessingView->move(2*borderSize + ui->labelIngredients->width() + insideBorder, 3*borderSize+imageRecipe->getSize(target).height() + ui->labelIngredients->height() + insideBorder);
+
+        // Equipments
+        ui->labelEquipment->move(globalProcessingView->pos() + QPoint(0,globalProcessingView->getSize(target).height() + borderSize));
+        ui->labelEquipment->setFixedWidth(getEquipmentsAreaWidth(target));
+        equipments->move(ui->labelEquipment->pos() + QPoint(0,ui->labelEquipment->height() + insideBorder));
+
         // title
         ui->titleRecipe->move(leftWidth, 2*borderSize);
         ui->titleRecipe->setText(recipe->getName());
@@ -96,7 +114,7 @@ QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int ti
 
         // ScrollArea
         ui->milestonesScroll->move(leftWidth, 2*borderSize + ui->titleRecipe->height() + insideBorder);
-        ui->milestonesScroll->setFixedHeight(recipeViewSize.height() - (3*borderSize + ui->titleRecipe->height() + insideBorder));
+        ui->milestonesScroll->setFixedHeight(recipeViewSize.height() - (3*borderSize + ui->titleRecipe->height() + borderSize));
 
         // MilestoneArea
         targetPos = QPoint(0,0);
@@ -143,6 +161,15 @@ int c_recipeView::getImageAreaWidth(modes ) const {
     return 400;
 }
 
+int c_recipeView::getEquipmentsAreaWidth(modes ) const {
+    return 200;
+}
+
+int c_recipeView::getEquipmentsAreaHeight(modes target) const {
+    return height() - (3*borderSize+imageRecipe->getSize(target).height()
+                       + borderSize + ui->labelProcesses->height() + borderSize
+                       + globalProcessingView->getSize(target).height() + borderSize
+                       + ui->labelEquipment->height() + borderSize);
 }
 
 int c_recipeView::getComponentsAreaWidth(modes ) const {
@@ -179,4 +206,15 @@ void c_recipeView::slotProcessMapChanged() {
         }
     }
     globalProcessingView->updateProcessings();
+}
+
+void c_recipeView::slotEquipmentSetChanged() {
+    equipmentSet.clear();
+    for (c_milestoneView * elem : milestonesViews) {
+        equipmentSet += elem->getEquipmentSet();
+    }
+    if (equipments != nullptr) {
+        equipments->setEquipmentList(equipmentSet);
+        equipments->switchMode(modes::none,true,500);
+    }
 }

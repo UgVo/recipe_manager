@@ -31,9 +31,10 @@ public:
 
     bool isEmpty() const;
 
-    bool eventFilter(QObject* obj, QEvent* event);
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
     void setEquipmentList(const QSet<QString> equipments);
+    void hideTitle(bool hide);
 
 public slots:
     void addEquipment(QString newEquipment);
@@ -55,7 +56,7 @@ private:
     QMap<QString,QPushButton *> equipmentButtonMap;
     QTimer timer;
 
-    bool write;
+    bool _hideTitle;
 };
 
 #endif // C_EQUIPEMENTSVIEW_H

@@ -29,8 +29,7 @@ c_equipementsView::c_equipementsView(QList<QString> _equipmentList, c_widget *wi
     );
 
     ui->label->setFixedHeight(labelHeight);
-
-    write = false;
+    _hideTitle = false;
 
     delete c_equipementsView::switchMode(modes::resume,false);
 }
@@ -42,6 +41,10 @@ c_equipementsView::~c_equipementsView() {
 QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
     QSize widgetSize = c_equipementsView::getSize(target);
+    if (target == modes::none) {
+        target = mode;
+    }
+    ui->labelWidget->setHidden(_hideTitle);
     switch (target) {
         case modes::display:
         case modes::resume:
@@ -111,7 +114,7 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
 
 QSize c_equipementsView::getSize(modes target) {
     QSize res;
-    int width = m_parent->getEquipmentAreaWidth(target);
+    int width = m_parent->getEquipmentsAreaWidth(target);
     int height = m_parent->getEquipmentsAreaHeight(target);
     switch (target) {
         case modes::display:
@@ -131,7 +134,7 @@ QSize c_equipementsView::getSize(modes target) {
             ui->widgetEquipments->layout()->getContentsMargins(nullptr,&topEquipment,nullptr,&bottomEquipment);
             int heightV = topEquipment + bottomEquipment + labelHeight*int(equipmentLabelMap.count())
                     + int(equipmentLabelMap.count() - 1)*ui->widgetEquipments->layout()->spacing()
-                    + ui->label->height() + ui->widget->layout()->spacing() + top + bottom;
+                    + (!_hideTitle?ui->label->height() + ui->widget->layout()->spacing():0) + top + bottom;
             if (heightV > height) {
                 res.setHeight(heightH);
                 listDirection = horizontale;
@@ -233,8 +236,6 @@ void c_equipementsView::setEquipmentList(const QSet<QString> equipments) {
     QSet<QString> addList = equipments - QSet<QString>(equipmentList.begin(),equipmentList.end());
     QSet<QString> removeList = QSet<QString>(equipmentList.begin(),equipmentList.end()) - equipments;
 
-    qDebug() << addList << removeList;
-
     for (const QString &elem : removeList) {
         if (equipmentButtonMap.contains(elem)) {
             layoutButton->removeWidget(equipmentButtonMap[elem]);
@@ -269,6 +270,19 @@ void c_equipementsView::setEquipmentList(const QSet<QString> equipments) {
     equipmentList = equipments.values();
 
     ui->textEdit->setText(equipmentList.join(", "));
+}
+
+void c_equipementsView::hideTitle(bool hide) {
+    int top , rigth, bottom;
+    _hideTitle = hide;
+    ui->widget->layout()->getContentsMargins(nullptr,&top,&rigth,&bottom);
+    if (hide) {
+        ui->widgetEquipments->layout()->setContentsMargins(0,top,rigth,bottom);
+    } else {
+        ui->widgetEquipments->layout()->setContentsMargins(rigth,top,rigth,bottom);
+    }
+    update();
+    switchMode(mode,false);
 }
 
 void c_equipementsView::addEquipment(QString _newEquipment) {
