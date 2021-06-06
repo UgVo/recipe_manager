@@ -21,6 +21,9 @@ c_componentElemView::c_componentElemView(c_component *_component, c_widget *widg
     ui->checkBox->setFixedHeight(heigthWidget);
     ui->deleteButton->show();
 
+    QWidget::setTabOrder(ui->quantitySpinBox,ui->unitComboBox);
+    QWidget::setTabOrder(ui->unitComboBox,ui->ingredientLineEdit);
+
     QObject::connect(ui->deleteButton,&QPushButton::clicked, [=] () {
         emit deleteMe();
     });
@@ -190,6 +193,6 @@ void c_componentElemView::updateComponent(c_component *newComponent) {
 }
 
 void c_componentElemView::setFocus() {
-    ui->ingredientLineEdit->setFocus();
-    ui->ingredientLineEdit->clear();
+    ui->quantitySpinBox->setFocus();
+    ui->quantitySpinBox->clear();
 }
