@@ -30,6 +30,7 @@ public:
 
     void resizeEvent(QResizeEvent* e) override;
     void updateOneComponentsList(QAnimationGroup *parentGroupAnimation);
+    void updateEquipmentView(QAnimationGroup *parentGroupAnimation);
 
 private slots:
     void slotComponentListChanged();
@@ -45,6 +46,7 @@ private:
     bool componentChanged;
     c_milestoneView *senderComponentChanged;
     c_processView *globalProcessingView;
+    bool equipmentSetChanged;
     c_equipementsView *equipments;
 
     QMap<c_milestoneView *,c_componentView*> componentMap;

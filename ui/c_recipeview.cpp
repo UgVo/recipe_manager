@@ -8,6 +8,7 @@ c_recipeView::c_recipeView(c_recipe *recipe, c_widget *widget, QWidget *parent) 
 
     heightMilstones = 0;
     componentChanged = false;
+    equipmentSetChanged = false;
     senderComponentChanged = nullptr;
     equipments = nullptr;
 
@@ -126,14 +127,11 @@ QAbstractAnimation *c_recipeView::switchMode(modes target, bool animated, int ti
             }
             targetPos += QPoint(0,insideBorder + milestonesViews[i]->getSize().height());
         }
-        if (animated) {
-            if (targetPos.y() > heightMilstones) {
-                ui->milestoneArea->setFixedHeight(targetPos.y());
-            }
-            heightMilstones = targetPos.y();
-        } else {
+        if (targetPos.y() > heightMilstones) {
             ui->milestoneArea->setFixedHeight(targetPos.y());
         }
+        heightMilstones = targetPos.y();
+
 
         this->setFixedWidth(leftWidth + ui->milestonesScroll->width() + 2*borderSize);
 
@@ -152,6 +150,9 @@ void c_recipeView::handleChildrenAnimation(QAbstractAnimation *animation) {
     group->addAnimation(animation);
     if (componentChanged) {
         updateOneComponentsList(group);
+    }
+    if (equipmentSetChanged) {
+        updateEquipmentView(group);
     }
     switchMode(mode,true,group->duration(),group);
     runBehavior(true,group,nullptr);
@@ -190,6 +191,14 @@ void c_recipeView::updateOneComponentsList(QAnimationGroup *parentGroupAnimation
     senderComponentChanged = nullptr;
 }
 
+void c_recipeView::updateEquipmentView(QAnimationGroup *parentGroupAnimation) {
+    if (equipments != nullptr) {
+        equipments->setEquipmentList(equipmentSet);
+        equipments->switchMode(modes::resume,true,parentGroupAnimation->duration(),parentGroupAnimation);
+    }
+    equipmentSetChanged = false;
+}
+
 void c_recipeView::slotComponentListChanged() {
     componentChanged = true;
     senderComponentChanged = static_cast<c_milestoneView *>(QObject::sender());
@@ -213,8 +222,5 @@ void c_recipeView::slotEquipmentSetChanged() {
     for (c_milestoneView * elem : milestonesViews) {
         equipmentSet += elem->getEquipmentSet();
     }
-    if (equipments != nullptr) {
-        equipments->setEquipmentList(equipmentSet);
-        equipments->switchMode(modes::none,true,500);
-    }
+    equipmentSetChanged = true;
 }

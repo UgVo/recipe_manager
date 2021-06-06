@@ -171,7 +171,9 @@ void c_stepView::editSaved() {
 
     processes->save();
     components->save();
+
     equipments->save();
+    step->setEquipments(equipments->getEquipmentList());
 
     QString res;
     for (int i = 0; i < ui->label->document()->blockCount(); ++i) {
