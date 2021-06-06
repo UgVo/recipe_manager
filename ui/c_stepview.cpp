@@ -57,8 +57,10 @@ c_stepView::c_stepView(c_step *_step, c_widget *widget, QWidget *parent) :
 
     ui->saveButton->setFixedWidth((width()/2 - 2*borderSize));
     ui->saveButton->setFixedSize(ui->saveButton->size());
+    ui->saveButton->setFocusPolicy(Qt::NoFocus);
     QObject::connect(ui->saveButton,&QPushButton::clicked,this,&c_stepView::editSaved);
     ui->cancelButton->setFixedSize(ui->saveButton->size());
+    ui->cancelButton->setFocusPolicy(Qt::NoFocus);
     QObject::connect(ui->cancelButton,&QPushButton::clicked,this,&c_stepView::editCanceled);
 
     ui->upButton->setFixedSize(ui->upButton->size());

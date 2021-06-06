@@ -10,6 +10,7 @@ c_equipementsView::c_equipementsView(QList<QString> _equipmentList, c_widget *wi
     ui(new Ui::c_equipementsView) {
     ui->setupUi(this);
     ui->textEdit->setAlignment(Qt::AlignJustify);
+    ui->textEdit->setFocusPolicy(Qt::StrongFocus);
     QSet<QString> equipmentSet = c_dbManager::getEquipments();
     equipementsListModel = QList<QString>(equipmentSet.begin(),equipmentSet.end());
     ui->newEquipment->installEventFilter(this);
