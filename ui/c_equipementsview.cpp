@@ -40,10 +40,10 @@ c_equipementsView::~c_equipementsView() {
 
 QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, int time, QAnimationGroup *parentGroupAnimation) {
     QParallelAnimationGroup *group = new QParallelAnimationGroup;
-    QSize widgetSize = c_equipementsView::getSize(target);
     if (target == modes::none) {
         target = mode;
     }
+    QSize widgetSize = c_equipementsView::getSize(target);
     ui->labelWidget->setHidden(_hideTitle);
     switch (target) {
         case modes::display:
@@ -82,10 +82,6 @@ QAbstractAnimation *c_equipementsView::switchMode(modes target, bool animated, i
         }
         break;
         case modes::edition: {
-            if (mode != target) {
-                addedEquipment.clear();
-                toDeleteEquipment.clear();
-            }
             if (animated) {
                 group->addAnimation(targetSizeAnimation(this,getSize(target),time));
             } else {
@@ -158,59 +154,49 @@ QSize c_equipementsView::getSize(modes target) {
 }
 
 void c_equipementsView::save() {
-    for (int i = 0; i < equipmentList.size(); ++i) {
-        if (!equipmentLabelMap.contains(equipmentList[i])) {
-            equipmentLabelMap[equipmentList[i]] = (new QLabel(ui->widgetEquipments));
-            equipmentLabelMap[equipmentList[i]]->setText(recipe::toCapitalised(equipmentList[i]));
-            static_cast<QHBoxLayout*>(ui->widgetEquipments->layout())->insertWidget(int(equipmentLabelMap.count()-1),equipmentLabelMap[equipmentList[i]]);
+    QList<QString> newList = equipmentButtonMap.keys();
+    for (int i = 0; i < newList.size(); ++i) {
+        if (!equipmentLabelMap.contains(newList[i])) {
+            equipmentLabelMap[newList[i]] = new QLabel(ui->widgetEquipments);
+            equipmentLabelMap[newList[i]]->setText(recipe::toCapitalised(newList[i]));
+            static_cast<QHBoxLayout*>(ui->widgetEquipments->layout())->addWidget(equipmentLabelMap[newList[i]]);
         }
     }
-    QList<QString> wantedList = equipmentLabelMap.keys();
-    QList<QString> removeList = (QSet<QString>(wantedList.begin(),wantedList.end()) -  QSet<QString>(equipmentList.begin(),equipmentList.end())).values();
-    for (int i = 0; i < removeList.size(); ++i) {
-        static_cast<QHBoxLayout*>(ui->widgetEquipments->layout())->removeWidget(equipmentLabelMap[removeList[i]]);
-        equipmentLabelMap[removeList[i]]->hide();
-        equipmentLabelMap[removeList[i]]->deleteLater();
-        equipmentLabelMap.remove(removeList[i]);
+    for (int i = 0; i < equipmentList.size(); ++i) {
+        if (!newList.contains(equipmentList[i])) {
+            static_cast<QHBoxLayout*>(ui->widgetEquipments->layout())->removeWidget(equipmentLabelMap[equipmentList[i]]);
+            equipmentLabelMap[equipmentList[i]]->hide();
+            equipmentLabelMap[equipmentList[i]]->deleteLater();
+            equipmentLabelMap.remove(equipmentList[i]);
+        }
     }
-    ui->textEdit->setText(equipmentList.join(", "));
-
-    addedEquipment.clear();
-    toDeleteEquipment.clear();
+    equipmentList = newList;
 }
 
 void c_equipementsView::rollback() {
-    QList<QString> addedEquipmentsCopy = addedEquipment;
-    for (int i = 0; i < addedEquipmentsCopy.size(); ++i) {
-        if (toDeleteEquipment.contains(addedEquipmentsCopy[i])) {
-            toDeleteEquipment.removeOne(addedEquipmentsCopy[i]);
-        }
-        addedEquipment.removeOne(addedEquipmentsCopy[i]);
-        equipmentList.removeOne(addedEquipmentsCopy[i]);
-    }
-    for (int i = 0; i < toDeleteEquipment.size(); ++i) {
-        equipmentList.push_back(toDeleteEquipment[i]);
-    }
-    foreach (QPushButton *elem, equipmentButtonMap) {
-        static_cast<QHBoxLayout*>(ui->widgetEdit->layout())->removeWidget(elem);
-        equipementsListModel.push_back(recipe::toCapitalised(elem->text()));
-        elem->hide();
-        elem->deleteLater();
-    }
-    model->setStringList(equipementsListModel);
-    equipmentButtonMap.clear();
-
+    QList<QString> oldList = equipmentButtonMap.keys();
     for (int i = 0; i < equipmentList.size(); ++i) {
-        equipementsListModel.removeOne(equipmentList[i]);
-        equipmentButtonMap[equipmentList[i]] = new QPushButton(recipe::toCapitalised(equipmentList[i]));
-        static_cast<QHBoxLayout*>(ui->widgetEdit->layout())->insertWidget(i,equipmentButtonMap[equipmentList[i]]);
-        QFontMetrics metrics =  QFontMetrics(equipmentButtonMap[equipmentList[i]]->font());
-        equipmentButtonMap[equipmentList[i]]->setFixedWidth(metrics.horizontalAdvance(equipmentList[i]) + 10);
-        QObject::connect(equipmentButtonMap[equipmentList[i]],&QPushButton::clicked,this,&c_equipementsView::removeEquipment);
+        if (!equipmentButtonMap.contains(equipmentList[i])) {
+            QString key = equipmentList[i].toLower();
+            equipmentButtonMap[key] = new QPushButton(recipe::toCapitalised(key));
+            equipmentButtonMap[key]->setFixedWidth(QFontMetrics(equipmentButtonMap[key]->font()).horizontalAdvance(key) + 10);
+            static_cast<QHBoxLayout*>(ui->widgetEdit->layout())->insertWidget(int(equipmentButtonMap.count()-1),equipmentButtonMap[key]);
+            QObject::connect(equipmentButtonMap[key],&QPushButton::clicked,this,&c_equipementsView::removeEquipment);
+
+            equipementsListModel.removeOne(recipe::toCapitalised(key));
+        }
     }
 
-    addedEquipment.clear();
-    toDeleteEquipment.clear();
+    for (int i = 0; i < oldList.size(); ++i) {
+        if (!equipmentList.contains(oldList[i])) {
+            QString key = oldList[i].toLower();
+            static_cast<QHBoxLayout*>(ui->widgetEdit->layout())->removeWidget(equipmentButtonMap[key]);
+            equipmentButtonMap[key]->hide();
+            equipmentButtonMap[key]->deleteLater();
+            equipmentButtonMap.remove(key);
+            equipementsListModel.push_back(recipe::toCapitalised(key));
+        }
+    }
 }
 
 bool c_equipementsView::isEmpty() const {
@@ -230,7 +216,11 @@ bool c_equipementsView::eventFilter(QObject *obj, QEvent *event) {
     return QObject::eventFilter(obj, event);
 }
 
-void c_equipementsView::setEquipmentList(const QSet<QString> equipments) {
+void c_equipementsView::setEquipmentList(const QSet<QString> _equipments) {
+    QSet<QString> equipments;
+    foreach (QString elem, _equipments) {
+        equipments.insert(elem.toLower());
+    }
     QHBoxLayout *layoutLabel = static_cast<QHBoxLayout*>(ui->widgetEquipments->layout());
     QHBoxLayout *layoutButton = static_cast<QHBoxLayout*>(ui->widgetEdit->layout());
     QSet<QString> addList = equipments - QSet<QString>(equipmentList.begin(),equipmentList.end());
@@ -241,10 +231,14 @@ void c_equipementsView::setEquipmentList(const QSet<QString> equipments) {
             layoutButton->removeWidget(equipmentButtonMap[elem]);
             equipmentButtonMap[elem]->hide();
             equipmentButtonMap[elem]->deleteLater();
+            equipmentButtonMap.remove(elem);
         }
         layoutLabel->removeWidget(equipmentLabelMap[elem]);
-        equipmentLabelMap[elem]->hide();
-        equipmentLabelMap[elem]->deleteLater();
+        if (equipmentLabelMap[elem] != nullptr) {
+            equipmentLabelMap[elem]->hide();
+            equipmentLabelMap[elem]->deleteLater();
+        }
+        equipmentLabelMap.remove(elem);
 
         equipementsListModel.append(recipe::toCapitalised(elem));
     }
@@ -252,24 +246,31 @@ void c_equipementsView::setEquipmentList(const QSet<QString> equipments) {
     model->setStringList(equipementsListModel);
 
     for (const QString &elem : addList) {
-        equipmentLabelMap[elem] = new QLabel(ui->widgetEquipments);
-        equipmentLabelMap[elem]->setText(recipe::toCapitalised(elem));
-        layoutLabel->insertWidget(int(equipmentLabelMap.count()-1),equipmentLabelMap[elem]);
+        QString key = elem.toLower();
+        equipmentLabelMap[key] = new QLabel(ui->widgetEquipments);
+        equipmentLabelMap[key]->setText(recipe::toCapitalised(key));
+        layoutLabel->addWidget(equipmentLabelMap[key]);
 
-        equipementsListModel.removeOne(recipe::toCapitalised(elem));
+        equipementsListModel.removeOne(recipe::toCapitalised(key));
 
-        if (!equipmentButtonMap.contains(elem)) {
-            equipmentButtonMap[elem] = new QPushButton(recipe::toCapitalised(elem));
-            QFontMetrics metrics =  QFontMetrics(equipmentButtonMap[elem]->font());
-            equipmentButtonMap[elem]->setFixedWidth(metrics.horizontalAdvance(elem) + 10);
-            layoutButton->insertWidget(int(equipmentButtonMap.count()-1),equipmentButtonMap[elem]);
-            QObject::connect(equipmentButtonMap[elem],&QPushButton::clicked,this,&c_equipementsView::removeEquipment);
+        if (!equipmentButtonMap.contains(key)) {
+            equipmentButtonMap[key] = new QPushButton(recipe::toCapitalised(key));
+            QFontMetrics metrics =  QFontMetrics(equipmentButtonMap[key]->font());
+            equipmentButtonMap[key]->setFixedWidth(metrics.horizontalAdvance(key) + 10);
+            layoutButton->insertWidget(int(equipmentButtonMap.count()-1),equipmentButtonMap[key]);
+            QObject::connect(equipmentButtonMap[key],&QPushButton::clicked,this,&c_equipementsView::removeEquipment);
         }
     }
 
-    equipmentList = equipments.values();
+    for (const QString &elem : addList) {
+        equipmentList.push_back(elem.toLower());
+    }
 
     ui->textEdit->setText(equipmentList.join(", "));
+}
+
+QList<QString> c_equipementsView::getEquipmentList() {
+    return equipmentList;
 }
 
 void c_equipementsView::hideTitle(bool hide) {
@@ -287,10 +288,8 @@ void c_equipementsView::hideTitle(bool hide) {
 
 void c_equipementsView::addEquipment(QString _newEquipment) {
     QString newEquipment = _newEquipment.toLower();
-    if (!newEquipment.isEmpty() && !equipmentList.contains(newEquipment) && !equipmentList.contains(recipe::toCapitalised(newEquipment))) {
-        equipmentList.push_back(recipe::toCapitalised(newEquipment));
-        addedEquipment.push_back(equipmentList.last());
-        equipmentButtonMap[newEquipment] = new QPushButton(equipmentList.last());
+    if (!equipmentButtonMap.contains(newEquipment)) {
+        equipmentButtonMap[newEquipment] = new QPushButton(recipe::toCapitalised(newEquipment));
         static_cast<QHBoxLayout*>(ui->widgetEdit->layout())->insertWidget(int(equipmentButtonMap.count())-1,equipmentButtonMap[newEquipment]);
         QFontMetrics metrics =  QFontMetrics(equipmentButtonMap[newEquipment]->font());
         equipmentButtonMap[newEquipment]->setFixedWidth(metrics.horizontalAdvance(ui->newEquipment->text()) + 10);
@@ -318,17 +317,18 @@ void c_equipementsView::addEquipment(QString _newEquipment) {
 
 void c_equipementsView::removeEquipment() {
     QPushButton* sender = static_cast<QPushButton *>(QObject::sender());
-    equipmentButtonMap.remove(sender->text().toLower());
-    equipmentLabelMap.remove(sender->text().toLower());
-    sender->hide();
-    equipmentList.removeOne(sender->text());
-    toDeleteEquipment.push_back(sender->text().toLower());
-    equipementsListModel.push_back(sender->text());
+    QString key = sender->text().toLower();
+
+    ui->widgetEdit->layout()->removeWidget(sender);
+    equipmentButtonMap[key]->hide();
+    equipmentButtonMap[key]->deleteLater();
+    equipmentButtonMap.remove(key);
+
+    equipementsListModel.push_back(recipe::toCapitalised(key));
     model->setStringList(equipementsListModel);
 
-    sender->deleteLater();
 
-    if (equipmentList.size() + addedEquipment.size() - toDeleteEquipment.size() < numberMaxEquipement) {
+    if (equipmentButtonMap.count() < numberMaxEquipement) {
         ui->newEquipment->setDisabled(false);
         ui->widgetEdit->setStyleSheet("QWidget#widgetEdit {"
                                     "  border : 1px solid black;"

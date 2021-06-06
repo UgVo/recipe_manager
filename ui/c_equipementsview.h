@@ -34,6 +34,7 @@ public:
     bool eventFilter(QObject* obj, QEvent* event) override;
 
     void setEquipmentList(const QSet<QString> equipments);
+    QList<QString> getEquipmentList();
     void hideTitle(bool hide);
 
 public slots:
@@ -48,8 +49,7 @@ private:
 
     Ui::c_equipementsView *ui;
     QList<QString> equipmentList;
-    QList<QString> addedEquipment;
-    QList<QString> toDeleteEquipment;
+
     QStringListModel *model;
     QList<QString> equipementsListModel;
     QMap<QString,QLabel *> equipmentLabelMap;
