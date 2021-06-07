@@ -159,7 +159,7 @@ void c_equipementsView::save() {
     for (int i = 0; i < newList.size(); ++i) {
         if (!equipmentLabelMap.contains(newList[i])) {
             equipmentLabelMap[newList[i]] = new QLabel(ui->widgetEquipments);
-            equipmentLabelMap[newList[i]]->setText(recipe::toCapitalised(newList[i]));
+            equipmentLabelMap[newList[i]]->setText(" • "+recipe::toCapitalised(newList[i]));
             static_cast<QHBoxLayout*>(ui->widgetEquipments->layout())->addWidget(equipmentLabelMap[newList[i]]);
         }
     }
@@ -249,7 +249,7 @@ void c_equipementsView::setEquipmentList(const QSet<QString> _equipments) {
     for (const QString &elem : addList) {
         QString key = elem.toLower();
         equipmentLabelMap[key] = new QLabel(ui->widgetEquipments);
-        equipmentLabelMap[key]->setText(recipe::toCapitalised(key));
+        equipmentLabelMap[key]->setText(" • "+recipe::toCapitalised(key));
         layoutLabel->addWidget(equipmentLabelMap[key]);
 
         equipementsListModel.removeOne(recipe::toCapitalised(key));
